@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Search, ShieldCheck, X, ArrowRight, Book, Star, HelpCircle, FileText, Heart } from 'lucide-react';
+import { Search, ShieldCheck, X, ArrowRight, Book, Star, HelpCircle, FileText, Heart, Trophy } from 'lucide-react';
 
 // --- VERİ HAVUZU ---
 import { globalSearchData } from './data/siteData'; 
@@ -53,6 +53,7 @@ function SearchResults({ query, closeSearch }) {
                {result.type === "Makale" && <FileText size={20} />}
                {result.type === "Zikir" && <Star size={20} />}
                {result.type === "Reçete" && <Heart size={20} />}
+               {result.type === "Yarışma" && <Trophy size={20} />}
             </div>
             <div>
               <h4 className="text-sand font-bold text-lg group-hover:text-gold">{result.title}</h4>
@@ -95,17 +96,18 @@ function App() {
                 </Link>
               </div>
 
-              {/* MASAÜSTÜ MENÜ (Link Eklendi) */}
+              {/* MASAÜSTÜ MENÜ */}
               <div className="hidden md:flex items-center space-x-1">
                  <div className="flex items-baseline space-x-1 mr-4">
                   <NavLink to="/" label="Ana Sayfa" />
                   <NavLink to="/zikir" label="Zikirmatik" />
-                  <NavLink to="/manevi-receteler" label="Manevi Reçeteler" /> {/* EKLENDİ */}
+                  <NavLink to="/manevi-receteler" label="Reçeteler" />
                   <NavLink to="/library" label="Kütüphane" />
                   <NavLink to="/14-masum" label="14 Masum" />
                   <NavLink to="/soru-cevap" label="Soru/Cevap" />
-                  <NavLink to="/ilim" label="İlim & Bilim" />
+                  <NavLink to="/ilim" label="İlim" />
                   <NavLink to="/medya" label="Medya" />
+                  <NavLink to="/quiz" label="Yarışma" /> {/* <--- YENİ EKLENDİ */}
                 </div>
                 
                 <button 
@@ -128,7 +130,7 @@ function App() {
             </div>
           </div>
 
-          {/* --- AKTİF ARAMA PANELİ --- */}
+          {/* --- ARAMA PANELİ --- */}
           {isSearchOpen && (
             <div className="absolute top-full left-0 w-full bg-[#162e45] border-b border-gold/20 p-6 shadow-2xl animate-fade-in z-40">
               <div className="max-w-3xl mx-auto flex items-center gap-4 border-b-2 border-gold/30 pb-2">
@@ -136,7 +138,7 @@ function App() {
                 <input 
                   type="text" 
                   autoFocus
-                  placeholder="Aramak istediğiniz kelimeyi yazın (Örn: Ali, Namaz, Nutuk)..." 
+                  placeholder="Aramak istediğiniz kelimeyi yazın..." 
                   className="w-full bg-transparent text-2xl text-sand placeholder-slate-500 border-none outline-none font-sans"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -146,18 +148,19 @@ function App() {
             </div>
           )}
 
-          {/* MOBİL MENÜ (Link Eklendi) */}
+          {/* MOBİL MENÜ */}
           {isMenuOpen && (
             <div className="md:hidden bg-midnight border-t border-gold/20">
               <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                 <MobileNavLink to="/" label="Ana Sayfa" onClick={() => setIsMenuOpen(false)} />
                 <MobileNavLink to="/zikir" label="Zikirmatik" onClick={() => setIsMenuOpen(false)} />
-                <MobileNavLink to="/manevi-receteler" label="Manevi Reçeteler" onClick={() => setIsMenuOpen(false)} /> {/* EKLENDİ */}
+                <MobileNavLink to="/manevi-receteler" label="Manevi Reçeteler" onClick={() => setIsMenuOpen(false)} />
                 <MobileNavLink to="/library" label="Kütüphane" onClick={() => setIsMenuOpen(false)} />
                 <MobileNavLink to="/14-masum" label="14 Masum" onClick={() => setIsMenuOpen(false)} />
                 <MobileNavLink to="/soru-cevap" label="Soru & Cevap" onClick={() => setIsMenuOpen(false)} />
                 <MobileNavLink to="/ilim" label="İlim & Bilim" onClick={() => setIsMenuOpen(false)} />
                 <MobileNavLink to="/medya" label="Medya Merkezi" onClick={() => setIsMenuOpen(false)} />
+                <MobileNavLink to="/quiz" label="Yarışma" onClick={() => setIsMenuOpen(false)} /> {/* <--- YENİ EKLENDİ */}
               </div>
             </div>
           )}
