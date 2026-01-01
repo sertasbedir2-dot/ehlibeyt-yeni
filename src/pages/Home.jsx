@@ -1,3 +1,4 @@
+import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PenTool, Scale, Flower, ArrowRight, BookOpen, Sparkles, Search, Heart, HelpCircle, Sun, Gift, RefreshCw } from 'lucide-react';
@@ -29,12 +30,20 @@ export default function Home() {
         {/* İçerik */}
         <div className="relative z-10 max-w-4xl mx-auto space-y-8 flex flex-col items-center">
           
+          {/* --- NAMAZ VAKTİ WIDGET'I (YENİ EKLENDİ) --- */}
+          {/* Logo'nun hemen üstüne, dikkat çekici ama zarif bir şekilde yerleştirildi */}
+          <div className="mb-4 animate-fade-in w-full max-w-xs mx-auto transform hover:scale-105 transition-transform duration-300 z-20">
+             <PrayerTimesWidget />
+          </div>
+
+          {/* Logo & İkon */}
           <div className="relative w-20 h-20 mx-auto flex items-center justify-center mb-2">
             <div className="absolute inset-0 bg-gold/40 blur-2xl rounded-full animate-pulse-slow"></div>
             <Sparkles size={50} className="text-gold absolute opacity-60 animate-spin-slow" />
             <BookOpen size={40} className="text-gold relative z-10 drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]" />
           </div>
 
+          {/* Ana Başlık */}
           <h1 className="text-5xl md:text-7xl font-sans font-bold text-transparent bg-clip-text bg-gradient-to-r from-sand via-gold to-sand drop-shadow-sm leading-tight">
             OnikiKapı
           </h1>
@@ -98,14 +107,28 @@ export default function Home() {
         />
       </div>
 
-      {/* --- YENİ EKLENEN: İNTERAKTİF GÜNÜN NASİBİ --- */}
+      {/* --- GÜNÜN HİKMETİ --- */}
+      <div className="bg-turquoise-dark p-10 rounded-3xl border border-gold/20 relative overflow-hidden shadow-xl mx-4">
+        <div className="absolute -bottom-10 -right-10 p-4 opacity-10 rotate-45 pointer-events-none">
+           <PenTool size={150} className="text-gold" />
+        </div>
+        <h3 className="text-gold font-bold font-sans mb-6 text-lg uppercase tracking-wider flex items-center gap-2">
+          <Sparkles size={18} /> Günün Hikmeti
+        </h3>
+        <blockquote className="text-2xl md:text-4xl font-serif text-sand italic leading-relaxed relative z-10">
+          "Hiçbir süs, edep kadar güzel değildir."
+        </blockquote>
+        <p className="text-right text-lg text-turquoise-light mt-6 font-bold relative z-10">— Hz. Ali (a.s)</p>
+      </div>
+
+      {/* --- İNTERAKTİF GÜNÜN NASİBİ --- */}
       <GununNasibi />
 
     </div>
   );
 }
 
-// --- GÜNÜN NASİBİ BİLEŞENİ (YENİ) ---
+// --- GÜNÜN NASİBİ BİLEŞENİ ---
 function GununNasibi() {
   const [nasip, setNasip] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -127,7 +150,6 @@ function GununNasibi() {
   const nasipCek = () => {
     setLoading(true);
     setNasip(null);
-    // Rastgelelik ve Animasyon Hissi
     setTimeout(() => {
       const randomIndex = Math.floor(Math.random() * nasipler.length);
       setNasip(nasipler[randomIndex]);
