@@ -1,145 +1,121 @@
 import React, { useState } from 'react';
-import { MessageSquare, Send, User, HelpCircle, CheckCircle, Info, ChevronDown, ChevronUp } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
+import { HelpCircle, ExternalLink, Search, AlertCircle, ChevronDown, ChevronUp, BookOpen } from 'lucide-react';
 
 export default function SoruCevap() {
-  const [formSent, setFormSent] = useState(false);
-  const [openFaq, setOpenFaq] = useState(null);
+  const [openIndex, setOpenIndex] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Örnek Cevaplanmış Sorular (İleride sorular.js gibi ayrı bir dosyaya alınabilir)
-  const faqData = [
+  // Fetva DEĞİL, Genel Kültür ve İtikad Soruları
+  const faqs = [
     {
       id: 1,
-      soru: "Ehlibeyt sevgisinin imandaki yeri nedir?",
-      cevap: "Ehlibeyt sevgisi, Peygamber efendimizin emanetine sahip çıkmak ve hidayet yolunda yürümektir. Hadis-i şerifte buyurulduğu üzere: 'Sizin aranızda iki ağır emanet bırakıyorum; biri Allah'ın kitabı, diğeri ise itretim olan Ehlibeytimdir.'",
-      yazan: "Talip_01"
+      question: "Neden mühür (Kerbela toprağı) üzerine secde ediyoruz?",
+      answer: "Ehlibeyt fıkhına göre secde, üzerine giyilmeyen ve yenilmeyen, yer cinsinden (toprak, taş, hasır) bir cisim üzerine yapılmalıdır. En faziletli toprak Hz. Hüseyin'in (a.s) şehit edildiği Kerbela toprağı olduğu için, manevi bağ kurmak adına bu tercih edilir. Bu bir şirk değil, Allah'a en alçakgönüllü yakarış biçimidir."
     },
     {
       id: 2,
-      soru: "Zikir çekmenin manevi kalp üzerindeki etkisi nasıldır?",
-      cevap: "Zikir, paslanmış olan kalbin cilasıdır. 'Kalpler ancak Allah'ı anmakla huzur bulur.' (Ra'd, 28) ayeti mucibince, düzenli zikir kalbi dünya kirlerinden arındırır.",
-      yazan: "Derviş_Yolcu"
+      question: "Gadir-i Hum olayı nedir?",
+      answer: "Hicretin 10. yılında Veda Haccı dönüşünde Hz. Muhammed'in (s.a.a), Allah'ın emriyle Hz. Ali'yi (a.s) kendisinden sonraki veli ve halife olarak tayin ettiği tarihi olaydır. 'Ben kimin mevlası isem, Ali de onun mevlasıdır' hadisi burada söylenmiştir."
+    },
+    {
+      id: 3,
+      question: "Ehlibeyt kimlerdir?",
+      answer: "Ehlibeyt, Hz. Muhammed (s.a.a), kızı Hz. Fatıma (s.a), damadı Hz. Ali (a.s) ve torunları Hz. Hasan (a.s) ile Hz. Hüseyin (a.s) ve onların soyundan gelen 9 Masum İmam'ı kapsayan 'Ev Halkı'dır. Kur'an-ı Kerim'de Ahzab Suresi 33. ayet (Tathir Ayeti) ile tertemiz oldukları bildirilmiştir."
+    },
+    {
+      id: 4,
+      question: "Taklit (Merceiyet) neden gereklidir?",
+      answer: "Dini konularda uzman olmayan bir kişinin (Mukallid), ömrünü ilme adamış bir müctehidin (Merce-i Taklid) fetvalarına uymasına taklit denir. Tıpkı hastalanınca doktora gitmek gibi, fıkhi konularda da uzmana başvurmak akılcı bir yoldur."
     }
   ];
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setFormSent(true);
-    // İleride buraya form verilerini bir e-posta servisine gönderme kodu eklenebilir
-  };
+  // Resmi Fetva Makamları Linkleri
+  const authorities = [
+    { name: "Ayetullah Uzma Sistani", url: "https://www.sistani.org/turkish/", color: "border-spiritual" },
+    { name: "Ayetullah Uzma Hamaney", url: "https://www.leader.ir/tr", color: "border-gold" }
+  ];
 
   return (
-    <div className="space-y-12 animate-fade-in text-[#F4EFE0] pb-20">
-      
-      {/* BAŞLIK PANELİ */}
-      <div className="bg-[#162e45] p-10 rounded-3xl border border-[#C5A059]/20 text-center relative overflow-hidden">
-        <HelpCircle size={150} className="absolute -top-10 -right-10 opacity-5 text-[#C5A059]" />
-        <h1 className="text-4xl font-serif font-bold text-[#C5A059] mb-4 uppercase tracking-wider">İlim ve Hikmet Kapısı</h1>
-        <p className="text-gray-400 max-w-2xl mx-auto italic leading-relaxed">
-          "Bilmiyorsanız zikir ehline sorun." (Nahl, 43). Aklınıza takılan manevi, ilmi veya tarihi soruları çekinmeden bize yöneltebilirsiniz.
+    <div className="space-y-8 animate-fade-in pb-12">
+      <Helmet>
+        <title>Soru & Cevap | Ehlibeyt Yolu</title>
+        <meta name="description" content="Ehlibeyt inancı hakkında sık sorulan itikadi ve tarihi soruların cevapları." />
+      </Helmet>
+
+      {/* --- HERO BÖLÜMÜ --- */}
+      <div className="text-center space-y-4 py-8">
+        <h1 className="text-3xl md:text-5xl font-sans font-bold text-gold">Merak Ettikleriniz</h1>
+        <p className="text-slate-300 max-w-2xl mx-auto font-serif text-lg">
+          İtikadi, tarihi ve kültürel konularda sıkça sorulan soruların cevapları.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-        
-        {/* SOL: SORU GÖNDERME FORMU */}
-        <div className="bg-[#162e45] p-8 rounded-3xl border border-[#C5A059]/10 shadow-2xl relative">
-          <h2 className="text-2xl font-bold mb-8 flex items-center gap-3 border-b border-[#C5A059]/20 pb-4">
-            <MessageSquare className="text-[#C5A059]" /> Soru Gönder
-          </h2>
-          
-          {formSent ? (
-            <div className="flex flex-col items-center justify-center py-12 space-y-6 animate-fade-in text-center">
-              <div className="bg-green-500/20 p-4 rounded-full">
-                <CheckCircle size={50} className="text-green-500" />
-              </div>
-              <div>
-                <p className="font-bold text-2xl text-white mb-2">Selamun Aleyküm!</p>
-                <p className="text-gray-400 text-sm">Sorunuz ilmî heyetimize ulaşmıştır. Cevaplandığında bu sayfada anonim olarak yayınlanacaktır.</p>
-              </div>
-              <button 
-                onClick={() => setFormSent(false)} 
-                className="text-[#C5A059] font-bold underline decoration-dotted underline-offset-4 hover:text-white transition"
-              >
-                Yeni Bir Soru Daha Sor
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="relative group">
-                <User size={18} className="absolute left-4 top-4 text-gray-500 group-focus-within:text-[#C5A059] transition" />
-                <input 
-                  type="text" 
-                  required
-                  placeholder="İsminiz veya Mahlasınız" 
-                  className="w-full bg-[#0F2C45] border border-[#4A5D75] rounded-2xl p-4 pl-12 focus:border-[#C5A059] outline-none transition text-sm"
-                />
-              </div>
-              <div className="relative">
-                <textarea 
-                  required
-                  rows="6"
-                  placeholder="Sorunuzu detaylıca buraya yazınız..."
-                  className="w-full bg-[#0F2C45] border border-[#4A5D75] rounded-2xl p-4 focus:border-[#C5A059] outline-none transition resize-none text-sm leading-relaxed"
-                ></textarea>
-              </div>
-              <button className="w-full bg-[#C5A059] text-[#0F2C45] font-bold py-4 rounded-2xl hover:bg-white transition flex items-center justify-center gap-2 shadow-lg transform active:scale-95">
-                <Send size={18} /> Soruyu İlme Arz Et
-              </button>
-              <p className="text-[10px] text-gray-500 text-center italic">
-                * Sorularınız gizlilik prensibi gereği kişisel bilgileriniz olmadan yayınlanır.
-              </p>
-            </form>
-          )}
+      {/* --- YASAL/ŞERİ UYARI (DISCLAIMER) --- */}
+      <div className="bg-primary-light border-l-4 border-clay p-6 rounded-r-xl mx-auto max-w-4xl shadow-lg flex gap-4 items-start">
+        <AlertCircle className="text-clay flex-shrink-0 mt-1" size={24} />
+        <div className="space-y-2">
+          <h3 className="text-clay font-bold font-sans text-lg">Önemli Hatırlatma</h3>
+          <p className="text-sm text-slate-300 leading-relaxed">
+            Bu platform bir <strong>Fetva Makamı</strong> değildir. Burada yer alan bilgiler sadece genel kültür, tarih ve inanç esaslarına (Akaid) yöneliktir. 
+            <br/><br/>
+            Helal, haram, namaz, oruç, ticaret gibi fıkhi (şeri) sorularınız ve kişisel durumlarınız için lütfen taklit ettiğiniz <strong>Merce-i Taklid</strong>'in resmi ofislerine veya temsilcilerine başvurunuz.
+          </p>
         </div>
-
-        {/* SAĞ: CEVAPLANMIŞ SORULAR (FAQ) */}
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold mb-8 flex items-center gap-3 pl-2 border-l-4 border-[#C5A059]">
-             Hikmet Havuzu
-          </h2>
-          
-          <div className="space-y-4">
-            {faqData.map((item, index) => (
-              <div 
-                key={item.id} 
-                className="bg-[#162e45] rounded-2xl border border-[#4A5D75]/20 overflow-hidden transition-all duration-300 shadow-lg"
-              >
-                <button 
-                  onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                  className="w-full flex items-center justify-between p-5 text-left hover:bg-[#0F2C45] transition"
-                >
-                  <div className="flex gap-4 items-center">
-                    <HelpCircle size={20} className="text-[#C5A059] shrink-0" />
-                    <span className="font-bold text-sm leading-tight">{item.soru}</span>
-                  </div>
-                  {openFaq === index ? <ChevronUp size={20} className="text-gray-500" /> : <ChevronDown size={20} className="text-gray-500" />}
-                </button>
-                
-                {openFaq === index && (
-                  <div className="p-6 bg-[#0F2C45]/50 border-t border-[#4A5D75]/20 animate-slide-down">
-                    <p className="text-sm text-gray-400 leading-relaxed mb-4 italic">
-                      {item.cevap}
-                    </p>
-                    <div className="flex justify-between items-center text-[10px] text-gray-600 uppercase tracking-widest border-t border-white/5 pt-3">
-                      <span>Cevaplayan: Heyet-i İrfan</span>
-                      <span>Soran: {item.yazan}</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Manevi Hatırlatıcı */}
-          <div className="mt-8 p-6 bg-gradient-to-br from-[#162e45] to-[#0F2C45] rounded-3xl border border-[#C5A059]/10 relative overflow-hidden group">
-             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition"><Info size={60}/></div>
-             <p className="text-xs text-gray-400 italic leading-relaxed">
-               "İlim bir hazinedir, anahtarı ise sormaktır. Sorun ki Allah size merhamet etsin." (Hz. Muhammed s.a.a)
-             </p>
-          </div>
-        </div>
-
       </div>
+
+      {/* --- MERCEİYET YÖNLENDİRME KARTLARI --- */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+        {authorities.map((auth, idx) => (
+          <a 
+            key={idx} 
+            href={auth.url} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className={`flex items-center justify-between p-4 bg-midnight rounded-xl border ${auth.color} hover:bg-primary-light transition group`}
+          >
+            <div className="flex items-center gap-3">
+              <BookOpen size={20} className="text-slate-400 group-hover:text-gold transition-colors" />
+              <span className="font-bold text-sand group-hover:text-white transition-colors">{auth.name} Resmi Sitesi</span>
+            </div>
+            <ExternalLink size={16} className="text-slate-500" />
+          </a>
+        ))}
+      </div>
+
+      {/* --- SIK SORULAN SORULAR (AKORDİYON) --- */}
+      <div className="max-w-3xl mx-auto mt-12 space-y-4">
+        <div className="relative mb-8">
+             <input 
+                type="text" 
+                placeholder="Konu ara (Örn: Gadir-i Hum, Secde...)" 
+                className="w-full bg-primary-light border border-gold/20 rounded-xl py-3 px-12 text-sand placeholder-slate-500 focus:outline-none focus:border-gold/50 transition"
+                onChange={(e) => setSearchTerm(e.target.value)}
+             />
+             <Search className="absolute left-4 top-3.5 text-slate-500" size={20} />
+        </div>
+
+        {faqs
+          .filter(faq => faq.question.toLowerCase().includes(searchTerm.toLowerCase()) || faq.answer.toLowerCase().includes(searchTerm.toLowerCase()))
+          .map((faq, index) => (
+          <div key={faq.id} className="bg-primary-light border border-white/5 rounded-2xl overflow-hidden transition-all duration-300">
+            <button 
+              onClick={() => setOpenIndex(openIndex === index ? null : index)}
+              className="w-full flex items-center justify-between p-5 text-left hover:bg-white/5 transition"
+            >
+              <span className="font-bold text-lg text-sand font-sans pr-4">{faq.question}</span>
+              {openIndex === index ? <ChevronUp className="text-gold" /> : <ChevronDown className="text-slate-500" />}
+            </button>
+            
+            {openIndex === index && (
+              <div className="p-5 pt-0 text-slate-300 leading-relaxed font-serif border-t border-white/5 animate-fade-in bg-midnight/30">
+                <div className="mt-4">{faq.answer}</div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
     </div>
   );
 }
