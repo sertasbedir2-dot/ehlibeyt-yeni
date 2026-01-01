@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Search, ShieldCheck, X, ArrowRight, Book, Star, HelpCircle, FileText, Heart, Trophy } from 'lucide-react';
+import { Search, ShieldCheck, X, ArrowRight, Book, Star, HelpCircle, FileText, Heart, Trophy, DoorOpen } from 'lucide-react'; // DoorOpen Eklendi
 
 // --- VERİ HAVUZU ---
 import { globalSearchData } from './data/siteData'; 
@@ -81,8 +81,8 @@ function App() {
       <div className="min-h-screen w-full bg-midnight text-sand flex flex-col font-serif relative">
         
         <Helmet>
-          <title>Ehlibeyt Yolu | İlim ve Hikmet Kapısı</title>
-          <meta name="description" content="Ehlibeyt'in nurlu yolunda ilim, hikmet ve maneviyat durağı." />
+          <title>OnikiKapı | İlim Şehrinin Kapıları</title>
+          <meta name="description" content="OnikiKapı: Ehlibeyt ilim şehrine açılan maneviyat, bilgi ve hikmet kapısı." />
         </Helmet>
 
         {/* --- NAVBAR --- */}
@@ -90,9 +90,20 @@ function App() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-20">
               
-              <div className="flex-shrink-0 flex items-center gap-3">
-                <Link to="/" className="text-2xl font-sans font-bold text-gold tracking-wide hover:text-spiritual-light transition-colors drop-shadow-md">
-                  Ehlibeyt Yolu
+              {/* YENİ LOGO ALANI */}
+              <div className="flex-shrink-0 flex items-center gap-2 group cursor-pointer">
+                <Link to="/" className="flex items-center gap-2">
+                  <div className="p-2 border border-gold/30 rounded-lg group-hover:bg-gold/10 transition-colors">
+                     <DoorOpen size={28} className="text-gold" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-2xl font-sans font-bold text-gold tracking-wide drop-shadow-md leading-none">
+                      OnikiKapı
+                    </span>
+                    <span className="text-[10px] text-spiritual-light tracking-[0.2em] uppercase font-bold">
+                      İlim Şehri
+                    </span>
+                  </div>
                 </Link>
               </div>
 
@@ -107,7 +118,7 @@ function App() {
                   <NavLink to="/soru-cevap" label="Soru/Cevap" />
                   <NavLink to="/ilim" label="İlim" />
                   <NavLink to="/medya" label="Medya" />
-                  <NavLink to="/quiz" label="Yarışma" /> {/* <--- YENİ EKLENDİ */}
+                  <NavLink to="/quiz" label="Yarışma" />
                 </div>
                 
                 <button 
@@ -138,7 +149,7 @@ function App() {
                 <input 
                   type="text" 
                   autoFocus
-                  placeholder="Aramak istediğiniz kelimeyi yazın..." 
+                  placeholder="OnikiKapı içinde ara..." 
                   className="w-full bg-transparent text-2xl text-sand placeholder-slate-500 border-none outline-none font-sans"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -160,7 +171,7 @@ function App() {
                 <MobileNavLink to="/soru-cevap" label="Soru & Cevap" onClick={() => setIsMenuOpen(false)} />
                 <MobileNavLink to="/ilim" label="İlim & Bilim" onClick={() => setIsMenuOpen(false)} />
                 <MobileNavLink to="/medya" label="Medya Merkezi" onClick={() => setIsMenuOpen(false)} />
-                <MobileNavLink to="/quiz" label="Yarışma" onClick={() => setIsMenuOpen(false)} /> {/* <--- YENİ EKLENDİ */}
+                <MobileNavLink to="/quiz" label="Yarışma" onClick={() => setIsMenuOpen(false)} />
               </div>
             </div>
           )}
@@ -189,15 +200,15 @@ function App() {
           <div className="absolute inset-0 bg-black/20 pointer-events-none"></div>
           <div className="max-w-7xl mx-auto px-4 text-center space-y-4 relative z-10">
             <div>
-              <span className="text-xl font-sans font-bold text-gold block mb-1">Ehlibeyt Yolu</span>
-              <span className="text-xs text-slate tracking-widest uppercase">İlim ve Hikmet Kapısı</span>
+              <span className="text-xl font-sans font-bold text-gold block mb-1">OnikiKapı</span>
+              <span className="text-xs text-slate tracking-widest uppercase">Hakikate Açılan Kapı</span>
             </div>
             <div className="flex items-center justify-center gap-2 text-spiritual-light bg-spiritual-dim/10 py-2 px-4 rounded-full mx-auto w-fit border border-spiritual/20">
               <ShieldCheck size={16} />
               <span className="text-xs font-bold">Reklamsız & Takipçisiz Güvenli Alan</span>
             </div>
             <p className="text-slate text-xs max-w-2xl mx-auto leading-relaxed opacity-70">
-              Bu platformda kullanıcı verileri asla toplanmaz. &copy; 2025 Ehlibeyt Yolu.
+              Bu platformda kullanıcı verileri asla toplanmaz. &copy; 2025 OnikiKapı.
             </p>
           </div>
         </footer>
