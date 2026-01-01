@@ -8,9 +8,9 @@ export default function Zikir() {
   const [target, setTarget] = useState(100);
   const [label, setLabel] = useState("Salavat-ı Şerife");
   const [isSoundOn, setIsSoundOn] = useState(true);
-  const [zehraMode, setZehraMode] = useState(false); // Zehra Modu Aktif mi?
-  const [zehraStage, setZehraStage] = useState(0);   // 0: Allahu Ekber, 1: Elhamdulillah, 2: Subhanallah
-  const [showSuccess, setShowSuccess] = useState(false); // Bitiş Animasyonu
+  const [zehraMode, setZehraMode] = useState(false);
+  const [zehraStage, setZehraStage] = useState(0);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   // --- ZEHRA MODU VERİLERİ ---
   const zehraSteps = [
@@ -22,7 +22,7 @@ export default function Zikir() {
   // --- ZİKİR LİSTESİ ---
   const zikirList = [
     { label: "Seçiniz...", value: "default", target: 100 },
-    { label: "Tesbihat-ı Zehra (Özel Mod)", value: "zehra", target: 34 }, // Akıllı Mod
+    { label: "Tesbihat-ı Zehra (Özel Mod)", value: "zehra", target: 34 },
     { label: "Salavat-ı Şerife", value: "salavat", target: 100 },
     { label: "La ilahe illallah", value: "tehvid", target: 100 },
     { label: "Estağfirullah", value: "istigfar", target: 100 },
@@ -32,21 +32,15 @@ export default function Zikir() {
 
   // --- MANTIK MOTORU ---
   const handleIncrement = () => {
-    // 3. UX ENHANCEMENT: HAPTICS (Titreşim)
     if (navigator.vibrate) navigator.vibrate(50);
-
-    // Ses Efekti (Opsiyonel)
     if (isSoundOn) {
-      const audio = new Audio('/assets/click.mp3'); // Ses dosyası varsa
-      // audio.play().catch(e => console.log("Ses çalınamadı"));
+      // Ses efekti (varsa)
     }
 
     const nextCount = count + 1;
 
-    // 2. LOGIC UPGRADE: TASBIH-I ZEHRA MODE
     if (zehraMode) {
       if (nextCount === target) {
-        // Hedefe ulaşıldı, bir sonraki aşamaya geç
         if (zehraStage < 2) {
           setTimeout(() => {
             const nextStage = zehraStage + 1;
@@ -54,9 +48,8 @@ export default function Zikir() {
             setCount(0);
             setLabel(zehraSteps[nextStage].label);
             setTarget(zehraSteps[nextStage].target);
-          }, 300); // Kullanıcı son sayıyı görsün diye minik gecikme
+          }, 300);
         } else {
-          // Bitti
           setCount(target);
           setShowSuccess(true);
         }
@@ -64,9 +57,8 @@ export default function Zikir() {
         setCount(nextCount);
       }
     } else {
-      // Normal Mod
       if (nextCount > target) {
-        setCount(1); // Başa dön
+        setCount(1);
       } else {
         setCount(nextCount);
       }
@@ -102,18 +94,28 @@ export default function Zikir() {
     }
   };
 
-  // --- GÖRSEL HESAPLAMALAR (Progress Bar) ---
   const radius = 120;
   const circumference = 2 * Math.PI * radius;
   const progress = zehraMode && showSuccess ? 100 : (count / target) * 100;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[85vh] animate-fade-in relative px-4">
+    <div className="flex flex-col items-center justify-center min-h-[85vh] animate-fade-in relative px-4 py-8">
       <Helmet>
-        <title>Zikirmatik | OnikiKapı</title>
-        <meta name="description" content="Akıllı zikirmatik ile günlük tesbihatınızı takip edin. Tesbihat-ı Zehra modu ile otomatik geçiş özelliği." />
+        {/* GÜNCELLENDİ: Sayfa Başlığı */}
+        <title>Tesbihat ve Esmalar | OnikiKapı</title>
+        <meta name="description" content="Akıllı tesbihat modülü ile manevi odağınızı koruyun." />
       </Helmet>
+
+      {/* YENİ: SAYFA BAŞLIĞI (H1) */}
+      <div className="text-center mb-8">
+        <h1 className="text-3xl md:text-5xl font-sans font-bold text-transparent bg-clip-text bg-gradient-to-r from-sand via-gold to-sand mb-2">
+          Tesbihat ve Esmalar
+        </h1>
+        <p className="text-slate-300 font-serif text-lg">
+          Kalbinizi zikirle cilalayın.
+        </p>
+      </div>
 
       {/* --- BAŞARILI BİTİŞ OVERLAY --- */}
       {showSuccess && (
@@ -131,7 +133,7 @@ export default function Zikir() {
         </div>
       )}
 
-      {/* --- DROPDOWN (1. ACCESSIBILITY FIX) --- */}
+      {/* --- DROPDOWN --- */}
       <div className="mb-10 w-full max-w-xs relative">
         <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gold">
           <ChevronDown size={20} />
@@ -148,49 +150,31 @@ export default function Zikir() {
         </select>
       </div>
 
-      {/* --- ZİKİRMATİK GÖVDESİ --- */}
+      {/* --- TESBİHAT GÖVDESİ --- */}
       <div className="relative group">
         
-        {/* Dış Halka Efekti (Pırıltı) */}
         <div className="absolute -inset-4 bg-gold/10 rounded-full blur-xl group-hover:bg-gold/20 transition-all duration-500"></div>
 
         <div className="relative w-80 h-80 bg-[#162e45] rounded-full shadow-2xl border-4 border-gold/10 flex items-center justify-center">
           
-          {/* 4. VISUAL POLISH: BEAD EFFECT (Dotted Progress) */}
+          {/* Progress Bar (Boncuklar) */}
           <svg className="absolute inset-0 w-full h-full -rotate-90 transform" viewBox="0 0 280 280">
-            {/* Arka Plan Halkası (Silik Boncuklar) */}
-            <circle
-              cx="140"
-              cy="140"
-              r={radius}
-              fill="transparent"
-              stroke="#0f172a"
-              strokeWidth="12"
-              strokeDasharray="4 8" // Boncuk efekti
-            />
-            {/* İlerleme Halkası (Altın Boncuklar) */}
-            <circle
-              cx="140"
-              cy="140"
-              r={radius}
-              fill="transparent"
-              stroke="#FFD700"
-              strokeWidth="12"
-              strokeDasharray="4 8" // Boncuk efekti
-              strokeDashoffset={strokeDashoffset}
-              strokeLinecap="round"
-              className="transition-all duration-300 ease-out drop-shadow-[0_0_8px_rgba(255,215,0,0.6)]"
-            />
+            <circle cx="140" cy="140" r={radius} fill="transparent" stroke="#0f172a" strokeWidth="12" strokeDasharray="4 8" />
+            <circle cx="140" cy="140" r={radius} fill="transparent" stroke="#FFD700" strokeWidth="12" strokeDasharray="4 8" strokeDashoffset={strokeDashoffset} strokeLinecap="round" className="transition-all duration-300 ease-out drop-shadow-[0_0_8px_rgba(255,215,0,0.6)]" />
           </svg>
 
           {/* Orta Bilgi Alanı */}
           <div className="z-10 text-center space-y-2">
-            <p className="text-turquoise-light text-sm font-bold tracking-widest uppercase">
-              {zehraMode ? `Adım ${zehraStage + 1}/3` : "Hedef: " + target}
+            {/* GÜNCELLENDİ: MOTİVASYONEL ALT METİN */}
+            <p className="text-turquoise-light text-xs font-bold tracking-[0.2em] uppercase">
+              {zehraMode ? `Adım ${zehraStage + 1}/3` : "Ruhun Nefesi"}
             </p>
+            
             <h1 className="text-7xl font-sans font-bold text-sand tabular-nums drop-shadow-lg">
               {count}
             </h1>
+            
+            {/* Zikir İsmi */}
             <p className="text-gold font-serif text-xl max-w-[200px] mx-auto leading-tight">
               {label}
             </p>
@@ -198,11 +182,10 @@ export default function Zikir() {
 
         </div>
 
-        {/* Buton - Tıklanabilir Alan (Görünmez ama tüm daireyi kaplar) */}
         <button 
           onClick={handleIncrement}
           className="absolute inset-0 w-full h-full rounded-full cursor-pointer z-20 focus:outline-none active:scale-95 transition-transform duration-100"
-          aria-label="Zikir Çek"
+          aria-label="Tesbihat Çek"
         ></button>
       </div>
 

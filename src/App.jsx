@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Search, ShieldCheck, X, ArrowRight, Book, Star, HelpCircle, FileText, Heart, Trophy, BookOpen, Sparkles } from 'lucide-react';
+import { Search, ShieldCheck, X, ArrowRight, Book, Star, HelpCircle, FileText, Heart, Trophy, BookOpen, Sparkles, DoorOpen } from 'lucide-react';
 
 // --- VERİ HAVUZU ---
 import { globalSearchData } from './data/siteData'; 
@@ -24,12 +24,18 @@ import KitapOku from './pages/KitapOku';
 // Arama Sonuçları Bileşeni (Renkler Turkuaz uyumlu güncellendi)
 function SearchResults({ query, closeSearch }) {
   const navigate = useNavigate();
+  
   if (!query) return null;
+
   const results = globalSearchData.filter(item => 
     item.title.toLowerCase().includes(query.toLowerCase()) || 
     item.category.toLowerCase().includes(query.toLowerCase())
   );
-  const handleNavigate = (url) => { navigate(url); closeSearch(); };
+
+  const handleNavigate = (url) => {
+    navigate(url);
+    closeSearch();
+  };
 
   return (
     <div className="max-w-3xl mx-auto mt-4 bg-turquoise-dark border border-gold/20 rounded-xl overflow-hidden shadow-2xl max-h-96 overflow-y-auto custom-scrollbar">
@@ -38,7 +44,11 @@ function SearchResults({ query, closeSearch }) {
           <div key={index} onClick={() => handleNavigate(result.url)} className="p-4 border-b border-white/5 hover:bg-gold/10 cursor-pointer flex items-center gap-4 transition-colors group">
             <div className="p-2 bg-turquoise rounded-lg text-gold group-hover:scale-110 transition-transform">
                {result.type === "Kitap" && <Book size={20} />}
-               {/* ... diğer ikonlar aynı ... */}
+               {result.type === "14 Masum" && <Star size={20} />}
+               {result.type === "Soru/Cevap" && <HelpCircle size={20} />}
+               {result.type === "Makale" && <FileText size={20} />}
+               {result.type === "Zikir" && <Star size={20} />}
+               {result.type === "Reçete" && <Heart size={20} />}
                {result.type === "Yarışma" && <Trophy size={20} />}
             </div>
             <div>
@@ -101,7 +111,7 @@ function App() {
               <div className="hidden md:flex items-center space-x-1">
                  <div className="flex items-baseline space-x-1 mr-4">
                   <NavLink to="/" label="Ana Sayfa" />
-                  <NavLink to="/zikir" label="Zikirmatik" />
+                  <NavLink to="/zikir" label="Tesbihat" /> {/* GÜNCELLENDİ: Tesbihat */}
                   <NavLink to="/manevi-receteler" label="Reçeteler" />
                   <NavLink to="/library" label="Kütüphane" />
                   <NavLink to="/14-masum" label="14 Masum" />
@@ -149,12 +159,18 @@ function App() {
             </div>
           )}
 
-          {/* MOBİL MENÜ */}
+          {/* MOBİL MENÜ (TÜM LİNKLER EKLENDİ) */}
           {isMenuOpen && (
             <div className="md:hidden bg-turquoise-dark border-t border-gold/20">
               <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                 <MobileNavLink to="/" label="Ana Sayfa" onClick={() => setIsMenuOpen(false)} />
-                {/* ... diğer mobil linkler ... */}
+                <MobileNavLink to="/zikir" label="Tesbihat" onClick={() => setIsMenuOpen(false)} /> {/* GÜNCELLENDİ */}
+                <MobileNavLink to="/manevi-receteler" label="Reçeteler" onClick={() => setIsMenuOpen(false)} />
+                <MobileNavLink to="/library" label="Kütüphane" onClick={() => setIsMenuOpen(false)} />
+                <MobileNavLink to="/14-masum" label="14 Masum" onClick={() => setIsMenuOpen(false)} />
+                <MobileNavLink to="/soru-cevap" label="Soru/Cevap" onClick={() => setIsMenuOpen(false)} />
+                <MobileNavLink to="/ilim" label="İlim" onClick={() => setIsMenuOpen(false)} />
+                <MobileNavLink to="/medya" label="Medya" onClick={() => setIsMenuOpen(false)} />
                 <MobileNavLink to="/quiz" label="Yarışma" onClick={() => setIsMenuOpen(false)} />
               </div>
             </div>

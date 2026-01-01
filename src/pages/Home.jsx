@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { PenTool, Scale, Flower, ArrowRight, BookOpen, Sparkles, Search, Heart, HelpCircle, Sun } from 'lucide-react';
+import { PenTool, Scale, Flower, ArrowRight, BookOpen, Sparkles, Search, Heart, HelpCircle, Sun, Gift, RefreshCw } from 'lucide-react';
 
 export default function Home() {
   const [heroSearch, setHeroSearch] = useState("");
@@ -9,10 +9,6 @@ export default function Home() {
   const handleSearch = (e) => {
     e.preventDefault();
     if (heroSearch.trim()) {
-      // Arama sonuçlarını göstermek için global arama mekanizmasını tetikleyebilir 
-      // veya kullanıcıyı arama sayfasına yönlendirebiliriz.
-      // Şimdilik konsola yazalım, arama butonu işlevini Navbar'daki mekanizma üstleniyor.
-      console.log("Aranan:", heroSearch);
       alert("Detaylı arama sonuçları için üst menüdeki büyüteci kullanabilirsiniz.");
     }
   };
@@ -23,20 +19,16 @@ export default function Home() {
       {/* --- HERO (GİRİŞ) BÖLÜMÜ --- */}
       <div className="relative py-20 px-6 rounded-3xl overflow-hidden text-center border border-gold/20 shadow-2xl group min-h-[600px] flex flex-col justify-center">
         
-        {/* 1. Arka Plan Görseli */}
+        {/* Arka Plan ve Kontrast */}
         <div 
           className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105"
           style={{ backgroundImage: `url('https://images.unsplash.com/photo-1518837695005-2083093ee35b?q=80&w=2000&auto=format&fit=crop')` }}
         ></div>
-        
-        {/* 2. KONTRAST DÜZELTMESİ (Gradient Overlay) */}
-        {/* Talimattaki CSS: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 50%, rgba(10, 26, 47, 1) 100%) */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-turquoise-dark mix-blend-multiply"></div>
 
-        {/* İçerik Katmanı */}
+        {/* İçerik */}
         <div className="relative z-10 max-w-4xl mx-auto space-y-8 flex flex-col items-center">
           
-          {/* Logo & Başlık */}
           <div className="relative w-20 h-20 mx-auto flex items-center justify-center mb-2">
             <div className="absolute inset-0 bg-gold/40 blur-2xl rounded-full animate-pulse-slow"></div>
             <Sparkles size={50} className="text-gold absolute opacity-60 animate-spin-slow" />
@@ -50,7 +42,7 @@ export default function Home() {
             "İlim bir noktadır, onu cahiller çoğaltmıştır."
           </p>
           
-          {/* 3. SEARCH BAR INTEGRATION (High Priority) */}
+          {/* Arama Çubuğu */}
           <form onSubmit={handleSearch} className="w-full max-w-2xl relative mt-4 group/search">
             <div className="relative flex items-center">
               <input 
@@ -66,7 +58,7 @@ export default function Home() {
             </div>
           </form>
 
-          {/* 4. MOOD SELECTOR (Interactive Component) */}
+          {/* Ruh Hali Seçici */}
           <div className="w-full max-w-3xl mt-6">
             <p className="text-sm text-turquoise-light uppercase tracking-widest font-bold mb-4">Bugün nasılsın?</p>
             <div className="flex flex-wrap justify-center gap-3">
@@ -80,9 +72,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* --- KARTLAR (Typography & Card Adjustment) --- */}
+      {/* --- KARTLAR --- */}
       <div className="grid md:grid-cols-3 gap-8 relative px-4">
-        {/* Arka Plan Süsü */}
         <div className="absolute inset-0 flex justify-center items-center opacity-5 pointer-events-none">
            <Flower size={300} className="text-turquoise-light rotate-12" />
         </div>
@@ -107,28 +98,94 @@ export default function Home() {
         />
       </div>
 
-      {/* --- GÜNÜN HİKMETİ --- */}
-      <div className="bg-turquoise-dark p-10 rounded-3xl border border-gold/20 relative overflow-hidden shadow-xl mx-4">
-        <div className="absolute -bottom-10 -right-10 p-4 opacity-10 rotate-45 pointer-events-none">
-           <PenTool size={150} className="text-gold" />
-        </div>
-        <h3 className="text-gold font-bold font-sans mb-6 text-lg uppercase tracking-wider flex items-center gap-2">
-          <Sparkles size={18} /> Günün Hikmeti
-        </h3>
-        {/* TYPOGRAPHY FIX: Serif font (Amiri/Cinzel) kullanımı */}
-        <blockquote className="text-2xl md:text-4xl font-serif text-sand italic leading-relaxed relative z-10">
-          "Hiçbir süs, edep kadar güzel değildir."
-        </blockquote>
-        <p className="text-right text-lg text-turquoise-light mt-6 font-bold relative z-10">— Hz. Ali (a.s)</p>
-      </div>
+      {/* --- YENİ EKLENEN: İNTERAKTİF GÜNÜN NASİBİ --- */}
+      <GununNasibi />
 
     </div>
   );
 }
 
-// --- ALT BİLEŞENLER ---
+// --- GÜNÜN NASİBİ BİLEŞENİ (YENİ) ---
+function GununNasibi() {
+  const [nasip, setNasip] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-// Mood Selector Chip Component
+  // Nasip Havuzu
+  const nasipler = [
+    { text: "İnsanlar uykudadır, öldükleri zaman uyanırlar.", source: "Hz. Ali (a.s)" },
+    { text: "Hiçbir süs, edep kadar güzel değildir.", source: "Hz. Ali (a.s)" },
+    { text: "İlim bir hazinedir, anahtarı ise sorudur.", source: "Hz. Muhammed (s.a.a)" },
+    { text: "Dua müminin silahı, dinin direği ve göklerin nurudur.", source: "Hz. Muhammed (s.a.a)" },
+    { text: "Haksızlık karşısında susan dilsiz şeytandır.", source: "Hz. Muhammed (s.a.a)" },
+    { text: "Komşusu açken tok yatan bizden değildir.", source: "Hz. Muhammed (s.a.a)" },
+    { text: "Mazlumun zalimden öcünü alacağı gün, zalimin mazluma zulmettiği günden daha çetin olacaktır.", source: "Hz. Ali (a.s)" },
+    { text: "Senin hakkında zannını güzel yapan kimsenin zannını, o işi yaparak gerçekleştir.", source: "Hz. Ali (a.s)" },
+    { text: "Dünya, müminin zindanı ve kafirin cennetidir.", source: "Hadis-i Şerif" },
+    { text: "En hayırlınız, ahlakı en güzel olanınızdır.", source: "Hz. Muhammed (s.a.a)" }
+  ];
+
+  const nasipCek = () => {
+    setLoading(true);
+    setNasip(null);
+    // Rastgelelik ve Animasyon Hissi
+    setTimeout(() => {
+      const randomIndex = Math.floor(Math.random() * nasipler.length);
+      setNasip(nasipler[randomIndex]);
+      setLoading(false);
+    }, 800);
+  };
+
+  return (
+    <div className="bg-turquoise-dark p-10 rounded-3xl border border-gold/20 relative overflow-hidden shadow-xl mx-4 transition-all duration-500 hover:shadow-gold/10">
+      
+      {/* Dekoratif Arka Plan */}
+      <div className="absolute -bottom-10 -left-10 p-4 opacity-5 rotate-12 pointer-events-none">
+         <Gift size={200} className="text-gold" />
+      </div>
+
+      <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-6">
+        
+        <div className="flex items-center gap-2 text-gold font-bold uppercase tracking-widest text-sm">
+          <Sparkles size={16} /> Günün Nasibi
+        </div>
+
+        {nasip ? (
+          <div className="space-y-6 animate-fade-in">
+             <blockquote className="text-2xl md:text-4xl font-serif text-sand italic leading-relaxed drop-shadow-md">
+              "{nasip.text}"
+            </blockquote>
+            <p className="text-turquoise-light font-bold text-lg">— {nasip.source}</p>
+            
+            <button 
+              onClick={nasipCek}
+              className="mt-4 flex items-center gap-2 mx-auto text-sm text-slate-400 hover:text-white transition-colors"
+            >
+              <RefreshCw size={14} /> Başka bir nasip çek
+            </button>
+          </div>
+        ) : (
+          <div className="py-8 space-y-4">
+             <h3 className="text-2xl font-serif text-slate-200">
+               {loading ? "Kalbinize doğan nasip aranıyor..." : "Bugün sizin için ayrılan manevi rızkı görmek ister misiniz?"}
+             </h3>
+             {!loading && (
+               <button 
+                onClick={nasipCek}
+                className="bg-gold text-turquoise-dark px-8 py-3 rounded-full font-bold hover:bg-white transition-all transform hover:scale-105 shadow-lg flex items-center gap-2 mx-auto"
+               >
+                 <Gift size={20} /> Niyet Et ve Nasibini Gör
+               </button>
+             )}
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
+// --- DİĞER BİLEŞENLER ---
+
 function MoodChip({ label, icon, link, color }) {
   return (
     <Link 
@@ -140,7 +197,6 @@ function MoodChip({ label, icon, link, color }) {
   );
 }
 
-// Feature Card Component (with line-clamp)
 function FeatureCard({ icon, title, desc, link }) {
   return (
     <Link to={link} className="block group relative z-10 h-full">
@@ -149,7 +205,6 @@ function FeatureCard({ icon, title, desc, link }) {
           {icon}
         </div>
         <h3 className="text-2xl font-bold text-sand mb-3 group-hover:text-gold transition-colors font-sans">{title}</h3>
-        {/* CARD ADJUSTMENT: line-clamp-3 eklendi */}
         <p className="text-slate-200 text-base leading-relaxed font-serif line-clamp-3">
           {desc}
         </p>
