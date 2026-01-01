@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Activity, HelpCircle, Star, ChevronRight, PlayCircle, Heart } from 'lucide-react';
+import { BookOpen, Activity, Star, PlayCircle, ChevronRight, Heart } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -33,7 +33,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Sağ Taraf Görseli veya Simgesi */}
+          {/* Sağ Taraf Görseli */}
           <div className="hidden md:flex items-center justify-center w-64 h-64 bg-[#C5A059]/5 rounded-full border border-[#C5A059]/20 relative">
              <div className="absolute inset-4 border border-[#C5A059]/10 rounded-full animate-spin-slow"></div>
              <Heart size={80} className="text-[#C5A059] opacity-80" />
