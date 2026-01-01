@@ -25,10 +25,10 @@
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js')
             .then((registration) => {
-              console.log('SW Başarıyla Kaydedildi:', registration.scope);
+              console.log('Service Worker başarıyla kaydedildi:', registration.scope);
             })
             .catch((err) => {
-              console.log('SW Kaydı Başarısız:', err);
+              console.log('Service Worker kaydı başarısız:', err);
             });
         });
       }

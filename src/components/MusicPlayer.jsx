@@ -22,8 +22,10 @@ export default function MusicPlayer() {
     : { title: "Liste Bekleniyor...", artist: "", url: "", cover: "" };
 
   useEffect(() => {
-    const audio = audioRef.current;
+    // --- GÜVENLİK SATIRI BURADA ---
+    const audio = audioRef.current; 
     if (!audio) return;
+    // ------------------------------
 
     const playAudio = async () => {
       try {
@@ -104,7 +106,7 @@ export default function MusicPlayer() {
               <button onClick={toggleMute}>{isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}</button>
               <div className="flex items-center gap-2">
                 <button onClick={playPrev}><SkipBack size={20} /></button>
-                <button onClick={togglePlay} className="w-10 h-10 bg-gold text-turquoise-dark rounded-full flex items-center justify-center">
+                <button onClick={togglePlay} className="w-10 h-10 bg-gold text-turquoise-dark rounded-full flex items-center justify-center hover:bg-white transition shadow-lg">
                   {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
                 </button>
                 <button onClick={playNext}><SkipForward size={20} /></button>
