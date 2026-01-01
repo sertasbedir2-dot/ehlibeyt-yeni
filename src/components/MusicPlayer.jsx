@@ -11,7 +11,6 @@ export default function MusicPlayer() {
   const audioRef = useRef(null);
 
   // --- ARCHIVE.ORG BAĞLANTILI MÜZİK LİSTESİ ---
-  // Ana depo adresimiz: a-hazreti-shah
   const BASE_URL = "https://archive.org/download/a-hazreti-shah/";
 
   const tracks = [
@@ -151,8 +150,6 @@ export default function MusicPlayer() {
 
   return (
     <div className="flex flex-col items-end animate-fade-in relative">
-      
-      {/* DAVET BALONU */}
       {showInvite && !isExpanded && (
         <div className="absolute bottom-full mb-4 right-0 bg-white text-[#0F2C45] p-3 rounded-xl shadow-2xl animate-bounce w-48 text-center border-2 border-[#C5A059] z-50">
             <div className="text-xs font-bold mb-1">🎧 Gönül Pasını Sil</div>
@@ -162,7 +159,6 @@ export default function MusicPlayer() {
         </div>
       )}
 
-      {/* LİSTE */}
       {isExpanded && (
         <div className="bg-[#162e45] border border-[#C5A059]/30 rounded-t-2xl p-4 w-80 mb-2 shadow-2xl max-h-80 overflow-y-auto custom-scrollbar z-50">
             <div className="flex justify-between items-center mb-2 border-b border-[#C5A059]/20 pb-2">
@@ -179,9 +175,8 @@ export default function MusicPlayer() {
         </div>
       )}
 
-      {/* PLAYER */}
       <div className="bg-[#162e45]/95 backdrop-blur-md border border-[#C5A059]/30 p-3 rounded-2xl shadow-2xl flex items-center gap-4 pr-6 min-w-[340px] max-w-sm">
-        <audio ref={audioRef} src={tracks[currentTrackIndex]?.url || ""} onEnded={handleTrackEnded} onError={(e) => console.log("Hata", e)}/>
+        <audio ref={audioRef} src={tracks[currentTrackIndex]?.url || ""} onEnded={handleTrackEnded}/>
         
         <div className="w-12 h-12 bg-[#0F2C45] rounded-xl flex items-center justify-center text-[#C5A059] border border-[#C5A059]/20 relative group cursor-pointer shrink-0" onClick={() => setIsExpanded(!isExpanded)}>
            <Music size={24} className={isPlaying ? "animate-spin-slow" : ""} />

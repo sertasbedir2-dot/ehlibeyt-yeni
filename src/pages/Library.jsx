@@ -1,9 +1,13 @@
 import React from 'react';
-import { BookOpen, Download, Book, Eye } from 'lucide-react'; // Eye ikonu eklendi
-import { useNavigate } from 'react-router-dom'; // navigate eklendi
+import { BookOpen, Book, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Library() {
-  const navigate = useNavigate(); // Yönlendirme için tanımladık
+  const navigate = useNavigate();
+
+  // --- STRATEJİK VERİ MERKEZİ ---
+  // Tüm dosyalar artık https://archive.org/download/a-hazreti-shah dizininden çekiliyor.
+  const archiveBase = "https://archive.org/download/a-hazreti-shah";
 
   const books = [
     {
@@ -12,15 +16,55 @@ export default function Library() {
       author: "Dar-ı Hakikat Özel",
       category: "Özel Yayın",
       desc: "Varlık ve hiçlik arasında, yok oluşa karşı hakikatin sırrına ermek isteyenler için bir yol haritası.",
-      fileUrl: "/dosyalar/kevserin_sirri.pdf",
-      coverUrl: "/dosyalar/kevser_kapak.jpg",
+      fileUrl: `${archiveBase}/kevserin_sirri.pdf`,
+      coverUrl: `${archiveBase}/kevser_kapak.jpg`,
       isNew: true,
     },
-    { id: 1, title: "Mesnevi-i Şerif", author: "Mevlana", category: "Tasavvuf", color: "bg-emerald-800", desc: "Aşkın ve hikmetin şaheseri.", fileUrl: "#" },
-    { id: 2, title: "Makalat", author: "Hacı Bektaş Veli", category: "Tasavvuf", color: "bg-blue-900", desc: "Dört kapı kırk makam öğretisi.", fileUrl: "#" },
-    { id: 3, title: "Safahat", author: "Mehmet Akif Ersoy", category: "Şiir", color: "bg-red-900", desc: "Bir milletin hürriyet haykırışı.", fileUrl: "#" },
-    { id: 4, title: "Nutuk", author: "Mustafa Kemal Atatürk", category: "Tarih", color: "bg-slate-800", desc: "Türkiye Cumhuriyeti'nin kuruluş belgesi.", fileUrl: "#" },
-    { id: 5, title: "Divan-ı Hikmet", author: "Hoca Ahmet Yesevi", category: "Hikmet", color: "bg-indigo-900", desc: "Türk tasavvufunun pınarı.", fileUrl: "#" }
+    { 
+      id: 1, 
+      title: "Mesnevi-i Şerif", 
+      author: "Mevlana", 
+      category: "Tasavvuf", 
+      color: "bg-emerald-800", 
+      desc: "Aşkın ve hikmetin şaheseri.", 
+      fileUrl: `${archiveBase}/mesnevi.pdf` 
+    },
+    { 
+      id: 2, 
+      title: "Makalat", 
+      author: "Hacı Bektaş Veli", 
+      category: "Tasavvuf", 
+      color: "bg-blue-900", 
+      desc: "Dört kapı kırk makam öğretisi.", 
+      fileUrl: `${archiveBase}/makalat.pdf` 
+    },
+    { 
+      id: 3, 
+      title: "Safahat", 
+      author: "Mehmet Akif Ersoy", 
+      category: "Şiir", 
+      color: "bg-red-900", 
+      desc: "Bir milletin hürriyet haykırışı.", 
+      fileUrl: `${archiveBase}/safahat.pdf` 
+    },
+    { 
+      id: 4, 
+      title: "Nutuk", 
+      author: "Mustafa Kemal Atatürk", 
+      category: "Tarih", 
+      color: "bg-slate-800", 
+      desc: "Türkiye Cumhuriyeti'nin kuruluş belgesi.", 
+      fileUrl: `${archiveBase}/nutuk.pdf` 
+    },
+    { 
+      id: 5, 
+      title: "Divan-ı Hikmet", 
+      author: "Hoca Ahmet Yesevi", 
+      category: "Hikmet", 
+      color: "bg-indigo-900", 
+      desc: "Türk tasavvufunun pınarı.", 
+      fileUrl: `${archiveBase}/divan_i_hikmet.pdf` 
+    }
   ];
 
   return (
@@ -61,7 +105,6 @@ export default function Library() {
                           {book.desc}
                       </p>
 
-                      {/* --- OKUMA BUTONU GÜNCELLENDİ --- */}
                       <button 
                         onClick={() => navigate('/kitap-oku', { state: { pdfPath: book.fileUrl, title: book.title } })}
                         className="w-full bg-[#C5A059] text-[#0F2C45] py-3 rounded-xl hover:bg-white transition font-bold flex items-center justify-center gap-2 shadow-md active:scale-95"
