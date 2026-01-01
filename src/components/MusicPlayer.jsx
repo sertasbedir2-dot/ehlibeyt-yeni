@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, Minimize2, Music, List } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 
@@ -17,21 +17,40 @@ export default function MusicPlayer() {
   
   const audioRef = useRef(null);
   
+  // Kuyruk boşsa güvenli varsayılan
   const currentTrack = currentQueue && currentQueue.length > 0 
     ? currentQueue[currentTrackIndex] 
     : { title: "Liste Bekleniyor...", artist: "", url: "", cover: "" };
 
+  // --- OYNATMA MANTIĞI (GÜVENLİ VERSİYON) ---
   useEffect(() => {
-    if (isPlaying) {
-      audioRef.current?.play().catch(e => console.log("Otomatik oynatma engellendi:", e));
-    } else {
-      audioRef.current?.pause();
-    }
-  }, [isPlaying, currentTrackIndex, currentQueue]);
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const playAudio = async () => {
+      try {
+        if (isPlaying) {
+          await audio.play();
+        } else {
+          audio.pause();
+        }
+      } catch (error) {
+        // Otomatik oynatma hatasını (AbortError) görmezden gel
+        console.log("Ses oynatma durumu:", error.message);
+        // Eğer tarayıcı izin vermediyse butonu 'duruyor' durumuna getir
+        if (isPlaying) setIsPlaying(false);
+      }
+    };
+
+    playAudio();
+
+  }, [isPlaying, currentTrackIndex, currentTrack.url, setIsPlaying]); // Bağımlılıklar güncellendi
 
   const togglePlay = () => setIsPlaying(!isPlaying);
   
   const playNext = () => {
+    if (!currentQueue || currentQueue.length === 0) return;
+    
     if (isShuffle) {
       const randomIndex = Math.floor(Math.random() * currentQueue.length);
       setCurrentTrackIndex(randomIndex);
@@ -42,24 +61,30 @@ export default function MusicPlayer() {
   };
 
   const playPrev = () => {
+    if (!currentQueue || currentQueue.length === 0) return;
     setCurrentTrackIndex((prev) => (prev - 1 + currentQueue.length) % currentQueue.length);
     setIsPlaying(true);
   };
 
   const toggleMute = () => {
-    if(audioRef.current) {
+    if (audioRef.current) {
         audioRef.current.muted = !isMuted;
         setIsMuted(!isMuted);
     }
   };
 
+  // Liste boşsa hiçbir şey gösterme (Hata önleyici)
+  if (!currentQueue || currentQueue.length === 0) return null;
+
   return (
     <>
+      {/* GİZLİ SES MOTORU */}
       <audio 
         ref={audioRef} 
         src={currentTrack.url}
         onEnded={playNext}
         className="hidden" 
+        preload="auto"
       />
 
       <div className="fixed bottom-6 right-6 z-[100] animate-fade-in">
@@ -83,7 +108,7 @@ export default function MusicPlayer() {
 
             <div className="flex items-center gap-4 mb-4">
               <div className="w-16 h-16 rounded-lg overflow-hidden border border-gold/20 shadow-md flex-shrink-0">
-                <img src={currentTrack.cover} alt="Cover" className="w-full h-full object-cover" />
+                <img src={currentTrack.cover || "https://via.placeholder.com/150"} alt="Cover" className="w-full h-full object-cover" />
               </div>
               <div className="overflow-hidden min-w-0">
                 <h4 className="text-sand font-bold text-sm truncate">{currentTrack.title}</h4>
