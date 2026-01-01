@@ -1,199 +1,279 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Heart, Shield, Sun, CloudRain, Moon, X, Sparkles, BookOpen } from 'lucide-react';
+import { Heart, X, Play, Clock, Repeat, Sparkles, BookOpen, Volume2, Globe } from 'lucide-react';
+
+// --- VERİ HAVUZU (GENİŞLETİLMİŞ) ---
+const recipes = [
+  {
+    id: 1,
+    title: "Rızık ve Bereket Duası",
+    category: "Rızık",
+    shortDesc: "Maddi sıkıntılardan kurtulmak ve bereket için.",
+    // TEOLOJİK METADATA
+    vakit: "Sabah namazından sonra",
+    adet: "7 defa",
+    fazilet: "Rızkın artması ve geçim sıkıntısının kalkması için tecrübe edilmiştir.",
+    // İÇERİK
+    arabic: "اللَّهُمَّ ارْزُقْنِي رِزْقًا وَاسِعًا حَلالاً طَيِّبًا مِنْ غَيْرِ كَدٍّ، وَاسْتَجِبْ دَعْوَتِي مِنْ غَيْرِ رَدٍّ",
+    transliteration: "Allahummerzuknî rızkan vâsian helâlen tayyiben min ğayri keddin, vestecib dâvetî min ğayri raddin.",
+    translation: "Allah'ım! Bana yorulmadan bol, helal ve temiz rızık ver. Duamı reddetmeden kabul eyle.",
+    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" // Örnek ses dosyası
+  },
+  {
+    id: 2,
+    title: "Şifa Ayetleri",
+    category: "Şifa",
+    shortDesc: "Her türlü maddi ve manevi hastalık için.",
+    vakit: "Hastalık anında veya şifa niyetine her gün",
+    adet: "1 defa okunur ve suya üflenir",
+    fazilet: "Manevi ve bedeni hastalıklara şifa olduğu bildirilmiştir.",
+    arabic: "وَنُنَزِّلُ مِنَ الْقُرْآنِ مَا هُوَ شِفَاء وَرَحْمَةٌ لِّلْمُؤْمِنِينَ",
+    transliteration: "Ve nünezzilü minel kur'âni mâ hüve şifâun ve rahmetun lil mü'minîn.",
+    translation: "Biz Kur'an'dan, müminler için şifa ve rahmet olan şeyleri indiriyoruz. (İsra, 82)",
+    audio: ""
+  },
+  {
+    id: 3,
+    title: "Sıkıntı ve Keder Duası (Yunus a.s)",
+    category: "Huzur",
+    shortDesc: "Darda kalanların feraha çıkması için.",
+    vakit: "Sıkıntılı anlarda",
+    adet: "40 defa",
+    fazilet: "Bu dua ile dua edenin sıkıntısının giderileceği müjdelenmiştir.",
+    arabic: "لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ",
+    transliteration: "Lâ ilâhe illâ ente subhâneke innî kuntu minez-zâlimîn.",
+    translation: "Senden başka ilah yoktur. Seni tenzih ederim. Şüphesiz ben zalimlerden oldum. (Enbiya, 87)",
+    audio: ""
+  },
+  {
+    id: 4,
+    title: "Nadi Ali Duası",
+    category: "Hacet",
+    shortDesc: "Zor işlerin kolaylaşması ve yardım için.",
+    vakit: "Müşkül anlarda",
+    adet: "7 veya 14 defa",
+    fazilet: "Hz. Ali'nin (a.s) vesilesiyle Allah'tan yardım istemek için.",
+    arabic: "نَادِ عَلِيّاً مَظْهَرَ الْعَجَائِبِ تَجِدْهُ عَوْناً لَكَ فِي النَّوَائِبِ",
+    transliteration: "Nâdi Aliyyen mazharal acâib, tecidhü avnen leke fin-nevâib.",
+    translation: "İnsanüstü hallerin mazharı olan Ali'yi çağır. Onu, sıkıntılı anlarında kendine yardımcı bulursun.",
+    audio: ""
+  }
+];
 
 export default function ManeviReceteler() {
-  const [selectedRecete, setSelectedRecete] = useState(null);
-
-  // --- MANEVİ ECZANE VERİTABANI ---
-  const receteler = [
-    {
-      id: 1,
-      title: "Ruhsal Daralma ve Sıkıntı",
-      source: "Hz. Fatıma (s.a) Tesbihatı",
-      desc: "Kalbiniz daraldığında ve dünya üzerinize geldiğinde okunacak reçete.",
-      icon: <CloudRain size={32} className="text-spiritual-light" />,
-      content: {
-        arapca: "Allahu Ekber (34), Elhamdulillah (33), Subhanallah (33)",
-        meal: "Allah en büyüktür. Hamd Allah'a mahsustur. Allah noksan sıfatlardan münezzehtir.",
-        not: "Her namazdan sonra ve uyumadan önce okunması, kalbi hüzünden arındırır ve manevi bir zırh oluşturur."
-      }
-    },
-    {
-      id: 2,
-      title: "Rızık ve Bereket",
-      source: "Vakıa Suresi",
-      desc: "Maddi zorluklar ve geçim sıkıntısı çekenler için Ehlibeyt tavsiyesi.",
-      icon: <Sun size={32} className="text-gold" />,
-      content: {
-        arapca: "Sûretu'l-Vâkıa",
-        meal: "Vakıa Suresi'nin okunması.",
-        not: "İmam Cafer-i Sadık (a.s) buyurmuştur: 'Kim her gece Vakıa suresini okursa, asla fakirlik yüzü görmez ve Allah'ın dostlarından olur.'"
-      }
-    },
-    {
-      id: 3,
-      title: "Korku ve Endişe",
-      source: "Ayet-el Kürsi",
-      desc: "Gelecek kaygısı ve ani korkulara karşı manevi sığınak.",
-      icon: <Shield size={32} className="text-clay" />,
-      content: {
-        arapca: "Allâhu lâ ilâhe illâ huve'l-hayyu'l-kayyûm...",
-        meal: "Allah, kendisinden başka ilah olmayandır; Hayy'dır, Kayyum'dur...",
-        not: "Evden çıkarken, uyurken ve korku anında okunması insanı her türlü beladan muhafaza eder."
-      }
-    },
-    {
-      id: 4,
-      title: "Hastalık ve Şifa",
-      source: "Sahife-i Seccadiye (15. Dua)",
-      desc: "İmam Zeynel Abidin'in (a.s) hastalandığında okuduğu dua.",
-      icon: <Heart size={32} className="text-rose-400" />,
-      content: {
-        arapca: "Allahumme leke'l hamdu ala ma lem ezel atasarrafu fihi min selameti bedeni...",
-        meal: "Allah'ım! Bedenimin sağlığı içinde yaşayıp gittiğim günler için sana hamdolsun.",
-        not: "Hastalık anında sadece ilaca değil, Şafi olan Allah'a sığınmak iyileşmeyi hızlandırır."
-      }
-    },
-    {
-      id: 5,
-      title: "Günahların Affı",
-      source: "Kumeyl Duası",
-      desc: "Perşembe geceleri okunan, Hz. Ali'nin (a.s) öğrettiği büyük bağışlanma duası.",
-      icon: <Moon size={32} className="text-spiritual" />,
-      content: {
-        arapca: "Allahumme inni es'eluke bi rahmetike'lleti vesiat kulle şey...",
-        meal: "Allah'ım! Her şeyi kuşatan rahmetin hakkına senden istiyorum...",
-        not: "Bu dua, rızkın artmasına, düşmanların şerrinden korunmaya ve günahların affına vesiledir."
-      }
-    },
-    {
-      id: 6,
-      title: "İlahi Aşk ve Marifet",
-      source: "Münacat-ı Şabaniye",
-      desc: "Ehlibeyt İmamlarının tamamının okuduğu rivayet edilen özel münacat.",
-      icon: <Sparkles size={32} className="text-gold" />,
-      content: {
-        arapca: "İlahi heb li kemale'l-inkitai ileyk...",
-        meal: "Allah'ım! Sana tam anlamıyla yönelme kemalini bana bağışla...",
-        not: "Kalbin dünya kirlerinden arınıp sadece Allah'a bağlanması için okunur."
-      }
-    }
-  ];
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
 
   return (
-    <div className="space-y-8 animate-fade-in pb-12 relative">
+    <div className="space-y-8 animate-fade-in pb-12">
       <Helmet>
-        <title>Manevi Reçeteler | Ehlibeyt Yolu</title>
-        <meta name="description" content="Ruhsal sıkıntılar, rızık ve şifa için Ehlibeyt kaynaklı manevi reçeteler ve dualar." />
+        <title>Manevi Reçeteler | OnikiKapı</title>
+        <meta name="description" content="Ruhsal ve bedensel sıkıntılar için Ehlibeyt kaynaklı dualar ve manevi reçeteler." />
       </Helmet>
 
-      {/* --- HERO BÖLÜMÜ --- */}
-      <div className="text-center space-y-4 py-8 bg-gradient-to-b from-midnight to-[#162e45] rounded-b-3xl border-b border-gold/10">
-        <h1 className="text-3xl md:text-5xl font-sans font-bold text-gold flex justify-center items-center gap-3">
-           <Sparkles className="animate-pulse" /> Manevi Eczane
+      {/* --- HERO SECTION --- */}
+      <div className="text-center space-y-4 py-8 bg-gradient-to-b from-turquoise-dark to-[#162e45] rounded-b-3xl border-b border-gold/10 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+             <Heart className="absolute top-10 left-10 text-gold animate-pulse-slow" size={60} />
+             <Sparkles className="absolute bottom-10 right-10 text-turquoise-light" size={40} />
+        </div>
+        
+        <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-gold/10 text-gold border border-gold/20 mb-2 relative z-10">
+          <Heart size={16} /> <span className="text-xs font-bold tracking-widest uppercase">Manevi Eczane</span>
+        </div>
+        <h1 className="text-3xl md:text-5xl font-sans font-bold text-transparent bg-clip-text bg-gradient-to-r from-sand via-gold to-sand relative z-10">
+          Manevi Reçeteler
         </h1>
-        <p className="text-slate-300 max-w-2xl mx-auto font-serif text-lg leading-relaxed">
-          "Dua müminin silahı, dinin direği ve göklerin nurudur." <br/> <span className="text-sm text-gold">— Hz. Muhammed (s.a.a)</span>
+        <p className="text-slate-300 max-w-2xl mx-auto font-serif text-lg leading-relaxed relative z-10">
+          "Dua müminin silahı, dinin direği ve göklerin nurudur."
         </p>
       </div>
 
-      {/* --- REÇETE KARTLARI --- */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
-        {receteler.map((recete) => (
-          <button 
-            key={recete.id} 
-            onClick={() => setSelectedRecete(recete)}
-            className="group text-left bg-[#162e45] p-6 rounded-2xl border border-white/5 hover:border-gold/50 hover:bg-gold/5 transition-all duration-300 hover:-translate-y-1 shadow-lg relative overflow-hidden"
+      {/* --- REÇETE LİSTESİ (GRID) --- */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4 max-w-6xl mx-auto">
+        {recipes.map((recipe) => (
+          <div 
+            key={recipe.id}
+            onClick={() => setSelectedRecipe(recipe)}
+            className="group bg-[#162e45] rounded-2xl p-6 border border-white/5 hover:border-gold/40 transition-all duration-300 hover:-translate-y-2 cursor-pointer shadow-lg relative overflow-hidden"
           >
-            {/* Arka Plan Deseni */}
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-               <BookOpen size={80} />
+               <BookOpen size={80} className="text-gold" />
             </div>
-
+            
             <div className="flex justify-between items-start mb-4 relative z-10">
-               <div className="p-3 bg-midnight rounded-xl border border-white/10 group-hover:scale-110 transition-transform">
-                 {recete.icon}
-               </div>
-               <span className="text-[10px] font-bold text-slate-400 border border-slate-600 px-2 py-1 rounded-full uppercase tracking-wider">
-                 Şifa
-               </span>
+              <span className="bg-turquoise/20 text-turquoise-light text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                {recipe.category}
+              </span>
+              <Heart className="text-slate-500 group-hover:text-rose-500 transition-colors" size={20} />
             </div>
             
-            <h3 className="text-xl font-bold text-sand mb-1 font-sans group-hover:text-gold transition-colors relative z-10">
-              {recete.title}
+            <h3 className="text-xl font-bold text-sand font-sans mb-2 group-hover:text-gold transition-colors relative z-10">
+              {recipe.title}
             </h3>
-            <p className="text-xs text-spiritual-light mb-3 font-bold uppercase tracking-wide relative z-10">
-              Kaynak: {recete.source}
+            <p className="text-slate-400 text-sm leading-relaxed line-clamp-2 relative z-10">
+              {recipe.shortDesc}
             </p>
-            <p className="text-slate-400 text-sm font-serif line-clamp-2 relative z-10">
-              {recete.desc}
-            </p>
-            
-            <div className="mt-4 text-gold text-xs font-bold flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity relative z-10">
-               Reçeteyi Görüntüle <Sparkles size={12} />
+
+            <div className="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-xs text-gold/80 font-bold relative z-10">
+              <span className="flex items-center gap-1"><Clock size={12} /> {recipe.vakit}</span>
             </div>
-          </button>
+          </div>
         ))}
       </div>
 
-      {/* --- MODAL (POPUP) PENCERE --- */}
-      {selectedRecete && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-midnight/80 backdrop-blur-sm animate-fade-in">
-          <div className="bg-[#162e45] border border-gold/30 rounded-3xl w-full max-w-2xl shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
-            
-            {/* Modal Header */}
-            <div className="bg-midnight p-6 border-b border-gold/10 flex justify-between items-center sticky top-0 z-10">
-               <div>
-                  <h2 className="text-2xl font-bold text-gold font-sans">{selectedRecete.title}</h2>
-                  <p className="text-spiritual-light text-sm font-bold uppercase">{selectedRecete.source}</p>
-               </div>
-               <button 
-                 onClick={() => setSelectedRecete(null)}
-                 className="p-2 bg-slate-800 rounded-full text-slate-400 hover:text-white hover:bg-red-500/20 transition"
-               >
-                 <X size={24} />
-               </button>
-            </div>
-
-            {/* Modal Body (Scrollable) */}
-            <div className="p-8 overflow-y-auto custom-scrollbar space-y-8">
-               
-               {/* Arapça / Dua Metni */}
-               <div className="bg-midnight/50 p-6 rounded-2xl border border-white/5 text-center">
-                  <p className="text-2xl md:text-3xl font-serif text-sand leading-loose" style={{ direction: 'rtl' }}>
-                     {selectedRecete.content.arapca}
-                  </p>
-               </div>
-
-               {/* Meal */}
-               <div className="text-center space-y-2">
-                  <h4 className="text-gold font-bold text-sm uppercase tracking-widest flex items-center justify-center gap-2">
-                    <span className="w-8 h-[1px] bg-gold/30"></span> Anlamı <span className="w-8 h-[1px] bg-gold/30"></span>
-                  </h4>
-                  <p className="text-slate-200 text-lg font-serif italic leading-relaxed">
-                    "{selectedRecete.content.meal}"
-                  </p>
-               </div>
-
-               {/* Not / Uygulama */}
-               <div className="bg-spiritual-dim/10 border-l-4 border-spiritual p-4 rounded-r-xl">
-                  <h5 className="text-spiritual font-bold text-sm mb-1">Uygulama Notu:</h5>
-                  <p className="text-slate-400 text-sm">
-                    {selectedRecete.content.not}
-                  </p>
-               </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="bg-midnight p-4 border-t border-gold/10 text-center text-xs text-slate-500">
-               Ehlibeyt Yolu • Manevi Şifa Kaynağı
-            </div>
-
-          </div>
-        </div>
+      {/* --- MODAL (DETAY PENCERESİ) --- */}
+      {selectedRecipe && (
+        <RecipeModal recipe={selectedRecipe} onClose={() => setSelectedRecipe(null)} />
       )}
 
     </div>
   );
 }
+
+// --- RECIPE MODAL COMPONENT ---
+function RecipeModal({ recipe, onClose }) {
+  // Tab State: 'arabic' | 'reading' | 'meaning'
+  const [activeTab, setActiveTab] = React.useState('arabic');
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-midnight/90 backdrop-blur-md animate-fade-in">
+      <div className="bg-[#162e45] w-full max-w-2xl rounded-3xl shadow-2xl border border-gold/20 flex flex-col max-h-[90vh] overflow-hidden relative">
+        
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-white/10 bg-midnight/50">
+          <h2 className="text-2xl font-bold text-gold font-sans">{recipe.title}</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-white transition bg-white/5 p-2 rounded-full">
+            <X size={24} />
+          </button>
+        </div>
+
+        <div className="overflow-y-auto custom-scrollbar p-6 space-y-6">
+          
+          {/* 3. AUDIO INTEGRATION */}
+          <div className="bg-midnight/30 p-4 rounded-xl border border-white/5 flex items-center gap-4">
+             <div className="bg-gold/10 p-3 rounded-full text-gold">
+               <Volume2 size={24} />
+             </div>
+             <div className="flex-grow">
+               <p className="text-xs text-slate-400 mb-1 uppercase tracking-widest font-bold">Dinle</p>
+               {recipe.audio ? (
+                 <audio controls className="w-full h-8 opacity-80" src={recipe.audio}>
+                   Tarayıcınız ses elementini desteklemiyor.
+                 </audio>
+               ) : (
+                 <p className="text-sm text-slate-500 italic">Ses dosyası hazırlanıyor...</p>
+               )}
+             </div>
+          </div>
+
+          {/* 4. THEOLOGICAL METADATA (REÇETE DETAYI) */}
+          <div className="bg-turquoise/10 border border-turquoise/20 rounded-xl p-5">
+            <h4 className="text-turquoise-light font-bold text-sm uppercase tracking-widest mb-3 border-b border-turquoise/20 pb-2 flex items-center gap-2">
+              <Sparkles size={16} /> Manevi Reçete Detayı
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+              <div className="flex items-start gap-2">
+                <Clock className="text-gold mt-0.5 shrink-0" size={16} />
+                <div>
+                  <span className="block text-slate-400 text-xs font-bold uppercase">Vakit</span>
+                  <span className="text-sand">{recipe.vakit}</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Repeat className="text-gold mt-0.5 shrink-0" size={16} />
+                <div>
+                  <span className="block text-slate-400 text-xs font-bold uppercase">Adet</span>
+                  <span className="text-sand">{recipe.adet}</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2 sm:col-span-3 lg:col-span-1">
+                <Heart className="text-gold mt-0.5 shrink-0" size={16} />
+                <div>
+                  <span className="block text-slate-400 text-xs font-bold uppercase">Fazilet</span>
+                  <span className="text-sand">{recipe.fazilet}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. UI STRUCTURE - TABBED VIEW */}
+          <div className="flex bg-midnight rounded-lg p-1 border border-white/5">
+            <TabButton 
+              label="Arapça" 
+              icon={<BookOpen size={16} />} 
+              isActive={activeTab === 'arabic'} 
+              onClick={() => setActiveTab('arabic')} 
+            />
+            <TabButton 
+              label="Okunuş" 
+              icon={<Volume2 size={16} />} 
+              isActive={activeTab === 'reading'} 
+              onClick={() => setActiveTab('reading')} 
+            />
+            <TabButton 
+              label="Anlamı" 
+              icon={<Globe size={16} />} 
+              isActive={activeTab === 'meaning'} 
+              onClick={() => setActiveTab('meaning')} 
+            />
+          </div>
+
+          {/* CONTENT DISPLAY */}
+          <div className="min-h-[150px] flex items-center justify-center text-center p-4 bg-midnight/30 rounded-2xl border border-white/5 relative">
+            
+            {/* 1. ARABIC (Primary) */}
+            {activeTab === 'arabic' && (
+              <p className="text-3xl md:text-4xl text-sand font-serif leading-loose py-4 px-2" style={{ fontFamily: '"Amiri", serif' }}>
+                {recipe.arabic}
+              </p>
+            )}
+
+            {/* 2. TRANSLITERATION (Secondary) */}
+            {activeTab === 'reading' && (
+              <div className="space-y-2">
+                 <p className="text-xl text-slate-300 italic font-serif leading-relaxed">
+                   "{recipe.transliteration}"
+                 </p>
+                 <p className="text-xs text-slate-500 mt-4">(Latin harfleriyle okunuş)</p>
+              </div>
+            )}
+
+            {/* 3. TRANSLATION (Tertiary) */}
+            {activeTab === 'meaning' && (
+              <div className="space-y-2">
+                <p className="text-lg text-sand font-sans leading-relaxed">
+                  {recipe.translation}
+                </p>
+                <p className="text-xs text-gold/70 mt-4 uppercase tracking-widest font-bold">Türkçe Meali</p>
+              </div>
+            )}
+
+          </div>
+        </div>
+
+        {/* Footer Actions */}
+        <div className="p-4 border-t border-white/10 bg-midnight/50 flex justify-between items-center text-xs text-slate-400">
+           <span>* Abdestli okunması tavsiye edilir.</span>
+           <button className="bg-gold text-midnight px-4 py-2 rounded-lg font-bold hover:bg-white transition">
+             Okudum ({recipe.adet})
+           </button>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+// Yardımcı Tab Butonu
+const TabButton = ({ label, icon, isActive, onClick }) => (
+  <button 
+    onClick={onClick}
+    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-bold transition-all duration-300 ${
+      isActive 
+      ? 'bg-turquoise text-white shadow-lg' 
+      : 'text-slate-400 hover:text-white hover:bg-white/5'
+    }`}
+  >
+    {icon} {label}
+  </button>
+);
