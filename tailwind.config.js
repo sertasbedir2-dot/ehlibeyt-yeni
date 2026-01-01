@@ -7,35 +7,49 @@ export default {
   theme: {
     extend: {
       colors: {
-        // --- MEVCUT RENKLER (Korundu) ---
-        midnight: '#0F2C45', // Derin Safir (Ana Arka Plan)
-        sand: '#F4EFE0',     // Kum Sarısı (Ana Metin Rengi)
-        emerald: '#005C42',  // Ehlibeyt Yeşili
-        gold: '#C5A059',     // Altın Yaldız (Ana Vurgu)
-        slate: '#4A5D75',    // Safir Grisi (İkincil Metin/Bölücü)
-        ice: '#E3F2FD',      // Buz Mavisi
-        clay: '#8D3F3F',     // Kerbela Kili
+        // --- YENİ VİZYON: TURKUAZ & MEDENİYET RENKLERİ ---
+        // Sitenin yeni ana rengi (Teal/Turkuaz)
+        turquoise: {
+          DEFAULT: '#008080', // Ana Turkuaz (Selçuklu Çinisi)
+          dark: '#004d4d',    // Koyu Turkuaz (Derinlik ve Footer için)
+          light: '#4db8b8',   // Açık Turkuaz (Vurgular için)
+        },
+        
+        // --- YARDIMCI RENKLER ---
+        midnight: '#0f172a', // Daha modern, koyu lacivert (Eski midnight yerine)
+        sand: '#f5f5dc',     // Krem/Bej (Okunabilirlik için ana metin rengi)
+        gold: '#FFD700',     // Parlak Altın (Vurgular ve İkonlar için)
+        
+        // --- ESKİ RENKLER (Uyumluluk için tutuldu) ---
+        emerald: '#005C42',  
+        slate: '#4A5D75',    
+        ice: '#E3F2FD',      
+        clay: '#b45309',     // Kiremit rengi (Revize edildi)
 
-        // --- YENİ EKLENEN: MANEVİ FERAHLIK (Turkuaz/Teal) ---
+        // Manevi Mavi Tonları
         spiritual: {
-          DEFAULT: '#008080', // Teal (Ana Turkuaz - Dengeleyici)
-          light: '#20B2AA',   // Açık Turkuaz (Vurgular ve Hover için)
-          dim: 'rgba(0, 128, 128, 0.1)', // Arka plan efektleri için opak
+          DEFAULT: '#60a5fa',
+          light: '#93c5fd',
+          dim: '#1e3a8a',
         },
       },
+      
+      // --- YAZI TİPLERİ (Tipografi) ---
       fontFamily: {
-        // GÜNCELLENDİ: Modern ve Geometrik Başlıklar
-        sans: ['"IBM Plex Arabic"', '"29LT Bukra"', 'ui-sans-serif', 'system-ui'],
-        
-        // GÜNCELLENDİ: Klasik Naskh Hattı (Uzun Okuma Metinleri)
-        serif: ['"Amiri"', '"Markazi Text"', 'ui-serif', 'Georgia'],
+        // Modern ve Okunaklı (Gövde metinleri için)
+        sans: ['Inter', '"IBM Plex Arabic"', 'sans-serif'],
+        // Estetik ve Başlıklar için (Kitap kapağı havası)
+        serif: ['"Cinzel Decorative"', '"Amiri"', 'serif'],
       },
+
+      // --- ANİMASYONLAR ---
       animation: {
-        'spin-slow': 'spin 30s linear infinite',
-        'fade-in': 'fadeIn 0.8s ease-out forwards', // Sayfa geçişleri için yumuşak giriş
-        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'fade-in': 'fadeIn 0.5s ease-in-out',
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'spin-slow': 'spin 4s linear infinite', // Logo'daki "Nur" (Sparkles) dönüşü için gerekli
       },
-      // Animasyon Tanımları (Keyframes)
+      
+      // --- ANİMASYON KEYFRAME'LERİ ---
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0', transform: 'translateY(10px)' },
