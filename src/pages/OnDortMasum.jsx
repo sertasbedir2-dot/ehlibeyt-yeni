@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Search, MapPin, Calendar, Star, BookOpen, Crown } from 'lucide-react';
+import { Search, MapPin, Calendar, Star, Crown } from 'lucide-react';
 
 export default function OnDortMasum() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -10,7 +10,7 @@ export default function OnDortMasum() {
     {
       id: 1,
       name: "Hz. Muhammed (s.a.a)",
-      title: "Hatemü'l Enbiya (Peygamberlerin Sonuncusu)",
+      title: "Hatemü'l Enbiya",
       role: "Peygamber",
       dates: "571 - 632",
       burial: "Medine-i Münevvere",
@@ -19,7 +19,7 @@ export default function OnDortMasum() {
     {
       id: 2,
       name: "Hz. Ali (a.s)",
-      title: "Emirü'l Müminin (Müminlerin Emiri)",
+      title: "Emirü'l Müminin",
       role: "1. İmam",
       dates: "600 - 661",
       burial: "Necef-i Eşref",
@@ -28,7 +28,7 @@ export default function OnDortMasum() {
     {
       id: 3,
       name: "Hz. Fatımatu'z Zehra (s.a)",
-      title: "Seyyidetü'n Nisa (Kadınların Efendisi)",
+      title: "Seyyidetü'n Nisa",
       role: "Peygamber Kızı / Masume",
       dates: "605 - 632",
       burial: "Medine (Kabri Gizlidir)",
@@ -37,7 +37,7 @@ export default function OnDortMasum() {
     {
       id: 4,
       name: "İmam Hasan (a.s)",
-      title: "Mücteba (Seçilmiş)",
+      title: "Mücteba",
       role: "2. İmam",
       dates: "625 - 670",
       burial: "Medine (Baki Mezarlığı)",
@@ -46,7 +46,7 @@ export default function OnDortMasum() {
     {
       id: 5,
       name: "İmam Hüseyin (a.s)",
-      title: "Seyyidü'ş Şüheda (Şehitlerin Efendisi)",
+      title: "Seyyidü'ş Şüheda",
       role: "3. İmam",
       dates: "626 - 680",
       burial: "Kerbela",
@@ -55,7 +55,7 @@ export default function OnDortMasum() {
     {
       id: 6,
       name: "İmam Zeynel Abidin (a.s)",
-      title: "Seccad (Çok Secde Eden)",
+      title: "Seccad",
       role: "4. İmam",
       dates: "659 - 713",
       burial: "Medine (Baki Mezarlığı)",
@@ -64,7 +64,7 @@ export default function OnDortMasum() {
     {
       id: 7,
       name: "İmam Muhammed Bakır (a.s)",
-      title: "Bakır (İlmi Yaran)",
+      title: "Bakır",
       role: "5. İmam",
       dates: "677 - 733",
       burial: "Medine (Baki Mezarlığı)",
@@ -73,7 +73,7 @@ export default function OnDortMasum() {
     {
       id: 8,
       name: "İmam Cafer-i Sadık (a.s)",
-      title: "Sadık (Doğru Söyleyen)",
+      title: "Sadık",
       role: "6. İmam",
       dates: "702 - 765",
       burial: "Medine (Baki Mezarlığı)",
@@ -82,7 +82,7 @@ export default function OnDortMasum() {
     {
       id: 9,
       name: "İmam Musa Kazım (a.s)",
-      title: "Kazım (Öfkesini Yenen)",
+      title: "Kazım",
       role: "7. İmam",
       dates: "745 - 799",
       burial: "Kazımiye (Bağdat)",
@@ -91,7 +91,7 @@ export default function OnDortMasum() {
     {
       id: 10,
       name: "İmam Ali Rıza (a.s)",
-      title: "Rıza (Razı Olunan)",
+      title: "Rıza",
       role: "8. İmam",
       dates: "765 - 818",
       burial: "Meşhed (Tus)",
@@ -100,7 +100,7 @@ export default function OnDortMasum() {
     {
       id: 11,
       name: "İmam Muhammed Taki (a.s)",
-      title: "Cevad (Cömert)",
+      title: "Cevad",
       role: "9. İmam",
       dates: "811 - 835",
       burial: "Kazımiye (Bağdat)",
@@ -109,7 +109,7 @@ export default function OnDortMasum() {
     {
       id: 12,
       name: "İmam Ali Naki (a.s)",
-      title: "Hadi (Hidayet Eden)",
+      title: "Hadi",
       role: "10. İmam",
       dates: "829 - 868",
       burial: "Samarra",
@@ -118,7 +118,7 @@ export default function OnDortMasum() {
     {
       id: 13,
       name: "İmam Hasan Askeri (a.s)",
-      title: "Askeri (Askeri Bölgede Yaşayan)",
+      title: "Askeri",
       role: "11. İmam",
       dates: "846 - 874",
       burial: "Samarra",
@@ -127,10 +127,10 @@ export default function OnDortMasum() {
     {
       id: 14,
       name: "İmam Mehdi (a.f)",
-      title: "Mehdi / Kaim (Kıyam Eden)",
+      title: "Mehdi / Kaim",
       role: "12. İmam",
       dates: "869 - ...",
-      burial: "Gaybette (Hayatta)",
+      burial: "Gaybette",
       desc: "Allah'ın yeryüzündeki son hücceti. Zulümle dolan dünyayı adaletle doldurmak üzere zuhur edeceği vaat edilen kurtarıcı."
     }
   ];
@@ -150,7 +150,7 @@ export default function OnDortMasum() {
       </Helmet>
 
       {/* --- HERO BÖLÜMÜ --- */}
-      <div className="text-center space-y-4 py-8 bg-gradient-to-b from-midnight to-primary rounded-b-3xl border-b border-gold/10">
+      <div className="text-center space-y-4 py-8 bg-gradient-to-b from-midnight to-[#162e45] rounded-b-3xl border-b border-gold/10">
         <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-gold/10 text-gold border border-gold/20 mb-2">
           <Crown size={16} /> <span className="text-xs font-bold tracking-widest uppercase">Nübüvvet ve Velayet Hattı</span>
         </div>
@@ -158,25 +158,25 @@ export default function OnDortMasum() {
           14 Masum-u Pak
         </h1>
         <p className="text-slate-300 max-w-2xl mx-auto font-serif text-lg leading-relaxed">
-          Arınmışlıkları Kur'an ile sabit olan (Ahzab, 33), hidayet önderleri ve karanlıkların aydınlatıcı kandilleri.
+          Arınmışlıkları Kur'an ile sabit olan, hidayet önderleri ve karanlıkların aydınlatıcı kandilleri.
         </p>
         
-        {/* Arama Çubuğu */}
+        {/* Arama Çubuğu (DÜZELTİLDİ: bg-[#162e45] eklendi) */}
         <div className="max-w-md mx-auto relative mt-6">
           <input 
             type="text" 
             placeholder="İsim, lakap veya şehir ara..." 
-            className="w-full bg-primary-light border border-gold/20 rounded-xl py-3 px-12 text-sand placeholder-slate-500 focus:outline-none focus:border-gold/50 transition shadow-lg"
+            className="w-full bg-[#162e45] border border-gold/20 rounded-xl py-3 px-12 text-sand placeholder-slate-500 focus:outline-none focus:border-gold/50 transition shadow-lg"
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <Search className="absolute left-4 top-3.5 text-gold" size={20} />
         </div>
       </div>
 
-      {/* --- KARTLAR GRID --- */}
+      {/* --- KARTLAR GRID (DÜZELTİLDİ: bg-[#162e45] eklendi) --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
         {filteredMasumlar.map((masum) => (
-          <div key={masum.id} className="group relative bg-primary-light rounded-2xl overflow-hidden border border-white/5 hover:border-gold/40 transition-all duration-500 hover:-translate-y-2 shadow-xl">
+          <div key={masum.id} className="group relative bg-[#162e45] rounded-2xl overflow-hidden border border-white/5 hover:border-gold/40 transition-all duration-500 hover:-translate-y-2 shadow-xl">
             
             {/* Kart Üst Süsü (Altın Çizgi) */}
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gold/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
