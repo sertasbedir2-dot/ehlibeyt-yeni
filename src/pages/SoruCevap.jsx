@@ -51,8 +51,8 @@ export default function SoruCevap() {
         </p>
       </div>
 
-      {/* --- YASAL/ŞERİ UYARI (DISCLAIMER) --- */}
-      <div className="bg-primary-light border-l-4 border-clay p-6 rounded-r-xl mx-auto max-w-4xl shadow-lg flex gap-4 items-start">
+      {/* --- YASAL/ŞERİ UYARI (DISCLAIMER) - Düzeltildi: bg-[#162e45] --- */}
+      <div className="bg-[#162e45] border-l-4 border-clay p-6 rounded-r-xl mx-auto max-w-4xl shadow-lg flex gap-4 items-start">
         <AlertCircle className="text-clay flex-shrink-0 mt-1" size={24} />
         <div className="space-y-2">
           <h3 className="text-clay font-bold font-sans text-lg">Önemli Hatırlatma</h3>
@@ -72,7 +72,7 @@ export default function SoruCevap() {
             href={auth.url} 
             target="_blank" 
             rel="noopener noreferrer"
-            className={`flex items-center justify-between p-4 bg-midnight rounded-xl border ${auth.color} hover:bg-primary-light transition group`}
+            className={`flex items-center justify-between p-4 bg-midnight rounded-xl border ${auth.color} hover:bg-[#162e45] transition group`}
           >
             <div className="flex items-center gap-3">
               <BookOpen size={20} className="text-slate-400 group-hover:text-gold transition-colors" />
@@ -86,10 +86,11 @@ export default function SoruCevap() {
       {/* --- SIK SORULAN SORULAR (AKORDİYON) --- */}
       <div className="max-w-3xl mx-auto mt-12 space-y-4">
         <div className="relative mb-8">
+             {/* Düzeltildi: bg-[#162e45] */}
              <input 
                 type="text" 
                 placeholder="Konu ara (Örn: Gadir-i Hum, Secde...)" 
-                className="w-full bg-primary-light border border-gold/20 rounded-xl py-3 px-12 text-sand placeholder-slate-500 focus:outline-none focus:border-gold/50 transition"
+                className="w-full bg-[#162e45] border border-gold/20 rounded-xl py-3 px-12 text-sand placeholder-slate-500 focus:outline-none focus:border-gold/50 transition"
                 onChange={(e) => setSearchTerm(e.target.value)}
              />
              <Search className="absolute left-4 top-3.5 text-slate-500" size={20} />
@@ -98,7 +99,8 @@ export default function SoruCevap() {
         {faqs
           .filter(faq => faq.question.toLowerCase().includes(searchTerm.toLowerCase()) || faq.answer.toLowerCase().includes(searchTerm.toLowerCase()))
           .map((faq, index) => (
-          <div key={faq.id} className="bg-primary-light border border-white/5 rounded-2xl overflow-hidden transition-all duration-300">
+          /* Düzeltildi: bg-[#162e45] */
+          <div key={faq.id} className="bg-[#162e45] border border-white/5 rounded-2xl overflow-hidden transition-all duration-300">
             <button 
               onClick={() => setOpenIndex(openIndex === index ? null : index)}
               className="w-full flex items-center justify-between p-5 text-left hover:bg-white/5 transition"
