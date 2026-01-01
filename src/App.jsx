@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Search, ShieldCheck, X, ArrowRight, Book, Star, HelpCircle, FileText, Heart, Trophy, BookOpen, Sparkles } from 'lucide-react';
+import { Search, ShieldCheck, X, ArrowRight, Book, Star, HelpCircle, FileText, Heart, Trophy, BookOpen, Sparkles, DoorOpen } from 'lucide-react';
 
 // --- DATA ---
 import { globalSearchData } from './data/siteData'; 
 
 // --- COMPONENTS ---
 import MusicPlayer from './components/MusicPlayer'; 
+import InstallPrompt from './components/InstallPrompt'; // YENİ: PWA Yükleme Modalı
 
 // --- CONTEXT ---
 import { AppProvider, useAppContext } from './context/AppContext';
@@ -23,7 +24,7 @@ import Quiz from './pages/Quiz';
 import MediaCenter from './pages/MediaCenter';
 import Library from './pages/Library';
 import KitapOku from './pages/KitapOku';
-import Favorites from './pages/Favorites'; // New Page
+import Favorites from './pages/Favorites'; 
 
 // Toast Component
 function Toast() {
@@ -57,7 +58,11 @@ function SearchResults({ query, closeSearch }) {
             <div className="p-2 bg-turquoise rounded-lg text-gold group-hover:scale-110 transition-transform">
                {result.type === "Kitap" && <Book size={20} />}
                {result.type === "14 Masum" && <Star size={20} />}
-               {/* ... icons ... */}
+               {result.type === "Soru/Cevap" && <HelpCircle size={20} />}
+               {result.type === "Makale" && <FileText size={20} />}
+               {result.type === "Zikir" && <Star size={20} />}
+               {result.type === "Reçete" && <Heart size={20} />}
+               {result.type === "Yarışma" && <Trophy size={20} />}
             </div>
             <div>
               <h4 className="text-sand font-bold text-lg group-hover:text-gold">{result.title}</h4>
@@ -119,7 +124,7 @@ function AppContent() {
                  <NavLink to="/ilim" label="İlim" />
                  <NavLink to="/medya" label="Medya" />
                  <NavLink to="/quiz" label="Yarışma" />
-                 <NavLink to="/heybem" label="Heybem" /> {/* NEW LINK */}
+                 <NavLink to="/heybem" label="Heybem" /> 
                </div>
                
                <button onClick={() => setIsSearchOpen(!isSearchOpen)} className={`p-2 rounded-full transition-all border ${isSearchOpen ? 'bg-gold text-turquoise-dark border-gold' : 'text-gold hover:bg-gold/10 border-transparent hover:border-gold/30'}`}>
@@ -162,7 +167,7 @@ function AppContent() {
                <MobileNavLink to="/ilim" label="İlim" onClick={() => setIsMenuOpen(false)} />
                <MobileNavLink to="/medya" label="Medya" onClick={() => setIsMenuOpen(false)} />
                <MobileNavLink to="/quiz" label="Yarışma" onClick={() => setIsMenuOpen(false)} />
-               <MobileNavLink to="/heybem" label="Heybem (Favoriler)" onClick={() => setIsMenuOpen(false)} /> {/* NEW LINK */}
+               <MobileNavLink to="/heybem" label="Heybem (Favoriler)" onClick={() => setIsMenuOpen(false)} />
              </div>
            </div>
          )}
@@ -180,13 +185,16 @@ function AppContent() {
            <Route path="/ilim" element={<Science />} />
            <Route path="/quiz" element={<Quiz />} />
            <Route path="/medya" element={<MediaCenter />} />
-           <Route path="/heybem" element={<Favorites />} /> {/* NEW ROUTE */}
+           <Route path="/heybem" element={<Favorites />} /> 
          </Routes>
        </main>
 
        <div className="fixed bottom-6 right-6 z-[100] scale-90 md:scale-100 origin-bottom-right">
          <MusicPlayer />
        </div>
+
+       {/* YENİ: PWA YÜKLEME MODALI */}
+       <InstallPrompt />
 
        <footer className="bg-turquoise-dark border-t border-gold/10 py-8 mt-auto relative overflow-hidden">
          <div className="absolute inset-0 bg-black/10 pointer-events-none"></div>
