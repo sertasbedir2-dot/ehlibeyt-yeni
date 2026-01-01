@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Search, ShieldCheck, X, ArrowRight, Book, Star, HelpCircle, FileText } from 'lucide-react';
+import { Search, ShieldCheck, X, ArrowRight, Book, Star, HelpCircle, FileText, Heart } from 'lucide-react';
 
 // --- VERİ HAVUZU ---
 import { globalSearchData } from './data/siteData'; 
@@ -52,6 +52,7 @@ function SearchResults({ query, closeSearch }) {
                {result.type === "Soru/Cevap" && <HelpCircle size={20} />}
                {result.type === "Makale" && <FileText size={20} />}
                {result.type === "Zikir" && <Star size={20} />}
+               {result.type === "Reçete" && <Heart size={20} />}
             </div>
             <div>
               <h4 className="text-sand font-bold text-lg group-hover:text-gold">{result.title}</h4>
@@ -94,10 +95,12 @@ function App() {
                 </Link>
               </div>
 
+              {/* MASAÜSTÜ MENÜ (Link Eklendi) */}
               <div className="hidden md:flex items-center space-x-1">
                  <div className="flex items-baseline space-x-1 mr-4">
                   <NavLink to="/" label="Ana Sayfa" />
                   <NavLink to="/zikir" label="Zikirmatik" />
+                  <NavLink to="/manevi-receteler" label="Manevi Reçeteler" /> {/* EKLENDİ */}
                   <NavLink to="/library" label="Kütüphane" />
                   <NavLink to="/14-masum" label="14 Masum" />
                   <NavLink to="/soru-cevap" label="Soru/Cevap" />
@@ -114,6 +117,7 @@ function App() {
                 </button>
               </div>
 
+              {/* MOBİL BUTON */}
               <div className="-mr-2 flex md:hidden">
                 <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="bg-slate p-2 rounded-md text-sand hover:text-white border border-gold/20">
                   <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -138,18 +142,17 @@ function App() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-
-              {/* SONUÇLAR BURADA LİSTELENİYOR */}
               <SearchResults query={searchQuery} closeSearch={() => setIsSearchOpen(false)} />
-
             </div>
           )}
 
+          {/* MOBİL MENÜ (Link Eklendi) */}
           {isMenuOpen && (
             <div className="md:hidden bg-midnight border-t border-gold/20">
               <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                 <MobileNavLink to="/" label="Ana Sayfa" onClick={() => setIsMenuOpen(false)} />
                 <MobileNavLink to="/zikir" label="Zikirmatik" onClick={() => setIsMenuOpen(false)} />
+                <MobileNavLink to="/manevi-receteler" label="Manevi Reçeteler" onClick={() => setIsMenuOpen(false)} /> {/* EKLENDİ */}
                 <MobileNavLink to="/library" label="Kütüphane" onClick={() => setIsMenuOpen(false)} />
                 <MobileNavLink to="/14-masum" label="14 Masum" onClick={() => setIsMenuOpen(false)} />
                 <MobileNavLink to="/soru-cevap" label="Soru & Cevap" onClick={() => setIsMenuOpen(false)} />
@@ -201,7 +204,7 @@ function App() {
 }
 
 const NavLink = ({ to, label }) => (
-  <Link to={to} className="text-slate-300 hover:text-gold hover:bg-gold/5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 font-sans tracking-wide">
+  <Link to={to} className="text-slate-300 hover:text-gold hover:bg-gold/5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 font-sans tracking-wide whitespace-nowrap">
     {label}
   </Link>
 );
