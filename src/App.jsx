@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async'; // <--- SEO İÇİN EKLENDİ
-import { Search, ShieldCheck } from 'lucide-react'; // <--- YENİ İKONLAR
+import { Helmet } from 'react-helmet-async';
+import { Search, ShieldCheck, X, ArrowRight } from 'lucide-react'; // <--- X ve ArrowRight EKLENDİ
 
 // --- BİLEŞENLER ---
 import MusicPlayer from './components/MusicPlayer'; 
@@ -20,20 +20,21 @@ import KitapOku from './pages/KitapOku';
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false); // <--- ARAMA DURUMU
+  const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <Router>
       <div className="min-h-screen w-full bg-midnight text-sand flex flex-col font-serif relative">
         
-        {/* --- GLOBAL SEO AYARLARI (Semantic Web) --- */}
+        {/* --- GLOBAL SEO AYARLARI --- */}
         <Helmet>
           <title>Ehlibeyt Yolu | İlim ve Hikmet Kapısı</title>
-          <meta name="description" content="Ehlibeyt'in nurlu yolunda ilim, hikmet ve maneviyat durağı. Usuli bakış açısıyla hazırlanmış dijital külliye." />
-          <meta name="keywords" content="Ehlibeyt, Şia, İlim, Zikir, Kütüphane, 14 Masum" />
+          <meta name="description" content="Ehlibeyt'in nurlu yolunda ilim, hikmet ve maneviyat durağı." />
         </Helmet>
 
         {/* --- NAVBAR --- */}
-        <nav className="bg-midnight border-b border-gold/20 sticky top-0 z-50 shadow-2xl backdrop-blur-md bg-opacity-90">
+        <nav className="bg-midnight border-b border-gold/20 sticky top-0 z-50 shadow-2xl backdrop-blur-md bg-opacity-90 transition-all">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-20">
               
@@ -56,9 +57,13 @@ function App() {
                   <NavLink to="/medya" label="Medya" />
                 </div>
                 
-                {/* AKILLI ARAMA BUTONU (Semantik Web Altyapısı) */}
-                <button className="p-2 text-gold hover:bg-gold/10 rounded-full transition-all border border-transparent hover:border-gold/30" title="Akıllı Arama (Yakında)">
-                  <Search size={20} />
+                {/* ARAMA BUTONU (Artık İşlevsel) */}
+                <button 
+                  onClick={() => setIsSearchOpen(!isSearchOpen)}
+                  className={`p-2 rounded-full transition-all border ${isSearchOpen ? 'bg-gold text-midnight border-gold' : 'text-gold hover:bg-gold/10 border-transparent hover:border-gold/30'}`}
+                  title="Arama Yap"
+                >
+                  {isSearchOpen ? <X size={20} /> : <Search size={20} />}
                 </button>
               </div>
 
@@ -72,6 +77,30 @@ function App() {
               </div>
             </div>
           </div>
+
+          {/* --- AÇILIR ARAMA PANELI (YENİ) --- */}
+          {isSearchOpen && (
+            <div className="absolute top-full left-0 w-full bg-[#162e45] border-b border-gold/20 p-4 shadow-2xl animate-fade-in z-40">
+              <div className="max-w-3xl mx-auto flex items-center gap-4">
+                <Search className="text-gold opacity-50" size={24} />
+                <input 
+                  type="text" 
+                  autoFocus
+                  placeholder="Site genelinde ara (Örn: Namaz, Kerbela, Kütüphane)..." 
+                  className="w-full bg-transparent text-xl text-sand placeholder-slate-400 border-none outline-none font-sans"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && alert("Global Arama özelliği yakında tüm veritabanına bağlanacak.")}
+                />
+                <button className="bg-gold text-midnight px-4 py-2 rounded-lg font-bold text-sm hover:bg-white transition flex items-center gap-2">
+                  Ara <ArrowRight size={16}/>
+                </button>
+              </div>
+              <div className="max-w-3xl mx-auto mt-2 text-xs text-slate-400">
+                Popüler: <span className="text-spiritual-light cursor-pointer hover:underline">Zikirler</span>, <span className="text-spiritual-light cursor-pointer hover:underline">14 Masum</span>, <span className="text-spiritual-light cursor-pointer hover:underline">Mersiyeler</span>
+              </div>
+            </div>
+          )}
 
           {/* MOBİL MENÜ İÇERİĞİ */}
           {isMenuOpen && (
@@ -110,28 +139,20 @@ function App() {
           <MusicPlayer />
         </div>
 
-        {/* --- FOOTER (GİZLİLİK VE GÜVEN) --- */}
+        {/* --- FOOTER --- */}
         <footer className="bg-midnight border-t border-gold/10 py-8 mt-auto relative overflow-hidden">
-           {/* Hafif koyu katman */}
           <div className="absolute inset-0 bg-black/20 pointer-events-none"></div>
-          
           <div className="max-w-7xl mx-auto px-4 text-center space-y-4 relative z-10">
-            {/* Logo ve Slogan */}
             <div>
               <span className="text-xl font-sans font-bold text-gold block mb-1">Ehlibeyt Yolu</span>
               <span className="text-xs text-slate tracking-widest uppercase">İlim ve Hikmet Kapısı</span>
             </div>
-
-            {/* Veri Egemenliği Rozeti */}
             <div className="flex items-center justify-center gap-2 text-spiritual-light bg-spiritual-dim/10 py-2 px-4 rounded-full mx-auto w-fit border border-spiritual/20">
               <ShieldCheck size={16} />
               <span className="text-xs font-bold">Reklamsız & Takipçisiz Güvenli Alan</span>
             </div>
-
             <p className="text-slate text-xs max-w-2xl mx-auto leading-relaxed opacity-70">
-              Bu platformda kullanıcı verileri asla toplanmaz, satılmaz ve analiz edilmez. 
-              Sadece ilim ve rıza-i ilahi gözetilerek hazırlanmıştır. 
-              &copy; 2025 Ehlibeyt Yolu.
+              Bu platformda kullanıcı verileri asla toplanmaz. &copy; 2025 Ehlibeyt Yolu.
             </p>
           </div>
         </footer>
