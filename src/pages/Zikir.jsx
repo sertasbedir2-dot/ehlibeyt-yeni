@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { RotateCcw, Volume2, VolumeX, ChevronDown, CheckCircle, Sparkles } from 'lucide-react';
+import { RotateCcw, Volume2, VolumeX, ChevronDown, CheckCircle, Sparkles, Search, BookOpen } from 'lucide-react';
 
 export default function Zikir() {
   // --- STATE YÖNETİMİ ---
@@ -8,65 +8,102 @@ export default function Zikir() {
   const [target, setTarget] = useState(100);
   const [label, setLabel] = useState("Salavat-ı Şerife");
   const [isSoundOn, setIsSoundOn] = useState(true);
+  
+  // Zehra Modu State'leri
   const [zehraMode, setZehraMode] = useState(false);
   const [zehraStage, setZehraStage] = useState(0);
+  
+  // UI State'leri
   const [showSuccess, setShowSuccess] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false); // Hızlı tıklamaları engellemek için
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  
+  // Esma Modu State'leri
+  const [esmaSearch, setEsmaSearch] = useState(""); // Arama terimi
+  const [selectedEsma, setSelectedEsma] = useState(null); // Seçili Esma objesi
 
-  // --- ZEHRA MODU VERİLERİ ---
+  // --- VERİTABANI: ESMA-ÜL HÜSNA (Örnek Liste) ---
+  const esmaUlHusna = [
+    {
+      id: 1,
+      arabic: "الله",
+      transliteration: "Allah",
+      meaning_tr: "Eşi benzeri olmayan, bütün noksan sıfatlardan münezzeh tek İlah.",
+      abjad_value: 66,
+      spiritual_benefit: "İman tazeleme ve her türlü murad için."
+    },
+    {
+      id: 2,
+      arabic: "الر الرحمن",
+      transliteration: "Er-Rahman",
+      meaning_tr: "Dünyada inanan ve inanmayan herkese merhamet eden.",
+      abjad_value: 298,
+      spiritual_benefit: "Dünya sıkıntılarını gidermek ve kalp yumuşaklığı için."
+    },
+    {
+      id: 3,
+      arabic: "الرحيم",
+      transliteration: "Er-Rahim",
+      meaning_tr: "Ahirette sadece müminlere merhamet edecek olan.",
+      abjad_value: 258,
+      spiritual_benefit: "Manevi rızık ve ahiret selameti için."
+    },
+    {
+      id: 4,
+      arabic: "القدوس",
+      transliteration: "El-Kuddüs",
+      meaning_tr: "Her türlü hatadan, gafletten ve eksiklikten çok uzak, pek temiz.",
+      abjad_value: 170,
+      spiritual_benefit: "Ruhsal arınma ve vesveseden kurtulmak için."
+    },
+    {
+      id: 5,
+      arabic: "السلام",
+      transliteration: "Es-Selam",
+      meaning_tr: "Kullarını selamete çıkaran, tehlikelerden koruyan.",
+      abjad_value: 131,
+      spiritual_benefit: "Korkulardan emin olmak ve hasta şifası için."
+    }
+    // Buraya diğer 94 isim eklenebilir...
+  ];
+
+  // --- SABİT ZİKİR LİSTESİ ---
+  const standardZikirs = [
+    { label: "Tesbihat-ı Zehra (Öncelikli)", value: "zehra", target: 34 },
+    { label: "Salavat-ı Şerife", value: "salavat", target: 100 },
+    { label: "La ilahe illallah", value: "tehvid", target: 100 },
+    { label: "Estağfirullah", value: "istigfar", target: 100 },
+    { label: "Serbest Mod", value: "free", target: 99999 }
+  ];
+
+  // --- ZEHRA MODU ADIMLARI ---
   const zehraSteps = [
     { label: "Allahu Ekber", target: 34 },
     { label: "Elhamdulillah", target: 33 },
     { label: "Subhanallah", target: 33 }
   ];
 
-  // --- ZİKİR LİSTESİ ---
-  const zikirList = [
-    { label: "Seçiniz...", value: "default", target: 100 },
-    { label: "Tesbihat-ı Zehra (Özel Mod)", value: "zehra", target: 34 },
-    { label: "Salavat-ı Şerife", value: "salavat", target: 100 },
-    { label: "La ilahe illallah", value: "tehvid", target: 100 },
-    { label: "Estağfirullah", value: "istigfar", target: 100 },
-    { label: "Ya Allah", value: "esma", target: 99 },
-    { label: "Serbest Mod", value: "free", target: 99999 } // Hedef çok yüksek
-  ];
-
-  // --- MANTIK MOTORU (CRITICAL BUG FIX APPLIED) ---
+  // --- MANTIK MOTORU ---
   const handleIncrement = () => {
-    // Geçiş animasyonu sırasındaysa tıklamayı engelle
     if (isTransitioning) return;
-
-    // Haptics (Titreşim)
     if (navigator.vibrate) navigator.vibrate(50);
     
-    // Ses Efekti
-    if (isSoundOn) {
-      // const audio = new Audio('/assets/click.mp3'); audio.play().catch(() => {});
-    }
-
     const nextCount = count + 1;
     
-    // Serbest Mod mantığı (Hedef sınırı yok)
+    // Serbest Mod
     if (label === "Serbest Mod") {
       setCount(nextCount);
       return;
     }
 
-    // Hedefi aşmayı engelle
     if (count >= target) return;
 
-    // ÖNCE SAYIYI GÜNCELLE (UI'da görünsün)
     setCount(nextCount);
 
-    // HEDEF KONTROLÜ
     if (nextCount === target) {
-      setIsTransitioning(true); // Tıklamaları kilitle
-
-      // Kullanıcının hedef sayıyı (örn: 34) görmesi için kısa bekleme
+      setIsTransitioning(true);
       setTimeout(() => {
         if (zehraMode) {
           if (zehraStage < 2) {
-            // Sonraki aşamaya geç
             const nextStage = zehraStage + 1;
             setZehraStage(nextStage);
             setCount(0);
@@ -74,16 +111,14 @@ export default function Zikir() {
             setTarget(zehraSteps[nextStage].target);
             setIsTransitioning(false);
           } else {
-            // Zehra modu bitti
             setShowSuccess(true);
             setIsTransitioning(false);
           }
         } else {
-          // Normal mod hedef tamamlandı
           setShowSuccess(true);
           setIsTransitioning(false);
         }
-      }, 500); // 500ms gecikme (Görsel algı için)
+      }, 500);
     }
   };
 
@@ -98,42 +133,67 @@ export default function Zikir() {
     }
   };
 
-  const handleZikirChange = (e) => {
-    const selectedValue = e.target.value;
-    const selectedZikir = zikirList.find(z => z.value === selectedValue);
+  // --- SEÇİM MANTIĞI (FILTER + SELECT) ---
+  
+  // Arama filtresi
+  const filteredEsmalar = esmaUlHusna.filter(esma => 
+    esma.transliteration.toLowerCase().includes(esmaSearch.toLowerCase()) ||
+    esma.meaning_tr.toLowerCase().includes(esmaSearch.toLowerCase()) ||
+    esma.spiritual_benefit.toLowerCase().includes(esmaSearch.toLowerCase())
+  );
 
+  const handleSelectionChange = (e) => {
+    const value = e.target.value;
+    
     setCount(0);
     setShowSuccess(false);
     setIsTransitioning(false);
 
-    if (selectedValue === "zehra") {
-      setZehraMode(true);
-      setZehraStage(0);
-      setLabel(zehraSteps[0].label);
-      setTarget(zehraSteps[0].target);
-    } else {
-      setZehraMode(false);
-      setLabel(selectedZikir.label);
-      setTarget(selectedZikir.target);
+    // 1. Standart Zikir Kontrolü
+    const standard = standardZikirs.find(z => z.value === value);
+    if (standard) {
+      setSelectedEsma(null); // Esma kartını kapat
+      if (value === "zehra") {
+        setZehraMode(true);
+        setZehraStage(0);
+        setLabel(zehraSteps[0].label);
+        setTarget(zehraSteps[0].target);
+      } else {
+        setZehraMode(false);
+        setLabel(standard.label);
+        setTarget(standard.target);
+      }
+      return;
+    }
+
+    // 2. Esma Kontrolü (Value formatı: "esma_ID")
+    if (value.startsWith("esma_")) {
+      const id = parseInt(value.split("_")[1]);
+      const esma = esmaUlHusna.find(e => e.id === id);
+      
+      if (esma) {
+        setZehraMode(false);
+        setSelectedEsma(esma);
+        setLabel(esma.transliteration); // Başlık Esmaya dönüşür
+        setTarget(esma.abjad_value);    // Hedef Ebced değeri olur
+      }
     }
   };
 
+  // --- GÖRSEL HESAPLAMALAR ---
   const radius = 120;
   const circumference = 2 * Math.PI * radius;
-  // Progress bar görsel düzeltmesi
   const progress = zehraMode && showSuccess ? 100 : Math.min((count / target) * 100, 100);
   const strokeDashoffset = circumference - (progress / 100) * circumference;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[85vh] animate-fade-in relative px-4 py-8">
       <Helmet>
-        {/* 3. CONTENT CORRECTION: Title Updated */}
         <title>Tesbihat | OnikiKapı</title>
-        <meta name="description" content="Akıllı tesbihat modülü ile manevi odağınızı koruyun." />
+        <meta name="description" content="Tesbihat-ı Zehra ve Esma-ül Hüsna ile manevi derinlik." />
       </Helmet>
 
-      {/* 3. CONTENT CORRECTION: Header Updated */}
-      <div className="text-center mb-8">
+      <div className="text-center mb-6">
         <h1 className="text-3xl md:text-5xl font-sans font-bold text-transparent bg-clip-text bg-gradient-to-r from-sand via-gold to-sand mb-2">
           Tesbihat
         </h1>
@@ -142,99 +202,123 @@ export default function Zikir() {
         </p>
       </div>
 
-      {/* --- BAŞARILI BİTİŞ OVERLAY --- */}
+      {/* --- SUCCESS OVERLAY --- */}
       {showSuccess && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-midnight/90 backdrop-blur-md rounded-3xl animate-fade-in">
           <div className="text-center space-y-4 animate-bounce">
             <Sparkles size={60} className="text-gold mx-auto" />
             <h2 className="text-4xl font-bold text-sand font-serif">Allah Kabul Etsin</h2>
-            <button 
-              onClick={handleReset}
-              className="bg-gold text-midnight px-6 py-2 rounded-full font-bold hover:bg-white transition"
-            >
+            <button onClick={handleReset} className="bg-gold text-midnight px-6 py-2 rounded-full font-bold hover:bg-white transition">
               Yeniden Başla
             </button>
           </div>
         </div>
       )}
 
-      {/* --- DROPDOWN --- */}
-      <div className="mb-10 w-full max-w-xs relative">
-        <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gold">
-          <ChevronDown size={20} />
+      {/* --- KONTROL PANELİ (ARAMA & SEÇİM) --- */}
+      <div className="mb-8 w-full max-w-sm space-y-3">
+        
+        {/* 1. Esma Arama Kutusu */}
+        <div className="relative">
+          <Search className="absolute left-3 top-3 text-gold/50" size={18} />
+          <input 
+            type="text" 
+            placeholder="Esma veya anlam ara... (Örn: Rızık)" 
+            className="w-full bg-midnight/50 border border-gold/20 rounded-xl py-2 pl-10 pr-4 text-sand placeholder-slate-500 focus:outline-none focus:border-gold/50 text-sm transition-all"
+            value={esmaSearch}
+            onChange={(e) => setEsmaSearch(e.target.value)}
+          />
         </div>
-        <select 
-          onChange={handleZikirChange}
-          className="w-full appearance-none bg-midnight border-2 border-gold/30 text-gold py-3 px-6 rounded-2xl font-sans font-bold text-lg focus:outline-none focus:border-gold focus:shadow-[0_0_15px_rgba(197,160,89,0.3)] transition-all cursor-pointer"
-        >
-          {zikirList.map((z, i) => (
-            <option key={i} value={z.value} className="bg-midnight text-sand py-2">
-              {z.label}
-            </option>
-          ))}
-        </select>
+
+        {/* 2. Dropdown Menü */}
+        <div className="relative">
+          <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gold">
+            <ChevronDown size={20} />
+          </div>
+          <select 
+            onChange={handleSelectionChange}
+            className="w-full appearance-none bg-midnight border-2 border-gold/30 text-gold py-3 px-6 rounded-2xl font-sans font-bold text-lg focus:outline-none focus:border-gold focus:shadow-[0_0_15px_rgba(197,160,89,0.3)] transition-all cursor-pointer"
+          >
+            {/* Standart Zikirler */}
+            <optgroup label="Tesbihatlar">
+              {standardZikirs.map((z, i) => (
+                <option key={i} value={z.value}>{z.label}</option>
+              ))}
+            </optgroup>
+
+            {/* Esma-ül Hüsna (Filtrelenmiş) */}
+            <optgroup label="Esma-ül Hüsna (Ebced Değerli)">
+              {filteredEsmalar.map((esma) => (
+                <option key={esma.id} value={`esma_${esma.id}`}>
+                  {esma.transliteration} (Hedef: {esma.abjad_value})
+                </option>
+              ))}
+            </optgroup>
+          </select>
+        </div>
       </div>
 
-      {/* --- TESBİHAT GÖVDESİ --- */}
-      <div className="relative group">
-        
+      {/* --- SAYAÇ GÖVDESİ --- */}
+      <div className="relative group mb-8">
         <div className="absolute -inset-4 bg-gold/10 rounded-full blur-xl group-hover:bg-gold/20 transition-all duration-500"></div>
-
         <div className="relative w-80 h-80 bg-[#162e45] rounded-full shadow-2xl border-4 border-gold/10 flex items-center justify-center">
           
-          {/* Progress Bar */}
           <svg className="absolute inset-0 w-full h-full -rotate-90 transform" viewBox="0 0 280 280">
             <circle cx="140" cy="140" r={radius} fill="transparent" stroke="#0f172a" strokeWidth="12" strokeDasharray="4 8" />
             <circle cx="140" cy="140" r={radius} fill="transparent" stroke="#FFD700" strokeWidth="12" strokeDasharray="4 8" strokeDashoffset={strokeDashoffset} strokeLinecap="round" className="transition-all duration-300 ease-out drop-shadow-[0_0_8px_rgba(255,215,0,0.6)]" />
           </svg>
 
-          {/* Orta Bilgi Alanı */}
           <div className="z-10 text-center space-y-2 flex flex-col items-center">
-            
             <p className="text-turquoise-light text-xs font-bold tracking-[0.2em] uppercase">
               {zehraMode ? `Adım ${zehraStage + 1}/3` : "Ruhun Nefesi"}
             </p>
-            
             <h1 className="text-7xl font-sans font-bold text-sand tabular-nums drop-shadow-lg leading-none">
               {count}
             </h1>
-
-            {/* 2. UI UPDATE: TARGET DISPLAY */}
             {label !== "Serbest Mod" && (
-              <p className="text-gold/70 text-sm font-bold font-sans">
-                / {target}
-              </p>
+              <p className="text-gold/70 text-sm font-bold font-sans">/ {target}</p>
             )}
-            
             <p className="text-gold font-serif text-xl max-w-[200px] mx-auto leading-tight mt-2">
               {label}
             </p>
           </div>
-
         </div>
-
-        <button 
-          onClick={handleIncrement}
-          className="absolute inset-0 w-full h-full rounded-full cursor-pointer z-20 focus:outline-none active:scale-95 transition-transform duration-100"
-          aria-label="Tesbihat Çek"
-        ></button>
+        <button onClick={handleIncrement} className="absolute inset-0 w-full h-full rounded-full cursor-pointer z-20 focus:outline-none active:scale-95 transition-transform duration-100" aria-label="Zikir Çek"></button>
       </div>
 
-      {/* --- KONTROL BUTONLARI --- */}
-      <div className="mt-12 flex gap-6">
-        <button 
-          onClick={handleReset}
-          className="p-4 rounded-full bg-midnight border border-white/10 text-slate-400 hover:text-white hover:bg-red-500/20 hover:border-red-500/50 transition-all"
-          title="Sıfırla"
-        >
+      {/* --- ESMA BİLGİ KARTI (SADECE ESMA SEÇİLİYSE GÖRÜNÜR) --- */}
+      {selectedEsma && (
+        <div className="w-full max-w-lg bg-midnight/50 border border-gold/20 rounded-2xl p-6 animate-fade-in relative overflow-hidden group hover:border-gold/40 transition-colors">
+          <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+            <BookOpen size={100} className="text-gold" />
+          </div>
+          
+          <div className="flex items-start gap-4 relative z-10">
+            <div className="bg-turquoise/20 p-3 rounded-lg text-gold font-serif text-3xl border border-gold/20">
+              {selectedEsma.arabic}
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold text-sand">{selectedEsma.transliteration}</h3>
+              <p className="text-slate-300 text-sm leading-relaxed">
+                {selectedEsma.meaning_tr}
+              </p>
+              <div className="flex items-center gap-2 mt-2">
+                <Sparkles size={14} className="text-turquoise-light" />
+                <span className="text-xs font-bold text-turquoise-light uppercase tracking-wide">
+                  Manevi Sır: {selectedEsma.spiritual_benefit}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- ALT BUTONLAR --- */}
+      <div className="mt-8 flex gap-6">
+        <button onClick={handleReset} className="p-4 rounded-full bg-midnight border border-white/10 text-slate-400 hover:text-white hover:bg-red-500/20 hover:border-red-500/50 transition-all">
           <RotateCcw size={24} />
         </button>
-        
-        <button 
-          onClick={() => setIsSoundOn(!isSoundOn)}
-          className={`p-4 rounded-full border transition-all ${isSoundOn ? 'bg-gold/10 border-gold text-gold' : 'bg-midnight border-white/10 text-slate-400 hover:text-white'}`}
-          title="Ses Aç/Kapat"
-        >
+        <button onClick={() => setIsSoundOn(!isSoundOn)} className={`p-4 rounded-full border transition-all ${isSoundOn ? 'bg-gold/10 border-gold text-gold' : 'bg-midnight border-white/10 text-slate-400 hover:text-white'}`}>
           {isSoundOn ? <Volume2 size={24} /> : <VolumeX size={24} />}
         </button>
       </div>
