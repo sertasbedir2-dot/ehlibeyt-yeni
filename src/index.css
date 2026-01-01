@@ -1,38 +1,37 @@
+/* --- GOOGLE FONTS BAĞLANTILARI --- */
+/* Amiri (Metinler), IBM Plex Sans Arabic (Başlıklar), Markazi Text (Alternatif) */
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans+Arabic:wght@300;400;500;700&family=Markazi+Text:wght@400;500;600;700&display=swap');
+
+/* Tailwind Direktifleri */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* GENEL AYARLAR (Global Reset) */
-:root {
-  color-scheme: dark; /* Tarayıcıya sitenin karanlık mod olduğunu bildirir */
+/* --- GLOBAL STİLLER VE KUTSAL TASARIM KURALLARI --- */
+@layer base {
+  body {
+    /* Zemin: Derin Safir, Yazı: Kum Sarısı, Font: Amiri (Serif) */
+    @apply bg-midnight text-sand font-serif antialiased selection:bg-gold/30 selection:text-white;
+  }
+
+  /* Başlıklar: Modern, Geometrik ve Otoriter (IBM Plex Sans Arabic) */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans tracking-wide;
+  }
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  /* Arka plan: Koyu Lacivert (Slate-900) */
-  background-color: #0f172a; 
-  /* Yazı rengi: Açık Gri/Beyaz */
-  color: #f8fafc; 
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Scrollbar Tasarımı (Estetik Dokunuş) */
+/* --- ESTETİK SCROLLBAR (Kaydırma Çubuğu) --- */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f172a; 
+  /* Arka plan sitenin zeminiyle aynı olsun */
+  @apply bg-midnight; 
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155; 
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #475569; 
+  /* Çubuk: Altın renginin %30 opak hali, üzerine gelince %50 */
+  @apply bg-gold/30 rounded-full hover:bg-gold/50 transition duration-300;
+  border: 2px solid #0F2C45; /* Kenarlardan boşluk hissi verir */
 }
