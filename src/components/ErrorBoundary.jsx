@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -14,8 +14,32 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     // Hatayı konsola yazdır (Geliştirici görsün diye)
-    console.error("Hata Yakalandı:", error, errorInfo);
+    console.error("Uygulama Hatası:", error, errorInfo);
   }
+
+  // --- SİHİRLİ FONKSİYON: OTOMATİK TEMİZLİK ---
+  handleHardReset = () => {
+    // 1. Service Worker'ları sil
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+          registration.unregister();
+        }
+      });
+    }
+
+    // 2. Cache'leri (Önbelleği) sil
+    if ('caches' in window) {
+      caches.keys().then((names) => {
+        names.forEach(name => {
+          caches.delete(name);
+        });
+      });
+    }
+
+    // 3. Sayfayı sunucudan zorla yenile (Hard Reload)
+    window.location.reload(true);
+  };
 
   render() {
     if (this.state.hasError) {
@@ -30,44 +54,25 @@ class ErrorBoundary extends React.Component {
               </div>
             </div>
 
-            <h1 className="text-2xl font-bold mb-4 text-white">
-              Şu An Küçük Bir Bakımdayız
+            <h1 className="text-xl font-bold mb-4 text-white">
+              Yeni Bir Güncelleme Var!
             </h1>
             
-            <p className="text-slate-400 mb-8 leading-relaxed">
-              İlim şehrinde bazen yeni kapılar açmak için kısa molalar veriyoruz. Veya tarayıcınız eski bir versiyonu hatırlıyor olabilir.
+            <p className="text-slate-400 mb-8 text-sm leading-relaxed">
+              Uygulamaya yeni özellikler eklendiği için cihazınızdaki eski verilerle çakışma yaşandı. Aşağıdaki butona basarak uygulamayı güncelleyebilirsiniz.
             </p>
 
-            <div className="space-y-3">
-              <button 
-                onClick={() => window.location.reload()} 
-                className="w-full bg-[#C5A059] hover:bg-[#b08d48] text-slate-900 font-bold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2"
-              >
-                <RefreshCw size={20} />
-                Sayfayı Yenile
-              </button>
-              
-              <button 
-                onClick={() => {
-                  // Önbelleği temizleyip ana sayfaya zorla yönlendir
-                  if('caches' in window){
-                    caches.keys().then((names) => {
-                      names.forEach(name => {
-                        caches.delete(name);
-                      });
-                    });
-                  }
-                  window.location.href = '/';
-                }} 
-                className="w-full bg-transparent border border-[#C5A059]/30 text-[#C5A059] hover:bg-[#C5A059]/10 font-bold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2"
-              >
-                <Home size={20} />
-                Önbelleği Temizle ve Ana Sayfaya Dön
-              </button>
-            </div>
+            {/* Bu buton artık hem yeniliyor hem de tüm çöp verileri temizliyor */}
+            <button 
+              onClick={this.handleHardReset} 
+              className="w-full bg-[#C5A059] hover:bg-[#b08d48] text-slate-900 font-bold py-4 px-6 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg"
+            >
+              <RefreshCw size={20} />
+              Uygulamayı Güncelle ve Aç
+            </button>
 
             <p className="mt-6 text-xs text-slate-500">
-              Hata Kodu: OnikiKapı-System-Refresh
+              Hata Kodu: OnikiKapı-System-HardReset
             </p>
           </div>
         </div>

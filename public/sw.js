@@ -1,50 +1,63 @@
-const CACHE_NAME = 'onikikapi-v6'; // GÜNCELLENDİ: v5 yapıldı (Footer ikonları düzelsin diye)
+// VERSİYON KONTROLÜ: Her güncellemede buradaki sayıyı artır (v7, v8, v9...)
+const CACHE_NAME = 'onikikapi-v7-agresif'; 
+
 const urlsToCache = [
   '/',
   '/index.html',
-  '/site.webmanifest',
-  '/favicon.ico',
-  '/apple-touch-icon.png',
-  '/favicon-96x96.png',
-  '/web-app-manifest-192x192.png',
-  '/web-app-manifest-512x512.png'
+  '/manifest.json'
 ];
 
-// Yükleme: Yeni dosyaları önbelleğe al
+// 1. YÜKLEME (INSTALL): Eski bekleyenleri umursama, hemen yükle
 self.addEventListener('install', (event) => {
+  self.skipWaiting(); // Bekleme yapma, hemen devreye gir!
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Yeni önbellek (v5) oluşturuluyor');
+        console.log('Yeni önbellek (v7) oluşturuluyor');
         return cache.addAll(urlsToCache);
       })
   );
 });
 
-// İstekleri Yakala: Cache'den veya Network'ten ver
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Cache'de varsa onu döndür, yoksa internete git
-        return response || fetch(event.request);
-      })
-  );
-});
-
-// Güncelleme: Eski cache'leri (v1, v2, v3, v4) ve hatalı dosyaları temizle
+// 2. AKTİFLEŞME (ACTIVATE): Eski sürüm varsa ACIMADAN SİL
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
+          // Eğer cache ismi bizim şu anki versiyonumuz değilse SİL
+          if (cacheName !== CACHE_NAME) {
             console.log('Eski önbellek temizleniyor:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
+    }).then(() => {
+      return self.clients.claim(); // Tüm açık sayfaların kontrolünü hemen ele al
     })
+  );
+});
+
+// 3. İSTEK YAKALAMA (FETCH): Önce Network'e sor (Ağ Öncelikli Strateji)
+// Bu strateji beyaz ekranı en aza indirir çünkü hep en güncelini internetten almaya çalışır.
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        // İnternetten yeni veriyi aldık, bir kopyasını da cache'e atalım
+        if (!response || response.status !== 200 || response.type !== 'basic') {
+          return response;
+        }
+        const responseToCache = response.clone();
+        caches.open(CACHE_NAME)
+          .then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+        return response;
+      })
+      .catch(() => {
+        // İnternet yoksa cache'den ver (Offline modu)
+        return caches.match(event.request);
+      })
   );
 });
