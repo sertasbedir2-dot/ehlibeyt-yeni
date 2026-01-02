@@ -1,4 +1,4 @@
-const CACHE_NAME = 'onikikapi-v5'; // GÜNCELLENDİ: v5 yapıldı (Footer ikonları düzelsin diye)
+const CACHE_NAME = 'onikikapi-v6'; // GÜNCELLENDİ: v5 yapıldı (Footer ikonları düzelsin diye)
 const urlsToCache = [
   '/',
   '/index.html',
