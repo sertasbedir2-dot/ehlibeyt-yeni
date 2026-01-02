@@ -10,6 +10,7 @@ import { globalSearchData } from './data/siteData';
 import MusicPlayer from './components/MusicPlayer'; 
 import InstallPrompt from './components/InstallPrompt'; 
 import Footer from './components/Footer'; 
+import ScrollToTop from './components/ScrollToTop'; // <--- YENİ: Scroll Bileşeni İçe Aktarıldı
 
 // --- CONTEXT ---
 import { AppProvider, useAppContext } from './context/AppContext';
@@ -106,6 +107,10 @@ function AppContent() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-turquoise-dark to-turquoise text-sand flex flex-col font-serif relative">
+       
+       {/* YENİ: Sayfa değişince en tepeye atan bileşen */}
+       <ScrollToTop />
+       
        <Helmet>
          <title>OnikiKapı | Adalet, İlim ve Hikmet Kapısı</title>
          <meta name="description" content="Ehlibeyt mektebinin evrensel mesajını, ilim, hikmet ve adalet ekseninde sunan dijital külliye." />
@@ -206,7 +211,8 @@ function AppContent() {
          )}
        </nav>
 
-       <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mb-24"> 
+       {/* YENİ: animate-fade-in eklendi. Sayfa geçişleri yumuşak olacak. */}
+       <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mb-24 animate-fade-in"> 
          <Routes>
            <Route path="/" element={<Home />} />
            <Route path="/zikir" element={<Zikir />} />
