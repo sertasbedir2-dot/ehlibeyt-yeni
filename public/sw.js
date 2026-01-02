@@ -1,5 +1,5 @@
-// VERSİYON: v8 (Burası değiştikçe tarayıcı güncellemeyi zorunlu kılar)
-const CACHE_NAME = 'onikikapi-v8-final'; 
+// VERSİYON: v9 (Yeni özellikler eklendiği için güncellendi)
+const CACHE_NAME = 'onikikapi-v9-final'; 
 
 const urlsToCache = [
   '/',
@@ -19,7 +19,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// 2. AKTİFLEŞME (ACTIVATE): Eski sürüm (v3, v7 vb.) ne varsa SİL
+// 2. AKTİFLEŞME (ACTIVATE): Eski sürüm (v8 vb.) ne varsa SİL
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {

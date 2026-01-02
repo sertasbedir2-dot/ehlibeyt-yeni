@@ -1,7 +1,7 @@
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { PenTool, Scale, Flower, BookOpen, Sparkles, Search, Heart, HelpCircle, Sun, Gift, RefreshCw, Volume2, Share2, Flame, Bell } from 'lucide-react';
+import { PenTool, Scale, Flower, BookOpen, Sparkles, Search, Heart, HelpCircle, Sun, Gift, RefreshCw, Volume2, Share2, Flame, Bell, Globe } from 'lucide-react';
 import { wisdomData } from '../data/wisdomData';
 import html2canvas from 'html2canvas'; // Resim oluşturmak için gerekli paket
 
@@ -83,14 +83,14 @@ export default function Home() {
         // Gizli duran storyRef alanını resme çevir
         const canvas = await html2canvas(storyRef.current, {
           scale: 2, // Yüksek kalite için scale artırıldı
-          backgroundColor: "#0F4C5C", 
-          useCORS: true // Dış kaynaklı resimler için (gerekirse)
+          backgroundColor: null, // Gradienti korumak için null
+          useCORS: true // Dış kaynaklı görseller (QR) için gerekli
         });
         
         const image = canvas.toDataURL("image/png");
         const link = document.createElement("a");
         link.href = image;
-        link.download = `OnikiKapi_Hikmet_${new Date().toLocaleDateString()}.png`;
+        link.download = `OnikiKapi_Gunluk_Hikmet_${new Date().toLocaleDateString()}.png`;
         link.click();
       } catch (err) {
         console.error("Resim oluşturma hatası:", err);
@@ -146,36 +146,69 @@ export default function Home() {
         </div>
       )}
 
-      {/* --- GİZLİ PAYLAŞIM KARTI (Kullanıcı Görmez, Resim İçin Kullanılır) --- */}
+      {/* --- TASARIM: VİRAL PAYLAŞIM KARTI (GİZLİ ALAN) --- */}
       <div className="absolute top-0 left-[-9999px]">
-        <div ref={storyRef} className="w-[1080px] h-[1920px] bg-[#0F4C5C] flex flex-col justify-between p-24 items-center text-center relative overflow-hidden border-8 border-[#C5A059]">
-           {/* Arka Plan Deseni */}
-           <div className="absolute inset-0 opacity-10 pointer-events-none" style={{backgroundImage: "url('https://www.transparenttextures.com/patterns/arabesque.png')"}}></div>
+        <div ref={storyRef} className="w-[1080px] h-[1920px] flex flex-col justify-between items-center text-center relative overflow-hidden bg-gradient-to-br from-[#0F4C5C] via-[#09303a] to-[#04151a]">
            
-           <div className="z-10 mt-32">
-             <div className="flex justify-center mb-8">
-               <div className="p-6 bg-[#C5A059]/20 rounded-full border-2 border-[#C5A059]">
-                 <BookOpen size={80} className="text-[#C5A059]" />
+           {/* Arka Plan Deseni (CSS ile) */}
+           <div className="absolute inset-0 opacity-10" style={{backgroundImage: "radial-gradient(circle at 50% 50%, #E5C17C 1px, transparent 1px)", backgroundSize: "40px 40px"}}></div>
+           <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] opacity-5"></div>
+
+           {/* --- ÜST KISIM --- */}
+           <div className="z-10 mt-24 w-full px-12">
+             <div className="flex flex-col items-center">
+               <div className="p-5 border-2 border-[#E5C17C]/30 rounded-full mb-6 bg-[#0F4C5C]/50 backdrop-blur-md">
+                 <BookOpen size={64} className="text-[#E5C17C]" />
                </div>
+               <h3 className="text-[#E5C17C] text-3xl font-sans tracking-[0.3em] uppercase opacity-90">Günün Hikmeti</h3>
+               <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#E5C17C] to-transparent mt-4"></div>
              </div>
-             <h2 className="text-5xl font-bold text-[#C5A059] tracking-[0.2em] uppercase mb-4">Günün Hikmeti</h2>
-             <div className="w-32 h-1 bg-[#C5A059] mx-auto"></div>
            </div>
 
-           <div className="z-10 flex-grow flex flex-col justify-center">
-             <h1 className="text-6xl font-serif text-[#FDF6E3] leading-snug italic mb-12 drop-shadow-lg px-8">
-               "{dailyWisdom.quote}"
+           {/* --- ORTA KISIM (SÖZ) --- */}
+           <div className="z-10 flex-grow flex flex-col justify-center px-16 relative">
+             {/* Tırnak İşaretleri (Dekoratif) */}
+             <span className="absolute top-20 left-4 text-[#E5C17C] opacity-20 text-[200px] font-serif leading-none">“</span>
+             
+             <h1 className="text-6xl font-serif text-[#FDF6E3] leading-snug italic mb-10 drop-shadow-2xl">
+               {dailyWisdom.quote}
              </h1>
-             <p className="text-4xl text-[#C5A059] font-sans font-bold tracking-wider uppercase">
-               — {dailyWisdom.source}
-             </p>
+             
+             <div className="flex items-center justify-center gap-4">
+               <div className="h-[2px] w-12 bg-[#E5C17C]"></div>
+               <p className="text-4xl text-[#E5C17C] font-sans font-bold tracking-wider uppercase">
+                 {dailyWisdom.source}
+               </p>
+               <div className="h-[2px] w-12 bg-[#E5C17C]"></div>
+             </div>
            </div>
 
-           <div className="z-10 mb-32 space-y-6">
-             <div className="px-8 py-4 bg-black/30 rounded-full border border-[#C5A059]/50 inline-block">
-               <span className="text-3xl text-[#FDF6E3] font-bold">OnikiKapı</span>
+           {/* --- ALT KISIM (BRANDING & CTA) --- */}
+           <div className="z-10 mb-20 w-full px-12 flex flex-col items-center gap-8">
+             
+             {/* CTA Button Görünümlü Alan */}
+             <div className="bg-[#E5C17C] text-[#09303a] px-10 py-5 rounded-full font-bold text-3xl shadow-xl flex items-center gap-4 border-4 border-[#09303a]/20">
+               <Globe size={32} strokeWidth={3} />
+               <span>Maneviyatı Cebine Taşı ➔ www.onikikapi.com</span>
              </div>
-             <p className="text-2xl text-[#C5A059] opacity-80">İlim Şehri</p>
+
+             {/* QR Kod (Statik API) */}
+             <div className="absolute bottom-24 right-12 bg-white p-2 rounded-xl shadow-2xl">
+                {/* Bu URL, sitenizin QR kodunu oluşturur */}
+                <img 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://onikikapi.vercel.app&color=09303a`} 
+                  alt="QR Kod" 
+                  className="w-32 h-32"
+                  crossOrigin="anonymous" 
+                />
+             </div>
+
+             {/* Marka & Footer */}
+             <div className="mt-4">
+                <h1 className="text-[5rem] font-bold text-[#E5C17C] leading-none tracking-tight drop-shadow-lg font-sans">OnikiKapı</h1>
+                <p className="text-3xl text-slate-300 font-serif tracking-widest mt-2">İlim ve Hikmet Web Uygulaması</p>
+             </div>
+
            </div>
         </div>
       </div>
@@ -340,107 +373,107 @@ export default function Home() {
 
 // --- GÜNÜN NASİBİ COMPONENT ---
 function GununNasibi() {
-  const [nasip, setNasip] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [nasip, setNasip] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  // Destiny Pool
-  const nasipler = [
-    { text: "İnsanlar uykudadır, öldükleri zaman uyanırlar.", source: "Hz. Ali (a.s)" },
-    { text: "Hiçbir süs, edep kadar güzel değildir.", source: "Hz. Ali (a.s)" },
-    { text: "İlim bir hazinedir, anahtarı ise sorudur.", source: "Hz. Muhammed (s.a.a)" },
-    { text: "Dua müminin silahı, dinin direği ve göklerin nurudur.", source: "Hz. Muhammed (s.a.a)" },
-    { text: "Haksızlık karşısında susan dilsiz şeytandır.", source: "Hz. Muhammed (s.a.a)" },
-    { text: "Komşusu açken tok yatan bizden değildir.", source: "Hz. Muhammed (s.a.a)" },
-    { text: "Mazlumun zalimden öcünü alacağı gün, zalimin mazluma zulmettiği günden daha çetin olacaktır.", source: "Hz. Ali (a.s)" },
-    { text: "Senin hakkında zannını güzel yapan kimsenin zannını, o işi yaparak gerçekleştir.", source: "Hz. Ali (a.s)" },
-    { text: "Dünya, müminin zindanı ve kafirin cennetidir.", source: "Hadis-i Şerif" },
-    { text: "En hayırlınız, ahlakı en güzel olanınızdır.", source: "Hz. Muhammed (s.a.a)" }
-  ];
+  // Destiny Pool
+  const nasipler = [
+    { text: "İnsanlar uykudadır, öldükleri zaman uyanırlar.", source: "Hz. Ali (a.s)" },
+    { text: "Hiçbir süs, edep kadar güzel değildir.", source: "Hz. Ali (a.s)" },
+    { text: "İlim bir hazinedir, anahtarı ise sorudur.", source: "Hz. Muhammed (s.a.a)" },
+    { text: "Dua müminin silahı, dinin direği ve göklerin nurudur.", source: "Hz. Muhammed (s.a.a)" },
+    { text: "Haksızlık karşısında susan dilsiz şeytandır.", source: "Hz. Muhammed (s.a.a)" },
+    { text: "Komşusu açken tok yatan bizden değildir.", source: "Hz. Muhammed (s.a.a)" },
+    { text: "Mazlumun zalimden öcünü alacağı gün, zalimin mazluma zulmettiği günden daha çetin olacaktır.", source: "Hz. Ali (a.s)" },
+    { text: "Senin hakkında zannını güzel yapan kimsenin zannını, o işi yaparak gerçekleştir.", source: "Hz. Ali (a.s)" },
+    { text: "Dünya, müminin zindanı ve kafirin cennetidir.", source: "Hadis-i Şerif" },
+    { text: "En hayırlınız, ahlakı en güzel olanınızdır.", source: "Hz. Muhammed (s.a.a)" }
+  ];
 
-  const nasipCek = () => {
-    setLoading(true);
-    setNasip(null);
-    setTimeout(() => {
-      const randomIndex = Math.floor(Math.random() * nasipler.length);
-      setNasip(nasipler[randomIndex]);
-      setLoading(false);
-    }, 800);
-  };
+  const nasipCek = () => {
+    setLoading(true);
+    setNasip(null);
+    setTimeout(() => {
+      const randomIndex = Math.floor(Math.random() * nasipler.length);
+      setNasip(nasipler[randomIndex]);
+      setLoading(false);
+    }, 800);
+  };
 
-  return (
-    <div className="bg-turquoise-dark p-10 rounded-3xl border border-gold/20 relative overflow-hidden shadow-xl mx-4 transition-all duration-500 hover:shadow-gold/10">
-      
-      {/* Decorative Background */}
-      <div className="absolute -bottom-10 -left-10 p-4 opacity-5 rotate-12 pointer-events-none">
-         <Gift size={200} className="text-gold" />
-      </div>
+  return (
+    <div className="bg-turquoise-dark p-10 rounded-3xl border border-gold/20 relative overflow-hidden shadow-xl mx-4 transition-all duration-500 hover:shadow-gold/10">
+      
+      {/* Decorative Background */}
+      <div className="absolute -bottom-10 -left-10 p-4 opacity-5 rotate-12 pointer-events-none">
+         <Gift size={200} className="text-gold" />
+      </div>
 
-      <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-6">
-        
-        <div className="flex items-center gap-2 text-gold font-bold uppercase tracking-widest text-sm">
-          <Sparkles size={16} /> Günün Nasibi
-        </div>
+      <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-6">
+        
+        <div className="flex items-center gap-2 text-gold font-bold uppercase tracking-widest text-sm">
+          <Sparkles size={16} /> Günün Nasibi
+        </div>
 
-        {nasip ? (
-          <div className="space-y-6 animate-fade-in">
-              <blockquote className="text-2xl md:text-4xl font-serif text-sand italic leading-relaxed drop-shadow-md">
-               "{nasip.text}"
-             </blockquote>
-            <p className="text-turquoise-light font-bold text-lg">— {nasip.source}</p>
-            
-            <button 
-              onClick={nasipCek}
-              className="mt-4 flex items-center gap-2 mx-auto text-sm text-slate-400 hover:text-white transition-colors"
-            >
-              <RefreshCw size={14} /> Başka bir nasip çek
-            </button>
-          </div>
-        ) : (
-          <div className="py-8 space-y-4">
-              <h3 className="text-2xl font-serif text-slate-200">
-               {loading ? "Kalbinize doğan nasip aranıyor..." : "Bugün sizin için ayrılan manevi rızkı görmek ister misiniz?"}
-              </h3>
-              {!loading && (
-                <button 
-                 onClick={nasipCek}
-                 className="bg-gold text-turquoise-dark px-8 py-3 rounded-full font-bold hover:bg-white transition-all transform hover:scale-105 shadow-lg flex items-center gap-2 mx-auto"
-                >
-                  <Gift size={20} /> Niyet Et ve Nasibini Gör
-                </button>
-              )}
-          </div>
-        )}
+        {nasip ? (
+          <div className="space-y-6 animate-fade-in">
+              <blockquote className="text-2xl md:text-4xl font-serif text-sand italic leading-relaxed drop-shadow-md">
+               "{nasip.text}"
+             </blockquote>
+            <p className="text-turquoise-light font-bold text-lg">— {nasip.source}</p>
+            
+            <button 
+              onClick={nasipCek}
+              className="mt-4 flex items-center gap-2 mx-auto text-sm text-slate-400 hover:text-white transition-colors"
+            >
+              <RefreshCw size={14} /> Başka bir nasip çek
+            </button>
+          </div>
+        ) : (
+          <div className="py-8 space-y-4">
+              <h3 className="text-2xl font-serif text-slate-200">
+               {loading ? "Kalbinize doğan nasip aranıyor..." : "Bugün sizin için ayrılan manevi rızkı görmek ister misiniz?"}
+              </h3>
+              {!loading && (
+                <button 
+                 onClick={nasipCek}
+                 className="bg-gold text-turquoise-dark px-8 py-3 rounded-full font-bold hover:bg-white transition-all transform hover:scale-105 shadow-lg flex items-center gap-2 mx-auto"
+                >
+                  <Gift size={20} /> Niyet Et ve Nasibini Gör
+                </button>
+              )}
+          </div>
+        )}
 
-      </div>
-    </div>
-  );
+      </div>
+    </div>
+  );
 }
 
 // --- OTHER COMPONENTS ---
 
 function MoodChip({ label, icon, link, color }) {
-  return (
-    <Link 
-      to={link} 
-      className={`flex items-center gap-2 px-5 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-sand text-sm font-medium transition-all duration-300 ${color}`}
-    >
-      {icon} {label}
-    </Link>
-  );
+  return (
+    <Link 
+      to={link} 
+      className={`flex items-center gap-2 px-5 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-sand text-sm font-medium transition-all duration-300 ${color}`}
+    >
+      {icon} {label}
+    </Link>
+  );
 }
 
 function FeatureCard({ icon, title, desc, link }) {
-  return (
-    <Link to={link} className="block group relative z-10 h-full">
-      <div className="bg-turquoise p-8 rounded-2xl border border-white/10 h-full hover:border-gold/50 transition-all duration-500 hover:-translate-y-2 shadow-lg hover:shadow-2xl bg-opacity-80 backdrop-blur-sm flex flex-col">
-        <div className="mb-6 p-4 bg-turquoise-dark rounded-xl w-fit group-hover:scale-110 transition-transform border border-gold/20 group-hover:border-gold/50 shadow-[0_0_15px_rgba(0,0,0,0.2)]">
-          {icon}
-        </div>
-        <h3 className="text-2xl font-bold text-sand mb-3 group-hover:text-gold transition-colors font-sans">{title}</h3>
-        <p className="text-slate-200 text-base leading-relaxed font-serif line-clamp-3">
-          {desc}
-        </p>
-      </div>
-    </Link>
-  );
+  return (
+    <Link to={link} className="block group relative z-10 h-full">
+      <div className="bg-turquoise p-8 rounded-2xl border border-white/10 h-full hover:border-gold/50 transition-all duration-500 hover:-translate-y-2 shadow-lg hover:shadow-2xl bg-opacity-80 backdrop-blur-sm flex flex-col">
+        <div className="mb-6 p-4 bg-turquoise-dark rounded-xl w-fit group-hover:scale-110 transition-transform border border-gold/20 group-hover:border-gold/50 shadow-[0_0_15px_rgba(0,0,0,0.2)]">
+          {icon}
+        </div>
+        <h3 className="text-2xl font-bold text-sand mb-3 group-hover:text-gold transition-colors font-sans">{title}</h3>
+        <p className="text-slate-200 text-base leading-relaxed font-serif line-clamp-3">
+          {desc}
+        </p>
+      </div>
+    </Link>
+  );
 }
