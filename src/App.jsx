@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Search, X, ArrowRight, Book, Star, HelpCircle, FileText, Heart, Trophy, BookOpen, Sparkles } from 'lucide-react';
+import { Search, X, ArrowRight, Book, Star, HelpCircle, FileText, Heart, Trophy, BookOpen, Sparkles, Share2 } from 'lucide-react';
 
 // --- DATA ---
 import { globalSearchData } from './data/siteData'; 
@@ -9,7 +9,7 @@ import { globalSearchData } from './data/siteData';
 // --- COMPONENTS ---
 import MusicPlayer from './components/MusicPlayer'; 
 import InstallPrompt from './components/InstallPrompt'; 
-import Footer from './components/Footer'; // <--- YENİ: Hazırladığımız Footer dosyasını çağırdık!
+import Footer from './components/Footer'; 
 
 // --- CONTEXT ---
 import { AppProvider, useAppContext } from './context/AppContext';
@@ -85,6 +85,25 @@ function AppContent() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  // --- PAYLAŞIM FONKSİYONU (Navbar İçin) ---
+  const handleShare = async () => {
+    const shareData = {
+      title: 'OnikiKapı',
+      text: 'İlim şehri OnikiKapı uygulamasını keşfetmeni tavsiye ederim:',
+      url: 'https://onikikapi.vercel.app'
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        alert('Bağlantı kopyalandı! Arkadaşına gönderebilirsin.');
+      }
+    } catch (err) {
+      console.log('Paylaşım iptal');
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-turquoise-dark to-turquoise text-sand flex flex-col font-serif relative">
        <Helmet>
@@ -113,7 +132,7 @@ function AppContent() {
                </Link>
              </div>
 
-             {/* DESKTOP MENU */}
+             {/* DESKTOP MENU (BİLGİSAYAR GÖRÜNÜMÜ) */}
              <div className="hidden md:flex items-center space-x-1">
                 <div className="flex items-baseline space-x-1 mr-4">
                  <NavLink to="/" label="Ana Sayfa" />
@@ -128,13 +147,26 @@ function AppContent() {
                  <NavLink to="/heybem" label="Heybem" /> 
                </div>
                
+               {/* Desktop Paylaş Butonu */}
+               <button onClick={handleShare} className="flex items-center gap-2 mr-2 bg-gold/10 hover:bg-gold hover:text-turquoise-dark text-gold border border-gold/30 px-3 py-2 rounded-lg transition-all font-bold text-sm">
+                 <Share2 size={18} />
+                 <span>Tavsiye Et</span>
+               </button>
+
                <button onClick={() => setIsSearchOpen(!isSearchOpen)} className={`p-2 rounded-full transition-all border ${isSearchOpen ? 'bg-gold text-turquoise-dark border-gold' : 'text-gold hover:bg-gold/10 border-transparent hover:border-gold/30'}`}>
                  {isSearchOpen ? <X size={20} /> : <Search size={20} />}
                </button>
              </div>
 
-             {/* MOBILE BUTTON */}
-             <div className="-mr-2 flex md:hidden">
+             {/* MOBILE MENU BUTTONS (TELEFON GÖRÜNÜMÜ) */}
+             <div className="-mr-2 flex items-center md:hidden gap-2">
+               
+               {/* Mobile Paylaş Butonu (Göz Önünde) */}
+               <button onClick={handleShare} className="bg-gold/10 p-2 rounded-full text-gold hover:bg-gold hover:text-turquoise-dark border border-gold/30 transition-colors">
+                 <Share2 size={20} />
+               </button>
+
+               {/* Menü Açma Butonu */}
                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="bg-turquoise p-2 rounded-md text-sand hover:text-white border border-gold/20">
                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
@@ -155,7 +187,7 @@ function AppContent() {
            </div>
          )}
 
-         {/* MOBILE MENU */}
+         {/* MOBILE MENU DROP-DOWN */}
          {isMenuOpen && (
            <div className="md:hidden bg-turquoise-dark border-t border-gold/20">
              <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
@@ -197,8 +229,7 @@ function AppContent() {
        {/* PWA YÜKLEME MODALI */}
        <InstallPrompt />
 
-       {/* --- DÜZELTME BURADA YAPILDI --- */}
-       {/* Eski manuel footer silindi, yerine senin havalı component dosyan geldi */}
+       {/* Footer */}
        <Footer />
 
     </div>
