@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Search, ShieldCheck, X, ArrowRight, Book, Star, HelpCircle, FileText, Heart, Trophy, BookOpen, Sparkles, DoorOpen } from 'lucide-react';
+import { Search, X, ArrowRight, Book, Star, HelpCircle, FileText, Heart, Trophy, BookOpen, Sparkles } from 'lucide-react';
 
 // --- DATA ---
 import { globalSearchData } from './data/siteData'; 
 
 // --- COMPONENTS ---
 import MusicPlayer from './components/MusicPlayer'; 
-import InstallPrompt from './components/InstallPrompt'; // YENİ: PWA Yükleme Modalı
+import InstallPrompt from './components/InstallPrompt'; 
+import Footer from './components/Footer'; // <--- YENİ: Hazırladığımız Footer dosyasını çağırdık!
 
 // --- CONTEXT ---
 import { AppProvider, useAppContext } from './context/AppContext';
@@ -193,25 +194,13 @@ function AppContent() {
          <MusicPlayer />
        </div>
 
-       {/* YENİ: PWA YÜKLEME MODALI */}
+       {/* PWA YÜKLEME MODALI */}
        <InstallPrompt />
 
-       <footer className="bg-turquoise-dark border-t border-gold/10 py-8 mt-auto relative overflow-hidden">
-         <div className="absolute inset-0 bg-black/10 pointer-events-none"></div>
-         <div className="max-w-7xl mx-auto px-4 text-center space-y-4 relative z-10">
-           <div>
-             <span className="text-xl font-sans font-bold text-gold block mb-1">OnikiKapı</span>
-             <span className="text-xs text-turquoise-light tracking-widest uppercase">Adalet, İlim ve Hikmet Kapısı</span>
-           </div>
-           <div className="flex items-center justify-center gap-2 text-turquoise-light bg-turquoise/20 py-2 px-4 rounded-full mx-auto w-fit border border-turquoise-light/30">
-             <ShieldCheck size={16} />
-             <span className="text-xs font-bold">Reklamsız & Takipçisiz Güvenli Alan</span>
-           </div>
-           <p className="text-slate-300 text-xs max-w-2xl mx-auto leading-relaxed opacity-70">
-             Bu platformda kullanıcı verileri asla toplanmaz. &copy; 2025 OnikiKapı.
-           </p>
-         </div>
-       </footer>
+       {/* --- DÜZELTME BURADA YAPILDI --- */}
+       {/* Eski manuel footer silindi, yerine senin havalı component dosyan geldi */}
+       <Footer />
+
     </div>
   );
 }
