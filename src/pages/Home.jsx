@@ -1,11 +1,18 @@
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { PenTool, Scale, Flower, ArrowRight, BookOpen, Sparkles, Search, Heart, HelpCircle, Sun, Gift, RefreshCw } from 'lucide-react';
+import { PenTool, Scale, Flower, BookOpen, Sparkles, Search, Heart, HelpCircle, Sun, Gift, RefreshCw, Volume2, Share2, Flame, Bell } from 'lucide-react';
+import { wisdomData } from '../data/wisdomData';
+import html2canvas from 'html2canvas'; // Resim oluşturmak için gerekli paket
 
 export default function Home() {
   const [heroSearch, setHeroSearch] = useState("");
   const navigate = useNavigate();
+  
+  // --- YENİ EKLENEN STATE'LER ---
+  const [streak, setStreak] = useState(0); // Zincir sayacı
+  const [showNotificationModal, setShowNotificationModal] = useState(false); // Bildirim izni penceresi
+  const storyRef = useRef(null); // Resim yapılacak alanın referansı
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -14,36 +21,191 @@ export default function Home() {
     }
   };
 
-  return (
-    <div className="space-y-16 animate-fade-in">
+  // --- 1. GÜNÜN HİKMETİ MANTIĞI ---
+  const dailyWisdom = useMemo(() => {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    const diff = now - start;
+    const oneDay = 1000 * 60 * 60 * 24;
+    const dayOfYear = Math.floor(diff / oneDay);
+    const dataIndex = (dayOfYear - 1) % wisdomData.length;
+    return wisdomData[dataIndex] || wisdomData[0];
+  }, []);
+
+  // --- 2. ZİNCİR (STREAK) VE BİLDİRİM KONTROLÜ ---
+  useEffect(() => {
+    // Zincir Mantığı
+    const today = new Date().toDateString();
+    const lastVisit = localStorage.getItem('lastVisit');
+    let currentStreak = parseInt(localStorage.getItem('streak') || '0');
+
+    if (lastVisit !== today) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
       
+      // Eğer son ziyaret dün ise zinciri artır, değilse sıfırla (1 yap)
+      if (lastVisit === yesterday.toDateString()) {
+        currentStreak += 1; 
+      } else {
+        currentStreak = 1; 
+      }
+      
+      localStorage.setItem('lastVisit', today);
+      localStorage.setItem('streak', currentStreak.toString());
+    }
+    setStreak(currentStreak);
+
+    // Bildirim İzni Kontrolü (Daha önce sorulmadıysa 3 sn sonra sor)
+    const notificationAsked = localStorage.getItem('notificationAsked');
+    if (!notificationAsked && 'Notification' in window) {
+      const timer = setTimeout(() => setShowNotificationModal(true), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  // --- 3. SESLİ OKUMA (TTS) FONKSİYONU ---
+  const handleSpeak = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel(); // Varsa eski konuşmayı durdur
+      const utterance = new SpeechSynthesisUtterance(`${dailyWisdom.quote}. Sözün sahibi: ${dailyWisdom.source}`);
+      utterance.lang = 'tr-TR'; 
+      utterance.rate = 0.9; // Tane tane okuması için hız ayarı
+      window.speechSynthesis.speak(utterance);
+    } else {
+      alert("Tarayıcınız sesli okumayı desteklemiyor.");
+    }
+  };
+
+  // --- 4. HİKAYE PAYLAŞIMI (RESİM OLUŞTURMA) ---
+  const handleShareStory = async () => {
+    if (storyRef.current) {
+      try {
+        // Gizli duran storyRef alanını resme çevir
+        const canvas = await html2canvas(storyRef.current, {
+          scale: 2, // Yüksek kalite için scale artırıldı
+          backgroundColor: "#0F4C5C", 
+          useCORS: true // Dış kaynaklı resimler için (gerekirse)
+        });
+        
+        const image = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.href = image;
+        link.download = `OnikiKapi_Hikmet_${new Date().toLocaleDateString()}.png`;
+        link.click();
+      } catch (err) {
+        console.error("Resim oluşturma hatası:", err);
+        alert("Resim oluşturulurken bir hata oluştu.");
+      }
+    }
+  };
+
+  // --- BİLDİRİM İZNİ İSTEME ---
+  const requestNotificationPermission = () => {
+    Notification.requestPermission().then((permission) => {
+      if (permission === "granted") {
+        alert("Teşekkürler! Sabah virdiniz her gün 09:00'da gönderilecektir.");
+      }
+      localStorage.setItem('notificationAsked', 'true');
+      setShowNotificationModal(false);
+    });
+  };
+
+  return (
+    <div className="space-y-16 animate-fade-in relative">
+      
+      {/* --- BİLDİRİM MODALI (POP-UP) --- */}
+      {showNotificationModal && (
+        <div className="fixed inset-0 bg-black/80 z-[300] flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-turquoise-dark border border-gold rounded-2xl p-6 max-w-sm text-center shadow-2xl relative animate-fade-in">
+            <button 
+              onClick={() => {setShowNotificationModal(false); localStorage.setItem('notificationAsked', 'true');}} 
+              className="absolute top-2 right-2 text-slate-400 hover:text-white"
+            >
+              <RefreshCw className="rotate-45" size={20}/>
+            </button>
+            <div className="mx-auto w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4">
+              <Bell className="text-gold" size={24} />
+            </div>
+            <h3 className="text-xl font-bold text-sand mb-2">Sabah Virdi</h3>
+            <p className="text-slate-300 text-sm mb-6">Her sabah 09:00'da günün hikmetini cebinize gönderelim mi?</p>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => {setShowNotificationModal(false); localStorage.setItem('notificationAsked', 'true');}} 
+                className="flex-1 py-2 rounded-lg border border-slate-600 text-slate-400 text-sm font-bold hover:bg-slate-800"
+              >
+                Daha Sonra
+              </button>
+              <button 
+                onClick={requestNotificationPermission} 
+                className="flex-1 py-2 rounded-lg bg-gold text-turquoise-dark text-sm font-bold hover:bg-white transition-colors"
+              >
+                Evet, İsterim
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- GİZLİ PAYLAŞIM KARTI (Kullanıcı Görmez, Resim İçin Kullanılır) --- */}
+      <div className="absolute top-0 left-[-9999px]">
+        <div ref={storyRef} className="w-[1080px] h-[1920px] bg-[#0F4C5C] flex flex-col justify-between p-24 items-center text-center relative overflow-hidden border-8 border-[#C5A059]">
+           {/* Arka Plan Deseni */}
+           <div className="absolute inset-0 opacity-10 pointer-events-none" style={{backgroundImage: "url('https://www.transparenttextures.com/patterns/arabesque.png')"}}></div>
+           
+           <div className="z-10 mt-32">
+             <div className="flex justify-center mb-8">
+               <div className="p-6 bg-[#C5A059]/20 rounded-full border-2 border-[#C5A059]">
+                 <BookOpen size={80} className="text-[#C5A059]" />
+               </div>
+             </div>
+             <h2 className="text-5xl font-bold text-[#C5A059] tracking-[0.2em] uppercase mb-4">Günün Hikmeti</h2>
+             <div className="w-32 h-1 bg-[#C5A059] mx-auto"></div>
+           </div>
+
+           <div className="z-10 flex-grow flex flex-col justify-center">
+             <h1 className="text-6xl font-serif text-[#FDF6E3] leading-snug italic mb-12 drop-shadow-lg px-8">
+               "{dailyWisdom.quote}"
+             </h1>
+             <p className="text-4xl text-[#C5A059] font-sans font-bold tracking-wider uppercase">
+               — {dailyWisdom.source}
+             </p>
+           </div>
+
+           <div className="z-10 mb-32 space-y-6">
+             <div className="px-8 py-4 bg-black/30 rounded-full border border-[#C5A059]/50 inline-block">
+               <span className="text-3xl text-[#FDF6E3] font-bold">OnikiKapı</span>
+             </div>
+             <p className="text-2xl text-[#C5A059] opacity-80">İlim Şehri</p>
+           </div>
+        </div>
+      </div>
+
       {/* --- HERO (GİRİŞ) BÖLÜMÜ --- */}
       <div className="relative py-20 px-6 rounded-3xl overflow-hidden text-center border border-gold/20 shadow-2xl group min-h-[600px] flex flex-col justify-center">
         
-        {/* Arka Plan ve Kontrast */}
+        {/* Background and Contrast */}
         <div 
           className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105"
           style={{ backgroundImage: `url('https://images.unsplash.com/photo-1518837695005-2083093ee35b?q=80&w=2000&auto=format&fit=crop')` }}
         ></div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-turquoise-dark mix-blend-multiply"></div>
 
-        {/* İçerik */}
+        {/* Content */}
         <div className="relative z-10 max-w-4xl mx-auto space-y-8 flex flex-col items-center">
           
-          {/* --- NAMAZ VAKTİ WIDGET'I (YENİ EKLENDİ) --- */}
-          {/* Logo'nun hemen üstüne, dikkat çekici ama zarif bir şekilde yerleştirildi */}
+          {/* --- PRAYER TIMES WIDGET --- */}
           <div className="mb-4 animate-fade-in w-full max-w-xs mx-auto transform hover:scale-105 transition-transform duration-300 z-20">
              <PrayerTimesWidget />
           </div>
 
-          {/* Logo & İkon */}
+          {/* Logo & Icon */}
           <div className="relative w-20 h-20 mx-auto flex items-center justify-center mb-2">
             <div className="absolute inset-0 bg-gold/40 blur-2xl rounded-full animate-pulse-slow"></div>
             <Sparkles size={50} className="text-gold absolute opacity-60 animate-spin-slow" />
             <BookOpen size={40} className="text-gold relative z-10 drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]" />
           </div>
 
-          {/* Ana Başlık */}
+          {/* Main Title */}
           <h1 className="text-5xl md:text-7xl font-sans font-bold text-transparent bg-clip-text bg-gradient-to-r from-sand via-gold to-sand drop-shadow-sm leading-tight">
             OnikiKapı
           </h1>
@@ -51,7 +213,7 @@ export default function Home() {
             "İlim bir noktadır, onu cahiller çoğaltmıştır."
           </p>
           
-          {/* Arama Çubuğu */}
+          {/* Search Bar */}
           <form onSubmit={handleSearch} className="w-full max-w-2xl relative mt-4 group/search">
             <div className="relative flex items-center">
               <input 
@@ -67,7 +229,7 @@ export default function Home() {
             </div>
           </form>
 
-          {/* Ruh Hali Seçici */}
+          {/* Mood Selector */}
           <div className="w-full max-w-3xl mt-6">
             <p className="text-sm text-turquoise-light uppercase tracking-widest font-bold mb-4">Bugün nasılsın?</p>
             <div className="flex flex-wrap justify-center gap-3">
@@ -81,7 +243,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* --- KARTLAR --- */}
+      {/* --- CARDS --- */}
       <div className="grid md:grid-cols-3 gap-8 relative px-4">
         <div className="absolute inset-0 flex justify-center items-center opacity-5 pointer-events-none">
            <Flower size={300} className="text-turquoise-light rotate-12" />
@@ -107,33 +269,81 @@ export default function Home() {
         />
       </div>
 
-      {/* --- GÜNÜN HİKMETİ --- */}
-      <div className="bg-turquoise-dark p-10 rounded-3xl border border-gold/20 relative overflow-hidden shadow-xl mx-4">
-        <div className="absolute -bottom-10 -right-10 p-4 opacity-10 rotate-45 pointer-events-none">
-           <PenTool size={150} className="text-gold" />
+      {/* --- WISDOM OF THE DAY (YENİLENMİŞ VERSİYON) --- */}
+      <div className="w-full max-w-4xl mx-auto my-8 px-4">
+        <div className="relative bg-gradient-to-r from-[#0f172a] to-[#1e293b] border border-[#C5A059]/30 rounded-2xl p-8 text-center shadow-[0_0_25px_rgba(197,160,89,0.15)] group hover:border-[#C5A059]/50 transition-all duration-500">
+          
+          {/* ZİNCİR (STREAK) ROZETİ */}
+          <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/40 border border-[#C5A059]/30 px-3 py-1 rounded-full text-[#C5A059] text-xs font-bold shadow-lg z-10" title="Aralıksız ziyaret serisi">
+            <Flame size={14} className={`${streak > 0 ? 'fill-[#C5A059] animate-pulse' : 'text-slate-500'}`} />
+            <span>{streak} Günlük Zincir</span>
+          </div>
+
+          {/* Decorative Icon */}
+          <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-[#0B1120] border border-[#C5A059] p-3 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C5A059" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          </div>
+
+          {/* Category Label */}
+          <span className="inline-block mt-4 mb-4 text-xs font-bold text-[#C5A059] tracking-widest uppercase opacity-70 border-b border-[#C5A059]/30 pb-1">
+            Günün Hikmeti • {dailyWisdom.category}
+          </span>
+
+          {/* Quote */}
+          <h2 className="text-xl md:text-3xl font-serif text-slate-200 leading-relaxed italic mb-6">
+            "{dailyWisdom.quote}"
+          </h2>
+
+          {/* Source */}
+          <div className="flex items-center justify-center gap-2 mb-8">
+            <div className="h-px w-8 bg-[#C5A059]/50"></div>
+            <p className="text-[#C5A059] font-bold font-sans text-sm md:text-base">
+              {dailyWisdom.source}
+            </p>
+            <div className="h-px w-8 bg-[#C5A059]/50"></div>
+          </div>
+
+          {/* --- ETKİLEŞİM BUTONLARI (SESLENDİRME VE PAYLAŞIM) --- */}
+          <div className="flex justify-center gap-4 border-t border-white/5 pt-6">
+            
+            {/* Sesli Okuma Butonu */}
+            <button 
+              onClick={handleSpeak}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-[#C5A059]/20 text-slate-300 hover:text-[#C5A059] transition-colors text-sm font-medium"
+              title="Sesli Dinle"
+            >
+              <Volume2 size={18} />
+              <span className="hidden sm:inline">Dinle</span>
+            </button>
+
+            {/* Hikayende Paylaş Butonu */}
+            <button 
+              onClick={handleShareStory}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C5A059] hover:bg-[#b08d48] text-slate-900 transition-colors text-sm font-bold shadow-lg group-hover:scale-105 transform duration-300"
+              title="Instagram Hikaye Formatında İndir"
+            >
+              <Share2 size={18} />
+              <span>Hikayende Paylaş</span>
+            </button>
+
+          </div>
+
         </div>
-        <h3 className="text-gold font-bold font-sans mb-6 text-lg uppercase tracking-wider flex items-center gap-2">
-          <Sparkles size={18} /> Günün Hikmeti
-        </h3>
-        <blockquote className="text-2xl md:text-4xl font-serif text-sand italic leading-relaxed relative z-10">
-          "Hiçbir süs, edep kadar güzel değildir."
-        </blockquote>
-        <p className="text-right text-lg text-turquoise-light mt-6 font-bold relative z-10">— Hz. Ali (a.s)</p>
       </div>
 
-      {/* --- İNTERAKTİF GÜNÜN NASİBİ --- */}
+      {/* --- INTERACTIVE DAILY DESTINY (GÜNÜN NASİBİ) --- */}
       <GununNasibi />
 
     </div>
   );
 }
 
-// --- GÜNÜN NASİBİ BİLEŞENİ ---
+// --- GÜNÜN NASİBİ COMPONENT ---
 function GununNasibi() {
   const [nasip, setNasip] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Nasip Havuzu
+  // Destiny Pool
   const nasipler = [
     { text: "İnsanlar uykudadır, öldükleri zaman uyanırlar.", source: "Hz. Ali (a.s)" },
     { text: "Hiçbir süs, edep kadar güzel değildir.", source: "Hz. Ali (a.s)" },
@@ -160,7 +370,7 @@ function GununNasibi() {
   return (
     <div className="bg-turquoise-dark p-10 rounded-3xl border border-gold/20 relative overflow-hidden shadow-xl mx-4 transition-all duration-500 hover:shadow-gold/10">
       
-      {/* Dekoratif Arka Plan */}
+      {/* Decorative Background */}
       <div className="absolute -bottom-10 -left-10 p-4 opacity-5 rotate-12 pointer-events-none">
          <Gift size={200} className="text-gold" />
       </div>
@@ -173,9 +383,9 @@ function GununNasibi() {
 
         {nasip ? (
           <div className="space-y-6 animate-fade-in">
-             <blockquote className="text-2xl md:text-4xl font-serif text-sand italic leading-relaxed drop-shadow-md">
-              "{nasip.text}"
-            </blockquote>
+              <blockquote className="text-2xl md:text-4xl font-serif text-sand italic leading-relaxed drop-shadow-md">
+               "{nasip.text}"
+             </blockquote>
             <p className="text-turquoise-light font-bold text-lg">— {nasip.source}</p>
             
             <button 
@@ -187,17 +397,17 @@ function GununNasibi() {
           </div>
         ) : (
           <div className="py-8 space-y-4">
-             <h3 className="text-2xl font-serif text-slate-200">
+              <h3 className="text-2xl font-serif text-slate-200">
                {loading ? "Kalbinize doğan nasip aranıyor..." : "Bugün sizin için ayrılan manevi rızkı görmek ister misiniz?"}
-             </h3>
-             {!loading && (
-               <button 
-                onClick={nasipCek}
-                className="bg-gold text-turquoise-dark px-8 py-3 rounded-full font-bold hover:bg-white transition-all transform hover:scale-105 shadow-lg flex items-center gap-2 mx-auto"
-               >
-                 <Gift size={20} /> Niyet Et ve Nasibini Gör
-               </button>
-             )}
+              </h3>
+              {!loading && (
+                <button 
+                 onClick={nasipCek}
+                 className="bg-gold text-turquoise-dark px-8 py-3 rounded-full font-bold hover:bg-white transition-all transform hover:scale-105 shadow-lg flex items-center gap-2 mx-auto"
+                >
+                  <Gift size={20} /> Niyet Et ve Nasibini Gör
+                </button>
+              )}
           </div>
         )}
 
@@ -206,7 +416,7 @@ function GununNasibi() {
   );
 }
 
-// --- DİĞER BİLEŞENLER ---
+// --- OTHER COMPONENTS ---
 
 function MoodChip({ label, icon, link, color }) {
   return (
