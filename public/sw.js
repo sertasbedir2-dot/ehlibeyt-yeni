@@ -1,4 +1,4 @@
-const CACHE_NAME = 'onikikapi-v3'; // GÜNCELLENDİ: v3 yaptık ki yeni Footer butonu hemen görünsün
+const CACHE_NAME = 'onikikapi-v5'; // GÜNCELLENDİ: v5 yapıldı (Footer ikonları düzelsin diye)
 const urlsToCache = [
   '/',
   '/index.html',
@@ -15,7 +15,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Yeni önbellek (v3) oluşturuluyor');
+        console.log('Yeni önbellek (v5) oluşturuluyor');
         return cache.addAll(urlsToCache);
       })
   );
@@ -32,7 +32,7 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Güncelleme: Eski cache'leri (v1, v2) ve hatalı dosyaları temizle
+// Güncelleme: Eski cache'leri (v1, v2, v3, v4) ve hatalı dosyaları temizle
 self.addEventListener('activate', (event) => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(

@@ -1,10 +1,8 @@
 import React from 'react';
-import { Heart, Mail, Youtube, Instagram, Twitter, Share2 } from 'lucide-react';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
-  // Paylaşım Fonksiyonu
   const handleShare = async () => {
     const shareData = {
       title: 'OnikiKapı',
@@ -14,15 +12,13 @@ export default function Footer() {
 
     try {
       if (navigator.share) {
-        // Mobildeysen telefonun paylaşım menüsünü açar (WhatsApp vb.)
         await navigator.share(shareData);
       } else {
-        // Masaüstündeysen veya desteklemiyorsa linki kopyalar
         await navigator.clipboard.writeText(shareData.url);
         alert('Bağlantı kopyalandı! Arkadaşına yapıştırıp gönderebilirsin.');
       }
     } catch (err) {
-      console.log('Paylaşım iptal edildi veya hata oluştu:', err);
+      console.log('Paylaşım iptal edildi:', err);
     }
   };
 
@@ -33,10 +29,13 @@ export default function Footer() {
         {/* Üst Kısım: 3 Kolon */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           
-          {/* Kolon 1: Logo ve Açıklama */}
+          {/* Kolon 1: Logo */}
           <div className="space-y-4">
             <h3 className="text-xl font-bold text-[#C5A059] flex items-center gap-2">
-              <Heart className="w-5 h-5 fill-current" />
+              {/* Kalp İkonu (SVG) */}
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#C5A059]">
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+              </svg>
               Ehlibeyt Yolu
             </h3>
             <p className="text-sm leading-relaxed">
@@ -55,33 +54,53 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Kolon 3: Sosyal Medya ve Paylaş Butonu */}
+          {/* Kolon 3: Sosyal Medya */}
           <div className="space-y-4">
             <h4 className="text-white font-semibold">Bizi Takip Edin</h4>
-            
-            {/* Sosyal İkonlar */}
             <div className="flex gap-4">
+              {/* Youtube İkonu */}
               <a href="#" className="bg-slate-900 p-2 rounded-full hover:bg-[#C5A059] hover:text-black transition-all">
-                <Youtube size={20} />
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17" />
+                  <path d="m10 15 5-3-5-3z" />
+                </svg>
               </a>
+              {/* Instagram İkonu */}
               <a href="#" className="bg-slate-900 p-2 rounded-full hover:bg-[#C5A059] hover:text-black transition-all">
-                <Instagram size={20} />
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+                </svg>
               </a>
+              {/* Twitter (X) İkonu */}
               <a href="#" className="bg-slate-900 p-2 rounded-full hover:bg-[#C5A059] hover:text-black transition-all">
-                <Twitter size={20} />
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
+                </svg>
               </a>
+              {/* Mail İkonu */}
               <a href="/iletisim" className="bg-slate-900 p-2 rounded-full hover:bg-[#C5A059] hover:text-black transition-all">
-                <Mail size={20} />
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect width="20" height="16" x="2" y="4" rx="2" />
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                </svg>
               </a>
             </div>
 
-            {/* YENİ EKLENEN PAYLAŞ BUTONU */}
+            {/* PAYLAŞ BUTONU (Gömülü İkon) */}
             <div className="pt-4">
               <button
                 onClick={handleShare}
                 className="w-full flex items-center justify-center gap-2 bg-[#008080] hover:bg-[#006666] text-white py-3 px-4 rounded-lg transition-all duration-300 font-medium shadow-lg hover:shadow-[#008080]/20"
               >
-                <Share2 size={18} />
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="18" cy="5" r="3"></circle>
+                  <circle cx="6" cy="12" r="3"></circle>
+                  <circle cx="18" cy="19" r="3"></circle>
+                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                  <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                </svg>
                 <span>Uygulamayı Tavsiye Et</span>
               </button>
             </div>
@@ -89,7 +108,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Alt Çizgi ve Telif */}
+        {/* Alt Çizgi */}
         <div className="border-t border-slate-800 pt-6 text-center text-xs">
           <p>© {currentYear} Dar-ı Hakikat. Tüm hakları saklıdır.</p>
           <p className="mt-2 text-slate-600">
