@@ -1,5 +1,5 @@
-// VERSİYON KONTROLÜ: Her güncellemede buradaki sayıyı artır (v7, v8, v9...)
-const CACHE_NAME = 'onikikapi-v7-agresif'; 
+// VERSİYON: v8 (Burası değiştikçe tarayıcı güncellemeyi zorunlu kılar)
+const CACHE_NAME = 'onikikapi-v8-final'; 
 
 const urlsToCache = [
   '/',
@@ -7,44 +7,44 @@ const urlsToCache = [
   '/manifest.json'
 ];
 
-// 1. YÜKLEME (INSTALL): Eski bekleyenleri umursama, hemen yükle
+// 1. YÜKLEME (INSTALL): Beklemeden hemen yükle
 self.addEventListener('install', (event) => {
   self.skipWaiting(); // Bekleme yapma, hemen devreye gir!
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Yeni önbellek (v7) oluşturuluyor');
+        console.log('🔥 YENİ VERSİYON YÜKLENİYOR:', CACHE_NAME);
         return cache.addAll(urlsToCache);
       })
   );
 });
 
-// 2. AKTİFLEŞME (ACTIVATE): Eski sürüm varsa ACIMADAN SİL
+// 2. AKTİFLEŞME (ACTIVATE): Eski sürüm (v3, v7 vb.) ne varsa SİL
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          // Eğer cache ismi bizim şu anki versiyonumuz değilse SİL
           if (cacheName !== CACHE_NAME) {
-            console.log('Eski önbellek temizleniyor:', cacheName);
+            console.log('🗑️ Eski çöp temizleniyor:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     }).then(() => {
-      return self.clients.claim(); // Tüm açık sayfaların kontrolünü hemen ele al
+      console.log('✅ Yeni versiyon kontrolü ele aldı!');
+      return self.clients.claim();
     })
   );
 });
 
-// 3. İSTEK YAKALAMA (FETCH): Önce Network'e sor (Ağ Öncelikli Strateji)
-// Bu strateji beyaz ekranı en aza indirir çünkü hep en güncelini internetten almaya çalışır.
+// 3. İSTEK YAKALAMA (FETCH): Önce İnternet (Network First)
+// Bu sayede dosyayı değiştirdiğin an tarayıcı yenisini görür.
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // İnternetten yeni veriyi aldık, bir kopyasını da cache'e atalım
+        // İnternet varsa yenisini al ve cache'i güncelle
         if (!response || response.status !== 200 || response.type !== 'basic') {
           return response;
         }
@@ -56,7 +56,7 @@ self.addEventListener('fetch', (event) => {
         return response;
       })
       .catch(() => {
-        // İnternet yoksa cache'den ver (Offline modu)
+        // İnternet yoksa mecburen cache'den ver
         return caches.match(event.request);
       })
   );
