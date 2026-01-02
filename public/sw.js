@@ -1,13 +1,13 @@
-const CACHE_NAME = 'onikikapi-v2'; // Sürümü güncelledik (v2)
+const CACHE_NAME = 'onikikapi-v3'; // GÜNCELLENDİ: v3 yaptık ki yeni Footer butonu hemen görünsün
 const urlsToCache = [
   '/',
   '/index.html',
-  '/site.webmanifest',             // DÜZELTİLDİ: Eski manifest.json yerine bu geldi
+  '/site.webmanifest',
   '/favicon.ico',
   '/apple-touch-icon.png',
-  '/favicon-96x96.png',            // Klasörde görünen dosya eklendi
-  '/web-app-manifest-192x192.png', // Yeni ikon isimlendirmesi
-  '/web-app-manifest-512x512.png'  // Yeni ikon isimlendirmesi
+  '/favicon-96x96.png',
+  '/web-app-manifest-192x192.png',
+  '/web-app-manifest-512x512.png'
 ];
 
 // Yükleme: Yeni dosyaları önbelleğe al
@@ -15,7 +15,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Yeni önbellek (v2) oluşturuluyor');
+        console.log('Yeni önbellek (v3) oluşturuluyor');
         return cache.addAll(urlsToCache);
       })
   );
@@ -32,7 +32,7 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Güncelleme: Eski cache'leri (v1) ve hatalı dosyaları temizle
+// Güncelleme: Eski cache'leri (v1, v2) ve hatalı dosyaları temizle
 self.addEventListener('activate', (event) => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(

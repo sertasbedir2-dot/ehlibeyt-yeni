@@ -1,8 +1,30 @@
 import React from 'react';
-import { Heart, Mail, Youtube, Instagram, Twitter } from 'lucide-react';
+import { Heart, Mail, Youtube, Instagram, Twitter, Share2 } from 'lucide-react';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+
+  // Paylaşım Fonksiyonu
+  const handleShare = async () => {
+    const shareData = {
+      title: 'OnikiKapı',
+      text: 'İlim şehri OnikiKapı uygulamasını keşfetmeni tavsiye ederim:',
+      url: 'https://onikikapi.vercel.app'
+    };
+
+    try {
+      if (navigator.share) {
+        // Mobildeysen telefonun paylaşım menüsünü açar (WhatsApp vb.)
+        await navigator.share(shareData);
+      } else {
+        // Masaüstündeysen veya desteklemiyorsa linki kopyalar
+        await navigator.clipboard.writeText(shareData.url);
+        alert('Bağlantı kopyalandı! Arkadaşına yapıştırıp gönderebilirsin.');
+      }
+    } catch (err) {
+      console.log('Paylaşım iptal edildi veya hata oluştu:', err);
+    }
+  };
 
   return (
     <footer className="w-full bg-slate-950 border-t border-slate-800 text-slate-400 pt-10 pb-6 mt-10">
@@ -33,9 +55,11 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Kolon 3: Sosyal Medya */}
+          {/* Kolon 3: Sosyal Medya ve Paylaş Butonu */}
           <div className="space-y-4">
             <h4 className="text-white font-semibold">Bizi Takip Edin</h4>
+            
+            {/* Sosyal İkonlar */}
             <div className="flex gap-4">
               <a href="#" className="bg-slate-900 p-2 rounded-full hover:bg-[#C5A059] hover:text-black transition-all">
                 <Youtube size={20} />
@@ -50,6 +74,18 @@ export default function Footer() {
                 <Mail size={20} />
               </a>
             </div>
+
+            {/* YENİ EKLENEN PAYLAŞ BUTONU */}
+            <div className="pt-4">
+              <button
+                onClick={handleShare}
+                className="w-full flex items-center justify-center gap-2 bg-[#008080] hover:bg-[#006666] text-white py-3 px-4 rounded-lg transition-all duration-300 font-medium shadow-lg hover:shadow-[#008080]/20"
+              >
+                <Share2 size={18} />
+                <span>Uygulamayı Tavsiye Et</span>
+              </button>
+            </div>
+
           </div>
         </div>
 
