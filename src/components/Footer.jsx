@@ -1,7 +1,21 @@
 import React from 'react';
+import { Link } from 'react-router-dom'; // YENİ: Sayfa yenilenmeden geçiş için
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+
+  // Link Listesi: Yönetimi kolay olsun diye bir dizi (array) olarak tanımladık.
+  const quickLinks = [
+    { icon: "📚", label: "İlim ve Bilim", url: "/ilim" },
+    { icon: "📿", label: "Tesbihat & Zikir", url: "/zikir" },
+    { icon: "❤️", label: "Manevi Reçeteler", url: "/manevi-receteler" },
+    { icon: "📖", label: "Kütüphane", url: "/library" },
+    { icon: "🌟", label: "14 Masum", url: "/14-masum" },
+    { icon: "📜", label: "Tarih ve Siyer", url: "/tarih" }, // Not: App.jsx'teki rotaya göre /tarih olarak güncelledim
+    { icon: "⚖️", label: "Soru / Cevap", url: "/soru-cevap" },
+    { icon: "🏆", label: "Yarışma (Quiz)", url: "/quiz" },
+    { icon: "📩", label: "İletişim", url: "/iletisim" },
+  ];
 
   // Paylaşım fonksiyonu
   const handleShare = async () => {
@@ -69,36 +83,29 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* KOLON 2: HIZLI ERİŞİM */}
+          {/* KOLON 2: HIZLI ERİŞİM (GÜNCELLENDİ: GRID SİSTEMİ VE EMOJİLER) */}
           <div className="space-y-6 text-center">
             <h4 className="text-xl font-bold text-white border-b-2 border-[#C5A059] pb-2 inline-block">
               Hızlı Erişim
             </h4>
-            <ul className="space-y-4 text-lg font-medium">
-              <li>
-                <a href="/ilim" className="hover:text-[#C5A059] hover:translate-x-2 transition-all inline-block">
-                  📚 İlim ve Bilim
-                </a>
-              </li>
-              <li>
-                <a href="/kutuphane" className="hover:text-[#C5A059] hover:translate-x-2 transition-all inline-block">
-                  📖 Kütüphane
-                </a>
-              </li>
-              <li>
-                <a href="/tarih" className="hover:text-[#C5A059] hover:translate-x-2 transition-all inline-block">
-                  📜 Tarih ve Siyer
-                </a>
-              </li>
-              <li>
-                <a href="/iletisim" className="hover:text-[#C5A059] hover:translate-x-2 transition-all inline-block">
-                  📩 İletişim
-                </a>
-              </li>
+            
+            {/* Link Listesi: 2 Kolonlu Grid Yapısı */}
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 text-left pl-4 sm:pl-0">
+              {quickLinks.map((link, index) => (
+                <li key={index}>
+                  <Link 
+                    to={link.url} 
+                    className="group flex items-center gap-2 text-base text-slate-300 hover:text-[#E5C17C] transition-all duration-300"
+                  >
+                    <span className="opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-transform">{link.icon}</span>
+                    <span className="border-b border-transparent group-hover:border-[#E5C17C] pb-0.5">{link.label}</span>
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* KOLON 3: SOSYAL MEDYA (LİNKLER EKLENDİ) */}
+          {/* KOLON 3: SOSYAL MEDYA */}
           <div className="space-y-6 text-center md:text-right">
             <h4 className="text-xl font-bold text-white border-b-2 border-[#C5A059] pb-2 inline-block">
               Bizi Takip Edin
@@ -107,7 +114,7 @@ export default function Footer() {
             
             <div className="flex justify-center md:justify-end gap-5">
               
-              {/* YOUTUBE: Kırmızı Efekt */}
+              {/* YOUTUBE */}
               <a href="http://www.youtube.com/@dunyaehlibeytplatformu" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-4 rounded-full transition-all duration-300 hover:bg-white hover:text-[#FF0000] hover:-translate-y-2 shadow-lg group">
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17" />
@@ -115,7 +122,7 @@ export default function Footer() {
                 </svg>
               </a>
 
-              {/* INSTAGRAM: Pembe/Mor Efekt */}
+              {/* INSTAGRAM */}
               <a href="https://www.instagram.com/dunya_ehlibeyt_platformu/?__pwa=1#" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-4 rounded-full transition-all duration-300 hover:bg-white hover:text-[#E1306C] hover:-translate-y-2 shadow-lg group">
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
@@ -124,14 +131,14 @@ export default function Footer() {
                 </svg>
               </a>
 
-              {/* FACEBOOK: Mavi Efekt */}
+              {/* FACEBOOK */}
               <a href="https://www.facebook.com/share/1Bzqaux6JM/" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-4 rounded-full transition-all duration-300 hover:bg-white hover:text-[#1877F2] hover:-translate-y-2 shadow-lg group">
                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
                  </svg>
               </a>
 
-              {/* TIKTOK: Pembe/Kırmızı Efekt */}
+              {/* TIKTOK */}
               <a href="https://www.tiktok.com/@dnya.ehlibeyt.pla" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-4 rounded-full transition-all duration-300 hover:bg-white hover:text-[#FE2C55] hover:-translate-y-2 shadow-lg group">
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
