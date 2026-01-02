@@ -1,7 +1,7 @@
-{{
+{
   "name": "OnikiKapı",
   "short_name": "OnikiKapı",
-  "start_url": "./",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#008080",
   "theme_color": "#008080",
