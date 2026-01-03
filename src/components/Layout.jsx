@@ -16,40 +16,38 @@ export default function Layout({ children }) {
     { name: 'Zikirmatik', href: '/zikir' },
   ];
 
-  // GÜNCELLEME: "Pastel" yerine "DOYGUN (Solid)" renkler kullanıldı.
-  // Kutular artık doğrudan marka renginde, ikonlar ise beyaz.
+  // GÜNCELLEME: Tüm renklere "!" (Important) eklendi.
+  // Bu, diğer stillerin bu renkleri ezmesini engeller.
   const socialLinks = [
     { 
       name: "Facebook",
       icon: Facebook, 
       href: "https://facebook.com", 
-      // Zemin: Koyu Mavi, İkon: Beyaz
-      containerStyle: "bg-[#1877F2] border-[#1877F2] shadow-[0_0_30px_rgba(24,119,242,0.4)] hover:shadow-[0_0_50px_rgba(24,119,242,0.8)] hover:bg-[#166fe5]",
-      iconColor: "text-white"
+      // !bg-[#1877F2] -> Kesinlikle bu arka planı kullan
+      // !text-white -> Kesinlikle beyaz ikon kullan
+      containerStyle: "!bg-[#1877F2] !border-[#1877F2] shadow-[0_0_30px_rgba(24,119,242,0.4)] hover:shadow-[0_0_50px_rgba(24,119,242,0.8)] hover:!bg-[#166fe5]",
+      iconColor: "!text-white"
     },
     { 
       name: "Twitter",
       icon: Twitter, 
       href: "https://twitter.com", 
-      // Zemin: Gök Mavisi, İkon: Beyaz
-      containerStyle: "bg-[#1DA1F2] border-[#1DA1F2] shadow-[0_0_30px_rgba(29,161,242,0.4)] hover:shadow-[0_0_50px_rgba(29,161,242,0.8)] hover:bg-[#1a91da]",
-      iconColor: "text-white"
+      containerStyle: "!bg-[#1DA1F2] !border-[#1DA1F2] shadow-[0_0_30px_rgba(29,161,242,0.4)] hover:shadow-[0_0_50px_rgba(29,161,242,0.8)] hover:!bg-[#1a91da]",
+      iconColor: "!text-white"
     },
     { 
       name: "Instagram",
       icon: Instagram, 
       href: "https://instagram.com", 
-      // Zemin: Fuşya/Pembe, İkon: Beyaz
-      containerStyle: "bg-[#E1306C] border-[#E1306C] shadow-[0_0_30px_rgba(225,48,108,0.4)] hover:shadow-[0_0_50px_rgba(225,48,108,0.8)] hover:bg-[#d62e65]",
-      iconColor: "text-white"
+      containerStyle: "!bg-[#E1306C] !border-[#E1306C] shadow-[0_0_30px_rgba(225,48,108,0.4)] hover:shadow-[0_0_50px_rgba(225,48,108,0.8)] hover:!bg-[#d62e65]",
+      iconColor: "!text-white"
     },
     { 
       name: "Youtube",
       icon: Youtube, 
       href: "https://youtube.com", 
-      // Zemin: Kırmızı, İkon: Beyaz
-      containerStyle: "bg-[#FF0000] border-[#FF0000] shadow-[0_0_30px_rgba(255,0,0,0.4)] hover:shadow-[0_0_50px_rgba(255,0,0,0.8)] hover:bg-[#cc0000]",
-      iconColor: "text-white"
+      containerStyle: "!bg-[#FF0000] !border-[#FF0000] shadow-[0_0_30px_rgba(255,0,0,0.4)] hover:shadow-[0_0_50px_rgba(255,0,0,0.8)] hover:!bg-[#cc0000]",
+      iconColor: "!text-white"
     }
   ];
 
@@ -158,7 +156,7 @@ export default function Layout({ children }) {
                 Ehlibeyt mektebinin ilim ve hikmet pınarlarından süzülen hakikatleri, modern çağın idrakine sunan dijital bir külliye.
               </p>
               
-              {/* --- DEVASA & DOYGUN RENKLİ İKONLAR --- */}
+              {/* --- DEVASA & GARANTİLİ RENKLİ İKONLAR (IMPORTANT) --- */}
               <div className="flex flex-wrap items-center gap-6 pt-4">
                 {socialLinks.map((social, index) => (
                   <a
@@ -168,7 +166,7 @@ export default function Layout({ children }) {
                     rel="noopener noreferrer"
                     className={`
                         group relative flex items-center justify-center 
-                        w-40 h-40 rounded-3xl border-4
+                        !w-40 !h-40 rounded-3xl border-4  /* ! ile zorlandı */
                         transition-all duration-500 ease-out 
                         hover:scale-110 hover:-translate-y-2
                         ${social.containerStyle}
@@ -176,7 +174,7 @@ export default function Layout({ children }) {
                     aria-label={social.name}
                   >
                     <social.icon 
-                        className={`w-24 h-24 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110 ${social.iconColor}`}
+                        className={`!w-24 !h-24 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110 ${social.iconColor}`}
                         strokeWidth={3.5} 
                     />
                   </a>
