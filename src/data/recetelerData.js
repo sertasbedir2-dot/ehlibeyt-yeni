@@ -1,23 +1,24 @@
-// src/data/recetelerData.js
+import { Brain, Heart, Moon, Shield, Zap, Home, Users, Eye, Feather, Activity, Wallet, Sun } from 'lucide-react';
 
-import { Brain, Heart, Moon, Shield, Zap, Home, Users, Eye, Feather, Activity } from 'lucide-react';
-
+// --- KATEGORİLER ---
 export const categories = [
-  { id: 'psych', name: 'Ruh Sağlığı & Zihin', icon: Brain, desc: "Vesvese, öfke, uyku ve hafıza sorunları için manevi destek." },
-  { id: 'family', name: 'Aile & Sosyal Hayat', icon: Home, desc: "Huzur, muhabbet, evlat terbiyesi ve nazar korunması." },
-  { id: 'spiritual', name: 'Seyr-ü Süluk (Maneviyat)', icon: Feather, desc: "Kalp katılığı, günah yükü ve ibadette huşu arayanlar için." },
-  { id: 'physical', name: 'Bedensel Şifa (Tıbb-ı Rıza)', icon: Activity, desc: "Halsizlik ve ağrılar için Ehl-i Beyt tıbbından tavsiyeler." }
+  { id: 'psych', name: 'Ruh Sağlığı & Zihin', icon: Brain, desc: "Vesvese, öfke, uyku ve hafıza sorunları." },
+  { id: 'family', name: 'Aile & Sosyal Hayat', icon: Home, desc: "Huzur, rızık, evlat ve nazar." },
+  { id: 'spiritual', name: 'Seyr-ü Süluk (Manevi)', icon: Feather, desc: "Kalp katılığı, tevbe ve manevi arınma." },
+  { id: 'physical', name: 'Bedensel Şifa', icon: Activity, desc: "Hastalıklar ve fiziksel şifa." }
 ];
 
+// --- RUH HALİ (MOODS) ---
 export const moods = [
-  { id: 'sad', label: 'Hüzünlü', emoji: '😔', targetCategory: 'psych' },
+  { id: 'sad', label: 'Hüzünlü', emoji: '😔', targetCategory: 'spiritual' },
   { id: 'angry', label: 'Öfkeli', emoji: '😠', targetCategory: 'psych' },
   { id: 'anxious', label: 'Kaygılı', emoji: '😨', targetCategory: 'psych' },
   { id: 'tired', label: 'Yorgun', emoji: '😴', targetCategory: 'physical' },
-  { id: 'confused', label: 'Kararsız', emoji: '🤔', targetCategory: 'spiritual' },
-  { id: 'lonely', label: 'Yalnız', emoji: '🥀', targetCategory: 'spiritual' }
+  { id: 'poor', label: 'Darda', emoji: '💸', targetCategory: 'family' }, // Rızık için
+  { id: 'sick', label: 'Hasta', emoji: '🤒', targetCategory: 'physical' }
 ];
 
+// --- REÇETELER LİSTESİ ---
 export const recipes = [
   // --- PSİKOLOJİK ---
   {
@@ -27,13 +28,14 @@ export const recipes = [
     icon: Shield,
     diagnosis: "Zihni kemiren takıntılar, yersiz korkular ve şeytani fısıltılar.",
     cure: {
-      arabic: "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ الْعَلِيِّ الْعَظِيمِ",
-      turkish: "La havle ve la kuvvete illa billahil aliyyil azim.",
-      source: "İmam Sadık (a.s)"
+      arabic: "بِسْمِ اللَّهِ وَ بِاللَّهِ مُحَمَّدٌ رَسُولُ اللَّهِ وَ لَا حَوْلَ وَ لَا قُوَّةَ إِلَّا بِاللَّهِ الْعَلِيِّ الْعَظِيمِ",
+      transliteration: "Bismillahi ve billahi Muhammedun Resulullah ve la havle ve la kuvvete illa billahil aliyyil azim.",
+      meaning: "Allah'ın adıyla ve Allah ile... Muhammed Allah'ın elçisidir. Güç ve kuvvet ancak yüce ve ulu Allah'tandır.",
+      source: "İmam Cafer Sadık (a.s)"
     },
-    wisdom: "Bu zikir, insanın acizliğini kabul edip mutlak gücü Allah'a teslim etmesidir. Şeytan, teslim olmuş bir kalbe vesvese veremez.",
-    instruction: "Sabah ve akşam namazlarından sonra 7 veya 70 defa okunur. Ayrıca Nas ve Felak sureleri ile desteklenmelidir.",
-    tibb_riza: "İmam Rıza (a.s) vesvese için 'Nar' (Nar meyvesi) yemeyi tavsiye etmiştir. Nar, kalbi aydınlatır ve şeytanı 40 gün uzaklaştırır."
+    wisdom: "Vesvese kalbi sıktığında elin göğse konularak 7 defa okunması tavsiye edilir.",
+    instruction: "Vesvese anında elinizi göğsünüze koyun ve 7 kere okuyun.",
+    tibb_riza: "İmam Ali (a.s): 'Vesvese çoğaldığında oruç tutun veya az yiyin; tokluk vesveseyi artırır.'"
   },
   {
     id: 2,
@@ -42,13 +44,14 @@ export const recipes = [
     icon: Zap,
     diagnosis: "Ani parlamalar, sinir krizleri ve sonrasında gelen pişmanlık hissi.",
     cure: {
-      arabic: "اَللّٰهُمَّ أَذْهِبْ عَنِّي غَيْظَ قَلْبِي",
-      turkish: "Allahumme ezhib anni ğayza kalbi.",
-      source: "İmam Musa Kazım (a.s)"
+      arabic: "اَللّهُمَّ اَذْهِبْ عَنِّي غَيْظَ قَلْبِي",
+      transliteration: "Allahumme izhib annî ğayza kalbî.",
+      meaning: "Allah'ım, kalbimin öfkesini (kinini) benden gider.",
+      source: "İmam Muhammed Bakır (a.s)"
     },
-    wisdom: "Öfke, aklın ışığını söndüren bir ateştir. Bu dua, o ateşe su serper.",
-    instruction: "Öfke anında ayaktaysanız oturun, oturuyorsanız yatın. Mümkünse soğuk su ile abdest alın.",
-    tibb_riza: null
+    wisdom: "Öfke, aklın ışığını söndüren bir ateştir. Bu dua o ateşe su serper.",
+    instruction: "Öfke anında ayaktaysanız oturun, oturuyorsanız uzanın.",
+    tibb_riza: "Hz. Peygamber (s.a.a): 'Öfkelendiğinizde ayaktaysanız oturun, oturuyorsanız uzanın.' (Kan dolaşımını yavaşlatır)."
   },
   {
     id: 3,
@@ -57,13 +60,30 @@ export const recipes = [
     icon: Moon,
     diagnosis: "Uykuya dalamama, sık uyanma veya korkulu rüyalar görme.",
     cure: {
-      arabic: "Tesbihat-ı Zehra ve Ayetel Kürsi",
-      turkish: "34 Allahu Ekber, 33 Elhamdulillah, 33 Subhanallah",
+      arabic: "يَا مُشْبِعَ الْبُطُونِ الْجَائِعَةِ... (Tam Dua)", 
+      transliteration: "Ya muşbi'al butunel caiy'a ve ya kasiyel cuyubil ariy'a...",
+      meaning: "Ey aç karınları doyuran, çıplak bedenleri giydiren... Damarlarımı sakinleştir ve gözüme acil bir uyku ver.",
       source: "Hz. Fatıma (s.a)"
     },
-    wisdom: "Uyku, küçük ölümdür. Ruhun bu yolculuğa temiz ve korunaklı çıkması gerekir.",
-    instruction: "Yatağa abdestli girin. Sağ tarafınıza yatın ve Tesbihat-ı Zehra'yı çekin.",
+    wisdom: "Hz. Peygamber'in kızı Hz. Fatıma'ya öğrettiği özel uyku duasıdır.",
+    instruction: "Yatağa abdestli girin ve sağ tarafınıza yatarak okuyun.",
     tibb_riza: "Yatmadan önce ağır yemekten kaçının. Bir kaşık bal şerbeti içmek sinirleri yatıştırır."
+  },
+  {
+    id: 10,
+    categoryId: 'psych',
+    title: "Zihin Açıklığı ve Hafıza",
+    icon: Sun,
+    diagnosis: "Unutkanlık, derslerde zorlanma, odaklanma sorunu.",
+    cure: {
+      arabic: "سُبْحَانَكَ لَا عِلْمَ لَنَا إِلَّا مَا عَلَّمْتَنَا ۖ إِنَّكَ أَنتَ الْعَلِيمُ الْحَكِيمُ",
+      transliteration: "Subhaneke la ilme lena illa ma allemtena inneke entel alimul hakim.",
+      meaning: "Seni tenzih ederiz, senin bize öğrettiğinden başka ilmimiz yoktur. Şüphesiz sen her şeyi hakkıyla bilen, her şeyi hikmetle yapansın.",
+      source: "Bakara Suresi, 32"
+    },
+    wisdom: "İlim Allah'ın nurudur. Bu ayet, o nuru talep etmektir.",
+    instruction: "Sabah namazlarından sonra veya derse başlarken okunur.",
+    tibb_riza: "Aç karnına 21 adet kuru üzüm yemek hafızayı güçlendirir (Tıbb-ı Rıza)."
   },
 
   // --- AİLE & SOSYAL ---
@@ -74,13 +94,14 @@ export const recipes = [
     icon: Heart,
     diagnosis: "Eşler arası soğukluk, evde sebepsiz gerginlik ve huzursuzluk.",
     cure: {
-      arabic: "Ya Vedûd (1001 Kere)",
-      turkish: "Ya Vedûd",
+      arabic: "يَا وَدُودُ",
+      transliteration: "Ya Vedûd (1001 Kere)",
+      meaning: "Ey (kullarını) çok seven ve sevilmeye en layık olan.",
       source: "Esma-ül Hüsna"
     },
     wisdom: "Vedûd ismi, ilahi sevgiyi ve şefkati celb eder. Kalpleri birbirine ısındırır.",
-    instruction: "Eşler, birbirlerinin yüzüne bakarak tebessüm etmeli ve bu ismi zikretmelidir. Yemeklere okunması tesiri artırır.",
-    tibb_riza: "Evde üzerlik tohumu (yabani sedef otu) yakmak, negatif enerjiyi ve nazarı temizler."
+    instruction: "Tatlı bir yiyeceğe okunup eşler tarafından yenmesi tavsiye edilir.",
+    tibb_riza: "Hz. Peygamber (s.a.a): 'Kişinin eşine Seni seviyorum demesi, kadının kalbinden asla silinmez.'"
   },
   {
     id: 5,
@@ -89,13 +110,14 @@ export const recipes = [
     icon: Users,
     diagnosis: "Çocuk sahibi olma isteği veya evladın ıslahı.",
     cure: {
-      arabic: "رَبِّ لَا تَذَرْنِي فَرْدًا وَأَنتَ خَيْرُ الْوَارِثِينَ",
-      turkish: "Rabbi la tezerni ferden ve ente hayrul varisin.",
-      source: "Hz. Zekeriya'nın Duası (Enbiya, 89)"
+      arabic: "اللَّهُمَّ وَ مُنَّ عَلَيَّ بِبَقَاءِ وُلْدِي وَ بِإِصْلَاحِهِمْ لِي و بِإِمْتَاعِي بِهِمْ",
+      transliteration: "Allahumme ve menne aleyye bi-bekai vuldi ve bi-ıslahihim li ve bi-imta'i bihim.",
+      meaning: "Allah'ım! Çocuklarımı hayatta bırakarak, onları benim için ıslah ederek ve onlardan faydalanmamı sağlayarak bana lütufta bulun.",
+      source: "İmam Zeynelabidin (a.s)"
     },
-    wisdom: "Bu dua, yalnızlığı gidermek ve soyun devamını hayırlı bir şekilde talep etmektir.",
-    instruction: "Seher vakitlerinde ve secde anında ısrarla okunmalıdır. Çocuklar için Sahife-i Seccadiye'deki dua okunmalıdır.",
-    tibb_riza: null
+    wisdom: "Sahife-i Seccadiye'deki bu dua, hem evlat istemek hem de ahlakını güzelleştirmek içindir.",
+    instruction: "Çocukların hidayeti için seher vakitlerinde okunur.",
+    tibb_riza: "Çocuklarınıza sevgi gösterin ve onlara Ehlibeyt'in hayatından hikayeler anlatın."
   },
   {
     id: 6,
@@ -104,13 +126,30 @@ export const recipes = [
     icon: Eye,
     diagnosis: "Sebepsiz halsizlik, işlerin ters gitmesi, ani hastalıklar.",
     cure: {
-      arabic: "Ve in yekâdullezîne keferû...",
-      turkish: "Kalem Suresi 51-52. Ayetler",
-      source: "Kur'an-ı Kerim"
+      arabic: "وَإِن يَكَادُ الَّذِينَ كَفَرُوا لَيُزْلِقُونَكَ بِأَبْصَارِهِمْ...",
+      transliteration: "Ve in yekâdullezîne keferû le-yuzlikûneke bi-ebsârihim...",
+      meaning: "O inkâr edenler Zikr'i (Kur'an'ı) işittikleri zaman, neredeyse seni gözleriyle devireceklerdi...",
+      source: "Kalem Suresi 51-52"
     },
-    wisdom: "Nazar haktır ve deveyi kazana, insanı mezara sokar. Bu ayetler ilahi bir kalkan oluşturur.",
-    instruction: "Evden çıkarken ve kalabalık ortamlara girerken mutlaka okunmalıdır.",
-    tibb_riza: null
+    wisdom: "Nazar haktır. Bu ayetler ve Ayete'l-Kürsi ilahi bir kalkan oluşturur.",
+    instruction: "Evden çıkarken ve kalabalık ortamlara girerken okunmalıdır.",
+    tibb_riza: "Evden çıkarken Ayete'l-Kürsi okumak en büyük koruyucudur."
+  },
+  {
+    id: 9,
+    categoryId: 'family',
+    title: "Rızık ve Bereket",
+    icon: Wallet,
+    diagnosis: "Geçim sıkıntısı, borçlar ve bereketin azalması.",
+    cure: {
+      arabic: "يَا خَيْرَ مَدْعُوٍّ وَ يَا خَيْرَ مَسْئُولٍ...",
+      transliteration: "Ya hayra med'uvvin ve ya hayra mes'ulin ve ya evsea men a'ta...",
+      meaning: "Ey çağrılanların en hayırlısı, ey istenilenlerin en hayırlısı... Beni rızıklandır ve rızkını bana genişlet.",
+      source: "İmam Sadık (a.s)"
+    },
+    wisdom: "İmam Sadık'tan (a.s) rızkın artması için öğretilen özel duadır.",
+    instruction: "Namazlardan sonra, özellikle secdede okunması tavsiye edilir.",
+    tibb_riza: "Her gece Vakıa Suresi okumak fakirliği önler."
   },
 
   // --- MANEVİ ---
@@ -121,13 +160,14 @@ export const recipes = [
     icon: Activity,
     diagnosis: "İbadetten tat alamama, gözyaşı dökememe, merhamet eksikliği.",
     cure: {
-      arabic: "Münacat-ı Hamse-i Aşere (Şekva)",
-      turkish: "Allah'ım! Sana, durmadan kötülüğü emreden nefsimden şikayet ediyorum...",
-      source: "İmam Zeynelabidin (a.s)"
+      arabic: "يَا فَتَّاحُ",
+      transliteration: "Ya Fettâh (70 Kere)",
+      meaning: "Ey her türlü hayır kapısını açan.",
+      source: "Esma-ül Hüsna"
     },
-    wisdom: "Kalp, günahlarla kirlendikçe katılaşır. Bu münacat, kalbin pasını silen bir ciladır.",
-    instruction: "Gece namazından sonra veya Cuma günleri hüzünlü bir sesle okunmalıdır.",
-    tibb_riza: "Mercimek yemek kalbi yumuşatır ve gözyaşını artırır (Hadis)."
+    wisdom: "Elini kalbinin üzerine koyup bu esmayı zikretmek kalbi yumuşatır.",
+    instruction: "Sabah namazından sonra el kalbin üzerindeyken okunur.",
+    tibb_riza: "İmam Ali (a.s): 'Bir yetimin başını okşamak ve aç birini doyurmak kalbi yumuşatır.'"
   },
   {
     id: 8,
@@ -136,12 +176,31 @@ export const recipes = [
     icon: Feather,
     diagnosis: "Günahların ağırlığı altında ezilmek, ümitsizlik.",
     cure: {
-      arabic: "Dua-i Kumeyl",
-      turkish: "Allah'ım! İffet perdesini yırtan günahlarımı bağışla...",
-      source: "Hz. Ali (a.s)"
+      arabic: "اَسْتَغْفِرُ اللهَ الَّذي لا اِلهَ اِلاّ هُوَ الْحَيُّ الْقَيُّومُ...",
+      transliteration: "Estağfirullahe'llezi la ilahe illa huve, el-Hayyu'l-Kayyum...",
+      meaning: "Kendisinden başka ilah olmayan Allah'tan mağfiret diler ve O'na tövbe ederim.",
+      source: "Mefatihu'l-Cinan"
     },
-    wisdom: "Kumeyl duası, günahkar bir kulun Rabbiyle en samimi dertleşmesidir.",
-    instruction: "Perşembe geceleri (Cuma akşamı) okunması çok faziletlidir.",
-    tibb_riza: null
+    wisdom: "Uyumadan önce okuyanın günahları denizlerin köpüğü kadar olsa da bağışlanır.",
+    instruction: "Her gece yatmadan önce samimiyetle okunmalıdır.",
+    tibb_riza: "Sadaka vermek, günahın izlerini siler ve belaları defeder."
+  },
+
+  // --- BEDENSEL (TIBB-I RIZA) ---
+  {
+    id: 11,
+    categoryId: 'physical',
+    title: "Şifa ve Hastalık",
+    icon: Activity,
+    diagnosis: "Fiziksel ağrılar, kronik rahatsızlıklar ve şifa arayışı.",
+    cure: {
+      arabic: "يَا مَنِ اسْمُهُ دَوَاءٌ وَ ذِكْرُهُ شِفَاءٌ...",
+      transliteration: "Ya menismuhu deva ve zikruhu şifa ve taatuhu ğina...",
+      meaning: "Ey ismi deva, zikri şifa ve itaati zenginlik olan! Sermayesi ümit ve silahı ağlamak olan (bu kuluna) merhamet et.",
+      source: "Dua-i Kumeyl"
+    },
+    wisdom: "Kumeyl duasının bu bölümü, hem ruha hem bedene şifadır.",
+    instruction: "Hastalık anında ve şifa niyetine suya okunup içilebilir.",
+    tibb_riza: "Bir bardak suya 70 kere Fatiha Suresi okuyup içmek şifadır."
   }
 ];

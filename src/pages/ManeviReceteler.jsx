@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Search, ChevronRight, X, Play, BookOpen, Clock, Activity, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Search, ChevronRight, X, Play, BookOpen, Clock, Activity, AlertCircle, CheckCircle2, Heart, Sparkles } from 'lucide-react';
+// YENİ: Verileri oluşturduğumuz dosyadan çekiyoruz
 import { categories, recipes, moods } from '../data/recetelerData';
 
 export default function ManeviReceteler() {
@@ -14,240 +15,235 @@ export default function ManeviReceteler() {
     const matchesCategory = activeCategory === 'all' || recipe.categoryId === activeCategory;
     const matchesSearch = recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           recipe.diagnosis.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    // Eğer mood seçiliyse, sadece o mood'un hedef kategorisindeki veya ilgili reçeteleri göster
-    // (Basitlik için şimdilik mood seçilince o kategoriye otomatik geçiriyoruz, aşağıda handleMoodClick'e bakın)
     return matchesCategory && matchesSearch;
   });
 
   const handleMoodClick = (mood) => {
     setSelectedMood(mood.id);
-    setActiveCategory(mood.targetCategory); // Mood'a uygun kategoriye git
-    setSearchQuery(""); // Aramayı temizle
+    setActiveCategory(mood.targetCategory); 
+    setSearchQuery(""); 
   };
 
   return (
     <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 animate-fade-in">
       <Helmet>
-        <title>Manevi Reçeteler (Dâru'ş-Şifa) | OnikiKapı</title>
+        <title>Dâru'ş-Şifa (Manevi Reçeteler) | OnikiKapı</title>
         <meta name="description" content="Ehl-i Beyt kaynaklı manevi reçeteler, dualar ve Tıbb-ı Rıza tavsiyeleri." />
       </Helmet>
 
-      {/* --- HEADER --- */}
+      {/* --- HERO HEADER --- */}
       <div className="text-center max-w-3xl mx-auto mb-12">
         <div className="flex justify-center mb-4">
-           <div className="p-3 bg-gold/10 rounded-full border border-gold/30">
-             <Activity size={32} className="text-gold" />
+           <div className="p-4 bg-gold/10 rounded-full border border-gold/30 shadow-[0_0_15px_rgba(197,160,89,0.3)]">
+             <Activity size={40} className="text-gold" />
            </div>
         </div>
-        <h1 className="text-4xl md:text-5xl font-bold text-sand font-serif mb-4">Dâru'ş-Şifa</h1>
-        <p className="text-slate-300 text-lg">
+        <h1 className="text-4xl md:text-6xl font-bold text-sand font-serif mb-4 tracking-tight">Dâru'ş-Şifa</h1>
+        <p className="text-slate-300 text-lg font-serif italic">
           "Biz Kur'an'dan, müminler için şifa ve rahmet olan şeyleri indiriyoruz." (İsra, 82)
         </p>
       </div>
 
-      {/* --- MOOD SELECTOR (RUH HALİM) --- */}
-      <div className="max-w-4xl mx-auto mb-12">
-        <p className="text-center text-turquoise-light font-bold uppercase tracking-widest text-sm mb-4">Bugün nasılsın?</p>
-        <div className="flex flex-wrap justify-center gap-3">
+      {/* --- MOOD SELECTOR --- */}
+      <div className="max-w-4xl mx-auto mb-12 bg-white/5 p-6 rounded-3xl border border-white/5 backdrop-blur-sm">
+        <p className="text-center text-turquoise-light font-bold uppercase tracking-widest text-sm mb-6 flex items-center justify-center gap-2">
+          <Sparkles size={16} /> Bugün Kendini Nasıl Hissediyorsun?
+        </p>
+        <div className="flex flex-wrap justify-center gap-4">
           {moods.map((mood) => (
             <button
               key={mood.id}
               onClick={() => handleMoodClick(mood)}
-              className={`flex items-center gap-2 px-5 py-3 rounded-full border transition-all duration-300 ${
+              className={`flex items-center gap-3 px-6 py-3 rounded-2xl border transition-all duration-300 transform hover:-translate-y-1 ${
                 selectedMood === mood.id 
-                  ? 'bg-gold text-midnight border-gold scale-105 shadow-[0_0_15px_rgba(197,160,89,0.4)]' 
-                  : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:border-gold/50'
+                  ? 'bg-gold text-midnight border-gold shadow-[0_0_20px_rgba(197,160,89,0.5)] font-bold' 
+                  : 'bg-midnight/50 border-white/10 text-slate-300 hover:bg-white/10 hover:border-gold/50'
               }`}
             >
-              <span className="text-xl">{mood.emoji}</span>
-              <span className="font-medium">{mood.label}</span>
+              <span className="text-2xl">{mood.emoji}</span>
+              <span className="text-sm">{mood.label}</span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* --- KATEGORİ SEKMELERİ --- */}
-      <div className="max-w-6xl mx-auto mb-8 overflow-x-auto pb-2 custom-scrollbar">
-        <div className="flex gap-4 min-w-max justify-center sm:justify-center">
+      {/* --- KATEGORİLER --- */}
+      <div className="max-w-6xl mx-auto mb-8 overflow-x-auto pb-4 custom-scrollbar">
+        <div className="flex gap-3 min-w-max justify-center sm:justify-center">
           <button
             onClick={() => { setActiveCategory('all'); setSelectedMood(null); }}
-            className={`px-6 py-2 rounded-xl font-bold transition-all ${
+            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${
               activeCategory === 'all' ? 'bg-turquoise-light text-midnight' : 'bg-midnight border border-white/10 text-slate-400 hover:text-white'
             }`}
           >
-            Tümü
+            TÜMÜ
           </button>
           {categories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`flex items-center gap-2 px-6 py-2 rounded-xl font-bold transition-all ${
+              className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold text-sm transition-all ${
                 activeCategory === cat.id ? 'bg-gold text-midnight' : 'bg-midnight border border-white/10 text-slate-400 hover:text-white'
               }`}
             >
-              <cat.icon size={18} />
+              <cat.icon size={16} />
               {cat.name}
             </button>
           ))}
         </div>
       </div>
 
-      {/* --- ARAMA KUTUSU --- */}
-      <div className="max-w-md mx-auto mb-10 relative">
-        <Search className="absolute left-4 top-3.5 text-slate-500" size={20} />
+      {/* --- ARAMA --- */}
+      <div className="max-w-md mx-auto mb-10 relative group">
+        <div className="absolute inset-0 bg-gold/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        <Search className="absolute left-4 top-3.5 text-slate-400 group-hover:text-gold transition-colors" size={20} />
         <input 
           type="text" 
           placeholder="Hastalık, dert veya dua ara..." 
-          className="w-full bg-black/20 border border-white/10 rounded-full py-3 pl-12 pr-4 text-sand placeholder-slate-500 focus:outline-none focus:border-gold/50 transition-all"
+          className="w-full bg-midnight/80 border border-white/10 rounded-full py-3 pl-12 pr-4 text-sand placeholder-slate-500 focus:outline-none focus:border-gold/50 transition-all relative z-10"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
 
-      {/* --- REÇETE KARTLARI (GRID) --- */}
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* --- KARTLAR (GRID) --- */}
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredRecipes.length > 0 ? (
           filteredRecipes.map((recipe) => (
             <div 
               key={recipe.id}
               onClick={() => setSelectedRecipe(recipe)}
-              className="bg-gradient-to-br from-[#0F172A] to-[#1E293B] border border-white/5 hover:border-gold/30 rounded-2xl p-6 cursor-pointer group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl relative overflow-hidden"
+              className="bg-gradient-to-b from-[#162e45] to-[#0F172A] border border-white/5 hover:border-gold/40 rounded-2xl p-6 cursor-pointer group transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl relative overflow-hidden"
             >
-              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <recipe.icon size={80} />
+              <div className="absolute -right-6 -top-6 p-4 opacity-5 group-hover:opacity-10 transition-opacity rotate-12">
+                <recipe.icon size={100} className="text-white" />
               </div>
               
-              <div className="flex items-start gap-4 mb-4">
-                <div className="p-3 bg-gold/10 rounded-xl text-gold group-hover:scale-110 transition-transform duration-300">
-                  <recipe.icon size={24} />
+              <div className="flex items-start gap-4 mb-4 relative z-10">
+                <div className="p-3 bg-gradient-to-br from-gold/20 to-transparent rounded-xl text-gold border border-gold/10 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                  <recipe.icon size={28} />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-sand group-hover:text-gold transition-colors">{recipe.title}</h3>
-                  <p className="text-xs text-slate-400 mt-1 uppercase tracking-wide">
+                  <h3 className="text-xl font-bold text-sand group-hover:text-gold transition-colors font-sans">{recipe.title}</h3>
+                  <span className="text-[10px] text-turquoise-light font-bold uppercase tracking-wider bg-turquoise/10 px-2 py-0.5 rounded mt-1 inline-block">
                     {categories.find(c => c.id === recipe.categoryId)?.name}
-                  </p>
+                  </span>
                 </div>
               </div>
               
-              <p className="text-slate-400 text-sm line-clamp-3 mb-4 leading-relaxed border-l-2 border-white/10 pl-3 italic">
+              <p className="text-slate-400 text-sm line-clamp-3 mb-6 leading-relaxed border-l-2 border-white/10 pl-3 italic">
                 "{recipe.diagnosis}"
               </p>
 
-              <div className="flex items-center text-turquoise-light text-sm font-bold mt-auto group/btn">
-                Reçeteyi Görüntüle 
-                <ChevronRight size={16} className="ml-1 group-hover/btn:translate-x-1 transition-transform" />
+              <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
+                <span className="text-xs text-slate-500 font-serif">Ehlibeyt Kaynaklı</span>
+                <div className="flex items-center text-gold text-sm font-bold group/btn">
+                  Reçeteyi Aç <ChevronRight size={16} className="ml-1 group-hover/btn:translate-x-1 transition-transform" />
+                </div>
               </div>
             </div>
           ))
         ) : (
-          <div className="col-span-full text-center py-12 text-slate-500">
-            Aradığınız kriterlere uygun şifa reçetesi bulunamadı.
+          <div className="col-span-full text-center py-12">
+            <div className="inline-block p-4 bg-white/5 rounded-full mb-4"><Search size={32} className="text-slate-500" /></div>
+            <p className="text-slate-400 text-lg">Aradığınız kriterlere uygun şifa reçetesi bulunamadı.</p>
           </div>
         )}
       </div>
 
-      {/* --- DETAY MODALI (REÇETE KAĞIDI) --- */}
+      {/* --- DETAY MODALI --- */}
       {selectedRecipe && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in overflow-y-auto">
-          <div className="bg-[#fdf6e3] text-slate-800 w-full max-w-2xl rounded-xl shadow-2xl relative my-8 font-serif border-4 border-[#C5A059] overflow-hidden">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in overflow-y-auto">
+          <div className="bg-[#fdf6e3] text-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl relative my-8 font-serif border-4 border-[#C5A059] overflow-hidden flex flex-col max-h-[90vh]">
             
-            {/* Modal Header (Reçete Başlığı) */}
-            <div className="bg-[#C5A059] p-6 flex justify-between items-start text-[#0B1120]">
-              <div>
+            {/* Header */}
+            <div className="bg-[#C5A059] p-6 flex justify-between items-start text-[#0B1120] relative overflow-hidden">
+              <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')]"></div>
+              <div className="relative z-10">
                 <h2 className="text-3xl font-bold font-sans flex items-center gap-3">
-                  <selectedRecipe.icon size={28} />
+                  <selectedRecipe.icon size={32} />
                   {selectedRecipe.title}
                 </h2>
-                <p className="text-sm font-bold opacity-80 mt-1 uppercase tracking-widest">Manevi Reçete No: {selectedRecipe.id}</p>
+                <p className="text-sm font-bold opacity-80 mt-1 uppercase tracking-widest pl-1">Şifa Reçetesi</p>
               </div>
-              <button 
-                onClick={() => setSelectedRecipe(null)}
-                className="p-2 bg-black/10 rounded-full hover:bg-black/20 transition-colors"
-              >
+              <button onClick={() => setSelectedRecipe(null)} className="p-2 bg-black/10 rounded-full hover:bg-black/20 transition-colors z-10">
                 <X size={24} />
               </button>
             </div>
 
-            <div className="p-8 space-y-8">
+            {/* Scrollable Content */}
+            <div className="overflow-y-auto p-6 space-y-6 custom-scrollbar">
               
               {/* 1. TANI */}
-              <div className="flex gap-4">
-                <div className="mt-1"><AlertCircle className="text-red-600" /></div>
+              <div className="flex gap-4 items-start">
+                <div className="mt-1 bg-red-100 p-2 rounded-lg"><AlertCircle className="text-red-600" size={20} /></div>
                 <div>
-                  <h4 className="font-bold text-red-600 uppercase text-sm tracking-wide mb-1">Teşhis (Tanı)</h4>
-                  <p className="text-lg text-slate-700 italic border-l-4 border-red-200 pl-4">
+                  <h4 className="font-bold text-red-600 uppercase text-sm tracking-wide mb-1">Manevi Teşhis</h4>
+                  <p className="text-lg text-slate-700 italic leading-relaxed">
                     {selectedRecipe.diagnosis}
                   </p>
                 </div>
               </div>
 
-              <hr className="border-slate-200" />
+              <hr className="border-slate-300/50" />
 
-              {/* 2. İLAÇ (DUA) */}
-              <div className="flex gap-4">
-                <div className="mt-1"><BookOpen className="text-[#0B1120]" /></div>
-                <div className="w-full">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="font-bold text-[#0B1120] uppercase text-sm tracking-wide">Manevi İlaç</h4>
-                    <button className="flex items-center gap-1 text-xs bg-slate-200 px-3 py-1 rounded-full hover:bg-slate-300 transition">
-                      <Play size={12} fill="currentColor" /> Dinle
-                    </button>
+              {/* 2. İLAÇ (ARAPÇA & ANLAM) */}
+              <div className="bg-white border border-slate-200 p-6 rounded-xl shadow-sm text-center relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-[#C5A059]"></div>
+                <h4 className="font-bold text-[#0B1120] uppercase text-sm tracking-wide mb-4 flex items-center justify-center gap-2">
+                  <BookOpen size={16} /> Manevi İlaç (Dua)
+                </h4>
+                
+                <p className="text-3xl text-slate-800 mb-6 font-serif leading-loose px-4" dir="rtl" style={{fontFamily: 'Amiri, serif'}}>
+                  {selectedRecipe.cure.arabic}
+                </p>
+                
+                <div className="text-left space-y-3 bg-slate-50 p-4 rounded-lg">
+                  <div>
+                    <span className="text-xs font-bold text-slate-400 uppercase">Okunuş:</span>
+                    <p className="text-slate-600 italic text-sm">{selectedRecipe.cure.transliteration}</p>
                   </div>
-                  <div className="bg-white border border-slate-200 p-6 rounded-xl shadow-sm text-center">
-                    <p className="text-2xl font-bold text-slate-800 mb-4 font-serif leading-relaxed" dir="rtl" lang="ar">
-                      {selectedRecipe.cure.arabic}
-                    </p>
-                    <p className="text-slate-600 mb-2 italic">
-                      "{selectedRecipe.cure.turkish}"
-                    </p>
-                    <p className="text-xs font-bold text-[#C5A059] uppercase">
-                      — {selectedRecipe.cure.source}
-                    </p>
+                  <div>
+                    <span className="text-xs font-bold text-slate-400 uppercase">Anlamı:</span>
+                    <p className="text-slate-800 font-medium">{selectedRecipe.cure.meaning}</p>
                   </div>
                 </div>
+                
+                <p className="text-xs font-bold text-[#C5A059] uppercase mt-4 border-t border-slate-100 pt-2">
+                  Kaynak: {selectedRecipe.cure.source}
+                </p>
               </div>
 
-              {/* 3. HİKMET (ETKEN MADDE) */}
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 flex gap-3">
-                <Sparkles className="text-blue-500 shrink-0" />
-                <div>
-                  <h4 className="font-bold text-blue-600 text-xs uppercase mb-1">Hikmet (Etken Madde)</h4>
-                  <p className="text-sm text-slate-700 leading-relaxed">
-                    {selectedRecipe.wisdom}
-                  </p>
+              {/* 3. HİKMET & TALİMAT (YAN YANA) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                  <h4 className="font-bold text-blue-600 text-xs uppercase mb-2 flex items-center gap-2"><Sparkles size={14} /> Hikmeti</h4>
+                  <p className="text-sm text-slate-700 leading-relaxed">{selectedRecipe.wisdom}</p>
+                </div>
+                <div className="bg-orange-50 p-4 rounded-xl border border-orange-100">
+                  <h4 className="font-bold text-orange-600 text-xs uppercase mb-2 flex items-center gap-2"><Clock size={14} /> Uygulama</h4>
+                  <p className="text-sm text-slate-700 leading-relaxed">{selectedRecipe.instruction}</p>
                 </div>
               </div>
 
-              {/* 4. KULLANIM TALİMATI */}
-              <div className="flex gap-4">
-                <div className="mt-1"><Clock className="text-[#C5A059]" /></div>
-                <div>
-                  <h4 className="font-bold text-[#C5A059] uppercase text-sm tracking-wide mb-1">Kullanım Talimatı</h4>
-                  <p className="text-slate-700">
-                    {selectedRecipe.instruction}
-                  </p>
-                </div>
-              </div>
-
-              {/* 5. TIBB-I RIZA (FİZİKSEL DESTEK) */}
+              {/* 4. TIBB-I RIZA */}
               {selectedRecipe.tibb_riza && (
-                <div className="mt-4 bg-green-50 p-4 rounded-xl border border-green-200">
-                  <div className="flex items-center gap-2 mb-2">
-                    <CheckCircle2 size={20} className="text-green-600" />
-                    <h4 className="font-bold text-green-700">Tıbb-ı Rıza Tavsiyesi (Fiziksel Destek)</h4>
+                <div className="mt-2 bg-green-50 p-5 rounded-xl border border-green-200 flex gap-4 items-start">
+                  <div className="bg-green-100 p-2 rounded-full"><CheckCircle2 size={24} className="text-green-600" /></div>
+                  <div>
+                    <h4 className="font-bold text-green-800 text-base mb-1">Tıbb-ı Rıza Tavsiyesi</h4>
+                    <p className="text-green-700 text-sm leading-relaxed">
+                      {selectedRecipe.tibb_riza}
+                    </p>
                   </div>
-                  <p className="text-green-800 text-sm pl-7">
-                    {selectedRecipe.tibb_riza}
-                  </p>
                 </div>
               )}
 
             </div>
 
-            {/* Modal Footer */}
+            {/* Footer */}
             <div className="bg-slate-100 p-4 text-center text-xs text-slate-500 border-t border-slate-200">
-              Şifa Allah'tandır. Bu reçeteler Ehl-i Beyt kaynaklarından derlenmiştir.
+              Şifa Allah'tandır. Bu reçeteler Ehlibeyt kaynaklarından derlenmiştir.
             </div>
           </div>
         </div>
