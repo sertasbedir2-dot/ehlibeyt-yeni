@@ -3,7 +3,8 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PenTool, Scale, Flower, BookOpen, Sparkles, Search, Heart, HelpCircle, Sun, Gift, RefreshCw, Volume2, Share2, Flame, Bell, Globe, X, Download } from 'lucide-react';
 import { wisdomData } from '../data/wisdomData';
-import html2canvas from 'html2canvas';
+// DEĞİŞİKLİK 1: Yeni nesil kütüphane
+import { toPng } from 'html-to-image';
 
 export default function Home() {
   const [heroSearch, setHeroSearch] = useState("");
@@ -259,7 +260,7 @@ function StoryCardContent({ dailyWisdom }) {
   );
 }
 
-// --- ÖNİZLEME PENCERESİ ---
+// --- ÖNİZLEME PENCERESİ (YENİLENMİŞ MOTOR) ---
 function SharePreviewModal({ dailyWisdom, onClose }) {
   const captureRef = useRef(null); // GİZLİ MASTER referansı
   const [downloading, setDownloading] = useState(false);
@@ -268,32 +269,31 @@ function SharePreviewModal({ dailyWisdom, onClose }) {
     if (captureRef.current && !downloading) {
       setDownloading(true);
       try {
+        // Fontların tam yüklenmesini bekle
         await document.fonts.ready;
         
-        // GİZLİ MASTER ELEMENTİNİ ÇEKİYORUZ
-        const canvas = await html2canvas(captureRef.current, {
-          scale: 1, // Zaten 1080x1920 olduğu için scale 1 yeterli (daha net olsun diye 2 yapılabilir ama dosya boyutu artar)
-          useCORS: true,
-          backgroundColor: "#0F4C5C",
-          allowTaint: true,
+        // DEĞİŞİKLİK 2: toPng kullanımı (Modern Yöntem)
+        const dataUrl = await toPng(captureRef.current, {
+          cacheBust: true, // Önbellek sorunlarını önler
           width: 1080,
           height: 1920,
-          windowWidth: 1080,
-          windowHeight: 1920,
-          scrollX: 0,
-          scrollY: 0,
-          x: 0,
-          y: 0
+          // CSS Hack: Element gizli olsa bile, resim oluşturulurken zorla görünür yap
+          style: {
+            transform: 'scale(1)',
+            transformOrigin: 'top left',
+            opacity: '1',
+            visibility: 'visible',
+            display: 'flex'
+          }
         });
 
-        const image = canvas.toDataURL("image/png");
         const link = document.createElement("a");
-        link.href = image;
+        link.href = dataUrl;
         link.download = `OnikiKapi_Hikmet_${new Date().toLocaleDateString()}.png`;
         link.click();
       } catch (err) {
         console.error("Hata:", err);
-        alert("Resim indirilemedi.");
+        alert("Resim indirilemedi. Lütfen tekrar deneyin.");
       } finally {
         setDownloading(false);
       }
@@ -319,7 +319,8 @@ function SharePreviewModal({ dailyWisdom, onClose }) {
         </div>
 
         {/* --- 2. GİZLİ DEVASA KARDEŞ (Fotoğrafı Çekilecek Olan) --- */}
-        {/* Bu element ekranın arkasında, sabit ve 1080x1920 boyutunda bekliyor */}
+        {/* opacity: 0 ile gizledik, ancak z-index -9999 ile arkaya attık. 
+            toPng fonksiyonu style prop'u ile bunu resim anında opacity: 1 yapacak. */}
         <div style={{ position: "fixed", top: 0, left: 0, zIndex: -9999, opacity: 0, pointerEvents: "none" }}>
             <div ref={captureRef}>
                 <StoryCardContent dailyWisdom={dailyWisdom} />
