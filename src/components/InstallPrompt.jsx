@@ -13,7 +13,7 @@ export default function InstallPrompt() {
       setDeferredPrompt(e);
       if (!localStorage.getItem('pwa_prompt_dismissed')) {
         setPromptType('install');
-        // Mobilde hemen çıkmasın, sayfa tam yüklensin diye gecikme
+        // Sayfa tam yüklensin diye 2 saniye bekle
         setTimeout(() => setIsVisible(true), 2000);
       }
     };
@@ -36,16 +36,14 @@ export default function InstallPrompt() {
   }, [deferredPrompt]);
 
   const handleAccept = async () => {
-    // ADIM 1: GÖRSEL KİLİDİ AÇ (Modalı Hemen Kapat)
+    // ADIM 1: PENCEREYİ HEMEN KAPAT (Donmayı önler)
     setIsVisible(false);
 
     // ADIM 2: GÜVENLİ GECİKME (500ms)
-    // Telefonun ekranı tazelemesi için yarım saniye bekliyoruz.
     setTimeout(async () => {
       try {
         if (promptType === 'install' && deferredPrompt) {
-          // Native PWA Yükleme Penceresini çağır
-          await deferredPrompt.prompt(); // await eklendi
+          await deferredPrompt.prompt();
           const { outcome } = await deferredPrompt.userChoice;
           if (outcome === 'accepted') {
             localStorage.setItem('pwa_prompt_dismissed', 'true');
@@ -53,7 +51,6 @@ export default function InstallPrompt() {
           setDeferredPrompt(null);
         } 
         else if (promptType === 'notification') {
-          // Native Bildirim İzni Penceresini çağır
           const permission = await Notification.requestPermission();
           if (permission === 'granted') {
             localStorage.setItem('notification_enabled', 'true');
@@ -65,11 +62,9 @@ export default function InstallPrompt() {
           localStorage.setItem('notification_prompt_dismissed', 'true');
         }
       } catch (error) {
-        // Hata olsa bile kullanıcı hissetmeyecek, sadece konsola yazılacak
-        console.error("Native pencere hatası (Önemsiz):", error);
+        console.error("İşlem hatası (Önemsiz):", error);
       }
-      
-    }, 500); // 500ms kritik gecikme (Daha güvenli)
+    }, 500); 
   };
 
   const handleDismiss = () => {
