@@ -16,35 +16,37 @@ export default function Layout({ children }) {
     { name: 'Zikirmatik', href: '/zikir' },
   ];
 
-  // GÜNCELLEME: Renkler kalıcı hale getirildi (Hover şartı yok)
+  // GÜNCELLEME: Kutu stili ve İkon rengi ayrıştırıldı.
   const socialLinks = [
     { 
       name: "Facebook",
       icon: Facebook, 
       href: "https://facebook.com", 
-      // Varsayılan olarak Mavi ve Belirgin
-      style: "text-blue-600 bg-blue-100 border-blue-300 shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_40px_rgba(37,99,235,0.6)]" 
+      // Kutunun arka planı, kenarlığı ve gölgesi
+      containerStyle: "bg-blue-100 border-blue-300 shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_40px_rgba(37,99,235,0.6)]",
+      // İkonun doğrudan kendi rengi
+      iconColor: "text-blue-600"
     },
     { 
       name: "Twitter",
       icon: Twitter, 
       href: "https://twitter.com", 
-      // Varsayılan olarak Gökyüzü Mavisi
-      style: "text-sky-500 bg-sky-100 border-sky-300 shadow-[0_0_20px_rgba(14,165,233,0.3)] hover:shadow-[0_0_40px_rgba(14,165,233,0.6)]" 
+      containerStyle: "bg-sky-100 border-sky-300 shadow-[0_0_20px_rgba(14,165,233,0.3)] hover:shadow-[0_0_40px_rgba(14,165,233,0.6)]",
+      iconColor: "text-sky-500"
     },
     { 
       name: "Instagram",
       icon: Instagram, 
       href: "https://instagram.com", 
-      // Varsayılan olarak Pembe
-      style: "text-pink-600 bg-pink-100 border-pink-300 shadow-[0_0_20px_rgba(219,39,119,0.3)] hover:shadow-[0_0_40px_rgba(219,39,119,0.6)]" 
+      containerStyle: "bg-pink-100 border-pink-300 shadow-[0_0_20px_rgba(219,39,119,0.3)] hover:shadow-[0_0_40px_rgba(219,39,119,0.6)]",
+      iconColor: "text-pink-600"
     },
     { 
       name: "Youtube",
       icon: Youtube, 
       href: "https://youtube.com", 
-      // Varsayılan olarak Kırmızı
-      style: "text-red-600 bg-red-100 border-red-300 shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_40px_rgba(220,38,38,0.6)]" 
+      containerStyle: "bg-red-100 border-red-300 shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_40px_rgba(220,38,38,0.6)]",
+      iconColor: "text-red-600"
     }
   ];
 
@@ -153,8 +155,7 @@ export default function Layout({ children }) {
                 Ehlibeyt mektebinin ilim ve hikmet pınarlarından süzülen hakikatleri, modern çağın idrakine sunan dijital bir külliye.
               </p>
               
-              {/* --- DEVASA & RENKLİ İKONLAR --- */}
-              {/* flex-wrap ekledik ki mobilde sığmazsa alt satıra geçsin, bozulmasın */}
+              {/* --- DEVASA & GARANTİLİ RENKLİ İKONLAR --- */}
               <div className="flex flex-wrap items-center gap-6 pt-4">
                 {socialLinks.map((social, index) => (
                   <a
@@ -162,18 +163,19 @@ export default function Layout({ children }) {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
+                    // Kutu stilleri buraya (bg, border, shadow)
                     className={`
                         group relative flex items-center justify-center 
-                        w-40 h-40 rounded-3xl border-4  /* 160px boyut (w-40 h-40) ve kalın çerçeve */
+                        w-40 h-40 rounded-3xl border-4
                         transition-all duration-500 ease-out 
                         hover:scale-110 hover:-translate-y-2
-                        ${social.style}
+                        ${social.containerStyle}
                     `}
                     aria-label={social.name}
                   >
-                    {/* İkon boyutu: w-24 h-24 (96px) - Çizgi Kalınlığı: 3.5 */}
+                    {/* İkon rengi (text-blue-600 vb.) DOĞRUDAN buraya */}
                     <social.icon 
-                        className="w-24 h-24 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110" 
+                        className={`w-24 h-24 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110 ${social.iconColor}`}
                         strokeWidth={3.5} 
                     />
                   </a>
