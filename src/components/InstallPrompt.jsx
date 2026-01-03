@@ -13,7 +13,7 @@ export default function InstallPrompt() {
       setDeferredPrompt(e);
       if (!localStorage.getItem('pwa_prompt_dismissed')) {
         setPromptType('install');
-        // Mobilde hemen çıkmasın, sayfa tam yüklensin diye minik bir gecikme
+        // Mobilde hemen çıkmasın, sayfa tam yüklensin diye gecikme
         setTimeout(() => setIsVisible(true), 2000);
       }
     };
@@ -36,42 +36,40 @@ export default function InstallPrompt() {
   }, [deferredPrompt]);
 
   const handleAccept = async () => {
-    // ADIM 1: React State'ini güncelle ve Modalı Kapat
-    // Bu işlem senkrondur ve React kuyruğuna girer.
+    // ADIM 1: GÖRSEL KİLİDİ AÇ (Modalı Hemen Kapat)
     setIsVisible(false);
 
-    // ADIM 2: Zamanla Ayrıştırma (TRIZ: Separation in Time)
-    // 300ms gecikme, tarayıcının "Repaint" (Ekranı yeniden boyama) yapması için yeterlidir.
-    // Bu sayede native pencere açılmadan önce bizim modalımız ekrandan silinmiş olur.
+    // ADIM 2: GÜVENLİ GECİKME (500ms)
+    // Telefonun ekranı tazelemesi için yarım saniye bekliyoruz.
     setTimeout(async () => {
-      
-      if (promptType === 'install' && deferredPrompt) {
-        // Native PWA Yükleme Penceresini çağır
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          localStorage.setItem('pwa_prompt_dismissed', 'true');
-        }
-        setDeferredPrompt(null);
-      } 
-      else if (promptType === 'notification') {
-        // Native Bildirim İzni Penceresini çağır
-        try {
+      try {
+        if (promptType === 'install' && deferredPrompt) {
+          // Native PWA Yükleme Penceresini çağır
+          await deferredPrompt.prompt(); // await eklendi
+          const { outcome } = await deferredPrompt.userChoice;
+          if (outcome === 'accepted') {
+            localStorage.setItem('pwa_prompt_dismissed', 'true');
+          }
+          setDeferredPrompt(null);
+        } 
+        else if (promptType === 'notification') {
+          // Native Bildirim İzni Penceresini çağır
           const permission = await Notification.requestPermission();
           if (permission === 'granted') {
             localStorage.setItem('notification_enabled', 'true');
             new Notification("Hoş Geldiniz", {
               body: "Sabah Virdiniz her sabah size ulaşacaktır.",
-              icon: "/icon-192x192.png" // Varsa ikon yolunuz
+              icon: "/icon-192x192.png" 
             });
           }
           localStorage.setItem('notification_prompt_dismissed', 'true');
-        } catch (error) {
-          console.error("Bildirim hatası:", error);
         }
+      } catch (error) {
+        // Hata olsa bile kullanıcı hissetmeyecek, sadece konsola yazılacak
+        console.error("Native pencere hatası (Önemsiz):", error);
       }
       
-    }, 300); // 300ms kritik gecikme
+    }, 500); // 500ms kritik gecikme (Daha güvenli)
   };
 
   const handleDismiss = () => {
