@@ -16,12 +16,13 @@ export default function Layout({ children }) {
     { name: 'Zikirmatik', href: '/zikir' },
   ];
 
-  // YENİ: Sosyal Medya Linkleri ve Özel Renkleri
+  // GÜNCELLEME: Renkler artık varsayılan olarak aktif (hover: ön eki kaldırıldı)
+  // Ayrıca Twitter logosu siyah yerine gökyüzü mavisi yapıldı ki koyu zeminde görünsün.
   const socialLinks = [
-    { icon: Facebook, href: "https://facebook.com", color: "hover:text-blue-500" },
-    { icon: Twitter, href: "https://twitter.com", color: "hover:text-sky-400" },
-    { icon: Instagram, href: "https://instagram.com", color: "hover:text-pink-500" },
-    { icon: Youtube, href: "https://youtube.com", color: "hover:text-red-500" }
+    { icon: Facebook, href: "https://facebook.com", color: "text-blue-500 bg-blue-500/10 border-blue-500/20" },
+    { icon: Twitter, href: "https://twitter.com", color: "text-sky-400 bg-sky-400/10 border-sky-400/20" },
+    { icon: Instagram, href: "https://instagram.com", color: "text-pink-500 bg-pink-500/10 border-pink-500/20" },
+    { icon: Youtube, href: "https://youtube.com", color: "text-red-500 bg-red-500/10 border-red-500/20" }
   ];
 
   return (
@@ -60,7 +61,6 @@ export default function Layout({ children }) {
                 </Link>
               );
             })}
-             {/* Desktop Search Button */}
              <button className="ml-4 p-2 text-slate-300 hover:text-gold bg-white/5 hover:bg-white/10 rounded-full transition-all" aria-label="Arama Yap">
                <Search size={20} />
              </button>
@@ -103,7 +103,6 @@ export default function Layout({ children }) {
                 </Link>
                );
             })}
-             {/* Mobil Namaz Vakti Widget'ı - Menü içine alındı */}
              <div className="mt-4 px-2">
                  <PrayerTimesWidget />
              </div>
@@ -116,9 +115,8 @@ export default function Layout({ children }) {
         {children}
       </main>
       
-      {/* --- FOOTER (GÜNCELLENDİ) --- */}
+      {/* --- FOOTER --- */}
       <footer className="bg-[#0F172A] text-slate-400 py-16 relative overflow-hidden border-t border-gold/10 animate-fade-in">
-        {/* Arka plan desenleri */}
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none"></div>
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-gold/30 to-transparent"></div>
 
@@ -137,21 +135,20 @@ export default function Layout({ children }) {
                 Ehlibeyt mektebinin ilim ve hikmet pınarlarından süzülen hakikatleri, modern çağın idrakine sunan dijital bir külliye.
               </p>
               
-              {/* YENİ SOSYAL MEDYA İKONLARI (BÜYÜK VE RENKLİ) */}
-              <div className="flex items-center space-x-4 pt-4">
+              {/* YENİLENEN CANLI İKONLAR */}
+              <div className="flex items-center space-x-5 pt-6">
                 {socialLinks.map((social, index) => (
                   <a
                     key={index}
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    // p-3 ile büyüttük, text-slate-400 başlangıç rengi, hover scale ve özel renk atadık
-                    className={`bg-white/5 p-3 rounded-full text-slate-400 transition-all duration-300 hover:scale-110 hover:bg-white/10 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] ${social.color}`}
+                    // Değişiklik: p-4 (daha büyük), border-2 (çerçeveli), gölge efektli ve varsayılan renkli
+                    className={`p-3.5 rounded-full border-2 transition-all duration-300 transform hover:scale-125 hover:-translate-y-1 hover:shadow-lg ${social.color}`}
                     aria-label={`Sosyal medya ${index + 1}`}
                   >
-                    {/* İkon boyutu size={28} yapıldı */}
-                    <social.icon size={28} />
-                  </footer>
+                    <social.icon size={28} strokeWidth={2.5} />
+                  </a>
                 ))}
               </div>
 
