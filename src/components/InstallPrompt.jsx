@@ -1,106 +1,129 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Share, X, Phone } from 'lucide-react';
+import { Bell, Download, X } from 'lucide-react';
 
 export default function InstallPrompt() {
+  const [isVisible, setIsVisible] = useState(false);
+  const [promptType, setPromptType] = useState(null); // 'install' veya 'notification'
   const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [showPrompt, setShowPrompt] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
-    // 0. Önce "Daha önce reddetti mi?" kontrolü yapalım
-    const isDismissed = localStorage.getItem('pwa_prompt_dismissed');
-    if (isDismissed) return; // Eğer reddettiyse hiç çalıştırma
-
-    // 1. Android/Desktop için install eventini yakala
+    // 1. Önce PWA Yükleme Kontrolü
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      // 5 saniye sonra göster
-      setTimeout(() => {
-        setShowPrompt(true);
-      }, 5000);
+      if (!localStorage.getItem('pwa_prompt_dismissed')) {
+        setPromptType('install');
+        // Mobilde hemen çıkmasın, sayfa tam yüklensin diye minik bir gecikme
+        setTimeout(() => setIsVisible(true), 2000);
+      }
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // 2. iOS Tespiti
-    const isIosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
-    
-    if (isIosDevice && !isStandalone) {
-      setIsIOS(true);
-      setTimeout(() => setShowPrompt(true), 5000);
-    }
+    // 2. Bildirim Kontrolü
+    const checkNotification = () => {
+      if (!deferredPrompt && Notification.permission === 'default' && !localStorage.getItem('notification_prompt_dismissed')) {
+        setPromptType('notification');
+        setTimeout(() => setIsVisible(true), 3000);
+      }
+    };
+
+    checkNotification();
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
-  }, []);
+  }, [deferredPrompt]);
 
-  const handleInstallClick = () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === 'accepted') {
-          console.log('Kullanıcı kabul etti');
-          // Kabul ettiyse de artık sormayalım
+  const handleAccept = async () => {
+    // ADIM 1: React State'ini güncelle ve Modalı Kapat
+    // Bu işlem senkrondur ve React kuyruğuna girer.
+    setIsVisible(false);
+
+    // ADIM 2: Zamanla Ayrıştırma (TRIZ: Separation in Time)
+    // 300ms gecikme, tarayıcının "Repaint" (Ekranı yeniden boyama) yapması için yeterlidir.
+    // Bu sayede native pencere açılmadan önce bizim modalımız ekrandan silinmiş olur.
+    setTimeout(async () => {
+      
+      if (promptType === 'install' && deferredPrompt) {
+        // Native PWA Yükleme Penceresini çağır
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
           localStorage.setItem('pwa_prompt_dismissed', 'true');
         }
         setDeferredPrompt(null);
-        setShowPrompt(false);
-      });
+      } 
+      else if (promptType === 'notification') {
+        // Native Bildirim İzni Penceresini çağır
+        try {
+          const permission = await Notification.requestPermission();
+          if (permission === 'granted') {
+            localStorage.setItem('notification_enabled', 'true');
+            new Notification("Hoş Geldiniz", {
+              body: "Sabah Virdiniz her sabah size ulaşacaktır.",
+              icon: "/icon-192x192.png" // Varsa ikon yolunuz
+            });
+          }
+          localStorage.setItem('notification_prompt_dismissed', 'true');
+        } catch (error) {
+          console.error("Bildirim hatası:", error);
+        }
+      }
+      
+    }, 300); // 300ms kritik gecikme
+  };
+
+  const handleDismiss = () => {
+    setIsVisible(false);
+    if (promptType === 'install') {
+      localStorage.setItem('pwa_prompt_dismissed', 'true');
+    } else {
+      localStorage.setItem('notification_prompt_dismissed', 'true');
     }
   };
 
-  const handleClose = () => {
-    setShowPrompt(false);
-    // Kapatırsa "Bir daha sorma" diyoruz (İsterseniz bunu SessionStorage yapıp sadece o oturumda sormamasını sağlayabilirsiniz)
-    localStorage.setItem('pwa_prompt_dismissed', 'true');
-  };
-
-  if (!showPrompt) return null;
+  if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 w-full z-[200] p-4 animate-fade-in">
-      <div className="max-w-md mx-auto bg-[#162e45] border border-gold/30 rounded-2xl shadow-2xl p-6 relative overflow-hidden">
+    <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+      <div className="bg-[#0B1120] border-2 border-[#C5A059] w-full max-w-sm rounded-2xl p-6 shadow-2xl relative">
         
-        {/* Kapatma Butonu */}
         <button 
-          onClick={handleClose} 
-          className="absolute top-2 right-2 p-2 text-slate-400 hover:text-white bg-white/5 rounded-full transition-colors"
+          onClick={handleDismiss}
+          className="absolute top-3 right-3 text-slate-400 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors"
         >
           <X size={20} />
         </button>
 
-        <div className="flex gap-4 items-start">
-          <div className="bg-turquoise p-3 rounded-xl shadow-lg shrink-0">
-            <Phone className="text-white" size={32} />
+        <div className="flex flex-col items-center text-center space-y-4">
+          <div className="p-4 bg-[#C5A059]/10 rounded-full border border-[#C5A059]/30 text-[#C5A059] shadow-[0_0_15px_rgba(197,160,89,0.2)]">
+            {promptType === 'install' ? <Download size={32} /> : <Bell size={32} />}
           </div>
-          <div>
-            <h3 className="text-xl font-bold text-gold font-sans mb-1">Maneviyatı Yanında Taşı</h3>
-            <p className="text-sm text-slate-300 mb-4 leading-relaxed">
-              Daha hızlı erişim ve çevrimdışı okuma için OnikiKapı'yı ana ekranına ekle.
-            </p>
 
-            {isIOS ? (
-              // iOS YÖNERGESİ
-              <div className="bg-midnight/50 p-3 rounded-lg border border-white/10 text-xs text-slate-300">
-                <p className="flex items-center gap-2 mb-1">
-                  1. Aşağıdaki <Share size={14} /> <strong>Paylaş</strong> butonuna basın.
-                </p>
-                <p className="flex items-center gap-2">
-                  2. <strong>"Ana Ekrana Ekle"</strong> seçeneğini seçin.
-                </p>
-              </div>
-            ) : (
-              // ANDROID BUTONU
-              <button 
-                onClick={handleInstallClick}
-                className="bg-gold text-turquoise-dark px-6 py-2.5 rounded-lg font-bold hover:bg-white transition-all flex items-center gap-2 w-full justify-center shadow-lg transform active:scale-95"
-              >
-                <Download size={20} /> Ana Ekrana Ekle
-              </button>
-            )}
+          <h3 className="text-xl font-bold text-[#fdf6e3] font-serif">
+            {promptType === 'install' ? 'Uygulamayı Yükle' : 'Sabah Virdi'}
+          </h3>
+
+          <p className="text-slate-300 text-sm leading-relaxed">
+            {promptType === 'install' 
+              ? 'Daha hızlı erişim ve çevrimdışı kullanım için OnikiKapı\'yı ana ekranına ekle.' 
+              : 'Her sabah günün hikmeti ve manevi görevini bildirim olarak almak ister misin?'}
+          </p>
+
+          <div className="flex gap-3 w-full mt-2">
+            <button 
+              onClick={handleDismiss}
+              className="flex-1 py-3 px-4 rounded-xl border border-slate-600 text-slate-300 font-bold text-sm hover:bg-white/5 transition-colors"
+            >
+              Daha Sonra
+            </button>
+            <button 
+              onClick={handleAccept}
+              className="flex-1 py-3 px-4 rounded-xl bg-[#C5A059] text-[#0B1120] font-bold text-sm hover:bg-[#b08d48] transition-colors shadow-lg active:scale-95 transform"
+            >
+              Evet, İsterim
+            </button>
           </div>
         </div>
       </div>
