@@ -16,35 +16,35 @@ export default function Layout({ children }) {
     { name: 'Zikirmatik', href: '/zikir' },
   ];
 
-  // GÜNCELLEME: Canlı Renkler ve Stil Tanımları
+  // GÜNCELLEME: Renkler kalıcı hale getirildi (Hover şartı yok)
   const socialLinks = [
     { 
       name: "Facebook",
       icon: Facebook, 
       href: "https://facebook.com", 
-      // Marka Rengi: Mavi
-      style: "text-blue-500 border-blue-500/30 bg-blue-500/10 hover:bg-blue-500 hover:text-white hover:shadow-[0_0_30px_rgba(59,130,246,0.6)]" 
+      // Varsayılan olarak Mavi ve Belirgin
+      style: "text-blue-600 bg-blue-100 border-blue-300 shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_40px_rgba(37,99,235,0.6)]" 
     },
     { 
       name: "Twitter",
       icon: Twitter, 
       href: "https://twitter.com", 
-      // Marka Rengi: Gökyüzü Mavisi
-      style: "text-sky-400 border-sky-400/30 bg-sky-400/10 hover:bg-sky-400 hover:text-white hover:shadow-[0_0_30px_rgba(56,189,248,0.6)]" 
+      // Varsayılan olarak Gökyüzü Mavisi
+      style: "text-sky-500 bg-sky-100 border-sky-300 shadow-[0_0_20px_rgba(14,165,233,0.3)] hover:shadow-[0_0_40px_rgba(14,165,233,0.6)]" 
     },
     { 
       name: "Instagram",
       icon: Instagram, 
       href: "https://instagram.com", 
-      // Marka Rengi: Pembe/Mor
-      style: "text-pink-500 border-pink-500/30 bg-pink-500/10 hover:bg-pink-500 hover:text-white hover:shadow-[0_0_30px_rgba(236,72,153,0.6)]" 
+      // Varsayılan olarak Pembe
+      style: "text-pink-600 bg-pink-100 border-pink-300 shadow-[0_0_20px_rgba(219,39,119,0.3)] hover:shadow-[0_0_40px_rgba(219,39,119,0.6)]" 
     },
     { 
       name: "Youtube",
       icon: Youtube, 
       href: "https://youtube.com", 
-      // Marka Rengi: Kırmızı
-      style: "text-red-500 border-red-500/30 bg-red-500/10 hover:bg-red-500 hover:text-white hover:shadow-[0_0_30px_rgba(239,68,68,0.6)]" 
+      // Varsayılan olarak Kırmızı
+      style: "text-red-600 bg-red-100 border-red-300 shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_40px_rgba(220,38,38,0.6)]" 
     }
   ];
 
@@ -53,7 +53,6 @@ export default function Layout({ children }) {
       {/* --- HEADER --- */}
       <header className="bg-turquoise-dark/95 backdrop-blur-md shadow-lg border-b border-gold/20 fixed w-full z-50 transition-all duration-300">
         <nav className="container mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group" onClick={() => setIsMenuOpen(false)}>
             <div className="relative w-10 h-10 flex items-center justify-center">
               <div className="absolute inset-0 bg-gold/20 rounded-full blur-md group-hover:blur-lg transition-all"></div>
@@ -62,7 +61,6 @@ export default function Layout({ children }) {
             <span className="text-2xl font-bold text-sand tracking-wider font-serif">OnikiKapı</span>
           </Link>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
             {navigation.map((item) => {
               const isActive = location.pathname === item.href;
@@ -89,7 +87,6 @@ export default function Layout({ children }) {
              </button>
           </div>
 
-          {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-2">
              <button className="p-2 text-slate-300 hover:text-gold bg-white/5 hover:bg-white/10 rounded-full transition-all" aria-label="Arama Yap">
                <Search size={20} />
@@ -103,7 +100,6 @@ export default function Layout({ children }) {
           </div>
         </nav>
 
-        {/* Mobile Menu Panel */}
         <div className={`md:hidden absolute w-full bg-turquoise-dark/95 backdrop-blur-md border-b border-gold/20 overflow-hidden transition-all duration-500 ease-in-out ${isMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`}>
           <div className="px-4 pt-2 pb-6 space-y-2">
             {navigation.map((item) => {
@@ -133,7 +129,6 @@ export default function Layout({ children }) {
         </div>
       </header>
 
-      {/* --- MAIN CONTENT --- */}
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12 z-10 relative">
         {children}
       </main>
@@ -146,8 +141,8 @@ export default function Layout({ children }) {
         <div className="container mx-auto px-6 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             
-            {/* Marka Alanı */}
-            <div className="col-span-1 md:col-span-2 space-y-6">
+            {/* Marka ve İkon Alanı */}
+            <div className="col-span-1 md:col-span-2 space-y-8">
               <Link to="/" className="flex items-center space-x-3 group w-fit">
                   <div className="p-2 bg-gold/10 rounded-full group-hover:bg-gold/20 transition-colors">
                     <BookOpen size={32} className="text-gold drop-shadow-[0_0_10px_rgba(255,215,0,0.3)]" />
@@ -158,8 +153,9 @@ export default function Layout({ children }) {
                 Ehlibeyt mektebinin ilim ve hikmet pınarlarından süzülen hakikatleri, modern çağın idrakine sunan dijital bir külliye.
               </p>
               
-              {/* --- YENİLENEN DEVASA & CANLI İKONLAR --- */}
-              <div className="flex items-center gap-6 pt-8">
+              {/* --- DEVASA & RENKLİ İKONLAR --- */}
+              {/* flex-wrap ekledik ki mobilde sığmazsa alt satıra geçsin, bozulmasın */}
+              <div className="flex flex-wrap items-center gap-6 pt-4">
                 {socialLinks.map((social, index) => (
                   <a
                     key={index}
@@ -168,17 +164,17 @@ export default function Layout({ children }) {
                     rel="noopener noreferrer"
                     className={`
                         group relative flex items-center justify-center 
-                        w-20 h-20 rounded-2xl border-2 
-                        transition-all duration-300 ease-out 
+                        w-40 h-40 rounded-3xl border-4  /* 160px boyut (w-40 h-40) ve kalın çerçeve */
+                        transition-all duration-500 ease-out 
                         hover:scale-110 hover:-translate-y-2
                         ${social.style}
                     `}
                     aria-label={social.name}
                   >
-                    {/* Size prop'u kaldırıldı, yerine Tailwind classları verildi */}
+                    {/* İkon boyutu: w-24 h-24 (96px) - Çizgi Kalınlığı: 3.5 */}
                     <social.icon 
-                        className="w-10 h-10 md:w-12 md:h-12 transition-transform duration-300 group-hover:rotate-6" 
-                        strokeWidth={2.5} 
+                        className="w-24 h-24 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110" 
+                        strokeWidth={3.5} 
                     />
                   </a>
                 ))}
@@ -187,7 +183,7 @@ export default function Layout({ children }) {
             </div>
 
             {/* Hızlı Linkler */}
-            <div>
+            <div className="pt-4">
               <h4 className="text-sand font-bold text-lg mb-6 flex items-center gap-2 uppercase tracking-widest">
                 <Sparkles size={16} className="text-gold" /> Keşfet
               </h4>
@@ -204,7 +200,7 @@ export default function Layout({ children }) {
             </div>
 
             {/* İletişim */}
-            <div>
+            <div className="pt-4">
               <h4 className="text-sand font-bold text-lg mb-6 flex items-center gap-2 uppercase tracking-widest">
                  <MapPin size={16} className="text-gold" /> İletişim
               </h4>
@@ -225,7 +221,6 @@ export default function Layout({ children }) {
             </div>
           </div>
 
-          {/* Alt Çizgi */}
           <div className="border-t border-white/10 pt-8 mt-12 flex flex-col md:flex-row justify-between items-center text-sm text-slate-500 font-medium">
             <p>© {new Date().getFullYear()} OnikiKapı. Tüm hakları saklıdır. İlim ve hikmet yolunda hizmetinizde.</p>
             <div className="flex space-x-6 mt-4 md:mt-0">
