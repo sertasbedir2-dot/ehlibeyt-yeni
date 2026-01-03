@@ -1,30 +1,61 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // YENİ: Sayfa yenilenmeden geçiş için
+import { Link } from 'react-router-dom';
+import { Facebook, Twitter, Instagram, Youtube, Video } from 'lucide-react'; // Lucide ikonlarını import ettik (TikTok yerine Video ikonu kullandık, Lucide'de TikTok yoksa)
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
-  // Link Listesi: Yönetimi kolay olsun diye bir dizi (array) olarak tanımladık.
+  // Link Listesi
   const quickLinks = [
     { icon: "📚", label: "İlim ve Bilim", url: "/ilim" },
     { icon: "📿", label: "Tesbihat & Zikir", url: "/zikir" },
     { icon: "❤️", label: "Manevi Reçeteler", url: "/manevi-receteler" },
     { icon: "📖", label: "Kütüphane", url: "/library" },
     { icon: "🌟", label: "14 Masum", url: "/14-masum" },
-    { icon: "📜", label: "Tarih ve Siyer", url: "/tarih" }, // Not: App.jsx'teki rotaya göre /tarih olarak güncelledim
+    { icon: "📜", label: "Tarih ve Siyer", url: "/tarih" },
     { icon: "⚖️", label: "Soru / Cevap", url: "/soru-cevap" },
     { icon: "🏆", label: "Yarışma (Quiz)", url: "/quiz" },
     { icon: "📩", label: "İletişim", url: "/iletisim" },
   ];
 
-  // Paylaşım fonksiyonu
+  // GÜNCELLEME: Sosyal Medya Veri Yapısı (Devasa ve Renkli)
+  const socialLinks = [
+    { 
+      name: "Youtube",
+      icon: Youtube, // Lucide Component
+      url: "http://www.youtube.com/@dunyaehlibeytplatformu",
+      // Kırmızı Zemin, Beyaz İkon, Kırmızı Gölge
+      style: "bg-[#FF0000] border-4 border-[#FF0000] text-white shadow-[0_0_30px_rgba(255,0,0,0.4)] hover:shadow-[0_0_50px_rgba(255,0,0,0.8)] hover:bg-[#cc0000]"
+    },
+    { 
+      name: "Instagram",
+      icon: Instagram, 
+      url: "https://www.instagram.com/dunya_ehlibeyt_platformu/?__pwa=1#",
+      // Pembe Zemin, Beyaz İkon
+      style: "bg-[#E1306C] border-4 border-[#E1306C] text-white shadow-[0_0_30px_rgba(225,48,108,0.4)] hover:shadow-[0_0_50px_rgba(225,48,108,0.8)] hover:bg-[#d62e65]"
+    },
+    { 
+      name: "Facebook",
+      icon: Facebook, 
+      url: "https://www.facebook.com/share/1Bzqaux6JM/",
+      // Mavi Zemin, Beyaz İkon
+      style: "bg-[#1877F2] border-4 border-[#1877F2] text-white shadow-[0_0_30px_rgba(24,119,242,0.4)] hover:shadow-[0_0_50px_rgba(24,119,242,0.8)] hover:bg-[#166fe5]"
+    },
+    { 
+      name: "TikTok",
+      icon: Video, // Lucide'de TikTok yoksa Video ikonu kullandık (veya özel SVG eklenebilir)
+      url: "https://www.tiktok.com/@dnya.ehlibeyt.pla",
+      // Siyah/Kırmızı Zemin
+      style: "bg-[#000000] border-4 border-[#FE2C55] text-white shadow-[0_0_30px_rgba(254,44,85,0.4)] hover:shadow-[0_0_50px_rgba(254,44,85,0.8)] hover:bg-[#1a1a1a]"
+    }
+  ];
+
   const handleShare = async () => {
     const shareData = {
       title: 'OnikiKapı',
       text: 'İlim şehri OnikiKapı uygulamasını keşfetmeni tavsiye ederim:',
       url: 'https://onikikapi.vercel.app'
     };
-
     try {
       if (navigator.share) {
         await navigator.share(shareData);
@@ -83,13 +114,11 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* KOLON 2: HIZLI ERİŞİM (GÜNCELLENDİ: GRID SİSTEMİ VE EMOJİLER) */}
+          {/* KOLON 2: HIZLI ERİŞİM */}
           <div className="space-y-6 text-center">
             <h4 className="text-xl font-bold text-white border-b-2 border-[#C5A059] pb-2 inline-block">
               Hızlı Erişim
             </h4>
-            
-            {/* Link Listesi: 2 Kolonlu Grid Yapısı */}
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 text-left pl-4 sm:pl-0">
               {quickLinks.map((link, index) => (
                 <li key={index}>
@@ -105,46 +134,38 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* KOLON 3: SOSYAL MEDYA */}
+          {/* KOLON 3: SOSYAL MEDYA (DEVASA VE RENKLİ) */}
           <div className="space-y-6 text-center md:text-right">
             <h4 className="text-xl font-bold text-white border-b-2 border-[#C5A059] pb-2 inline-block">
               Bizi Takip Edin
             </h4>
             <p className="text-sm text-slate-400 mb-4">Sosyal medya hesaplarımızdan güncel içerikleri takip edebilirsiniz.</p>
             
-            <div className="flex justify-center md:justify-end gap-5">
-              
-              {/* YOUTUBE */}
-              <a href="http://www.youtube.com/@dunyaehlibeytplatformu" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-4 rounded-full transition-all duration-300 hover:bg-white hover:text-[#FF0000] hover:-translate-y-2 shadow-lg group">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17" />
-                  <path d="m10 15 5-3-5-3z" />
-                </svg>
-              </a>
-
-              {/* INSTAGRAM */}
-              <a href="https://www.instagram.com/dunya_ehlibeyt_platformu/?__pwa=1#" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-4 rounded-full transition-all duration-300 hover:bg-white hover:text-[#E1306C] hover:-translate-y-2 shadow-lg group">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-                </svg>
-              </a>
-
-              {/* FACEBOOK */}
-              <a href="https://www.facebook.com/share/1Bzqaux6JM/" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-4 rounded-full transition-all duration-300 hover:bg-white hover:text-[#1877F2] hover:-translate-y-2 shadow-lg group">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-                 </svg>
-              </a>
-
-              {/* TIKTOK */}
-              <a href="https://www.tiktok.com/@dnya.ehlibeyt.pla" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-4 rounded-full transition-all duration-300 hover:bg-white hover:text-[#FE2C55] hover:-translate-y-2 shadow-lg group">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
-                </svg>
-              </a>
-
+            {/* Flex Wrap ile taşmayı önledik */}
+            <div className="flex flex-wrap justify-center md:justify-end gap-6">
+              {socialLinks.map((social, index) => (
+                <a 
+                  key={index}
+                  href={social.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  // w-24 h-24 -> 96px (Devasa Kutu)
+                  className={`
+                    group flex items-center justify-center 
+                    w-24 h-24 rounded-3xl 
+                    transition-all duration-500 ease-out 
+                    hover:scale-110 hover:-translate-y-2
+                    ${social.style}
+                  `}
+                  aria-label={social.name}
+                >
+                  {/* w-12 h-12 -> 48px (Büyük İkon) */}
+                  <social.icon 
+                    className="w-12 h-12 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110" 
+                    strokeWidth={2.5}
+                  />
+                </a>
+              ))}
             </div>
           </div>
         </div>
