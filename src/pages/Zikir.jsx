@@ -8,7 +8,7 @@ export default function Zikir() {
   const [count, setCount] = useState(0);
   const [target, setTarget] = useState(100);
   const [label, setLabel] = useState("Yükleniyor...");
-  const [arabicText, setArabicText] = useState(""); // Arapça metin için yeni state
+  const [arabicText, setArabicText] = useState(""); // Arapça metin state'i
   const [isSoundOn, setIsSoundOn] = useState(true);
   
   // Zehra Modu State'leri
@@ -23,7 +23,7 @@ export default function Zikir() {
   const [esmaSearch, setEsmaSearch] = useState("");
   const [selectedEsma, setSelectedEsma] = useState(null);
 
-  // --- 1. VERİTABANI: HAFTALIK ZİKİRLER ---
+  // --- 1. HAFTALIK ZİKİRLER ---
   const weeklyZikirs = [
     { id: 0, day: "Pazar", text: "Ya Ze'l-Celâli ve'l-İkrâm", arabic: "یا ذَالجَلالِ وَ اْلاِکْرام", target: 100 },
     { id: 1, day: "Pazartesi", text: "Ya Kâziye'l-Hâcât", arabic: "یا قاضیَ الحاجات", target: 100 },
@@ -34,26 +34,25 @@ export default function Zikir() {
     { id: 6, day: "Cumartesi", text: "Ya Rabbe'l-Âlemîn", arabic: "یا رَبِّ الْعالَمِین", target: 100 }
   ];
 
-  // --- SABİT ZİKİR LİSTESİ ---
+  // --- 2. SABİT ZİKİR LİSTESİ (ARAPÇALARI EKLENDİ) ---
   const standardZikirs = [
-    { label: "Tesbihat-ı Zehra (Öncelikli)", value: "zehra", target: 34 },
-    { label: "Salavat-ı Şerife", value: "salavat", target: 100 },
-    { label: "La ilahe illallah", value: "tehvid", target: 100 },
-    { label: "Estağfirullah", value: "istigfar", target: 100 },
-    { label: "Serbest Mod", value: "free", target: 99999 }
+    { label: "Tesbihat-ı Zehra (Öncelikli)", value: "zehra", target: 34, arabic: "تسبیحات حضرت زهرا" },
+    { label: "Salavat-ı Şerife", value: "salavat", target: 100, arabic: "الّلهُمَّ صَلِّ عَلَی مُحَمَّدٍ وَآلِ مُحَمَّدٍ" },
+    { label: "La ilahe illallah", value: "tehvid", target: 100, arabic: "لا إله إلا الله" },
+    { label: "Estağfirullah", value: "istigfar", target: 100, arabic: "أَسْتَغْفِرُ اللَّهَ" },
+    { label: "Serbest Mod", value: "free", target: 99999, arabic: "" }
   ];
 
-  // --- ZEHRA MODU ADIMLARI ---
+  // --- ZEHRA MODU ADIMLARI (ARAPÇALARIYLA) ---
   const zehraSteps = [
-    { label: "Allahu Ekber", target: 34 },
-    { label: "Elhamdulillah", target: 33 },
-    { label: "Subhanallah", target: 33 }
+    { label: "Allahu Ekber", target: 34, arabic: "اللّٰهُ أَكْبَر" },
+    { label: "Elhamdulillah", target: 33, arabic: "ٱلْحَمْدُ لِلَّٰهِ" },
+    { label: "Subhanallah", target: 33, arabic: "سُبْحَانَ ٱللَّٰهِ" }
   ];
 
-  // --- 2. AKILLI GÜN ALGILAMA (Smart Detection) ---
+  // --- AKILLI GÜN ALGILAMA ---
   useEffect(() => {
-    // Sayfa ilk açıldığında çalışır
-    const todayIndex = new Date().getDay(); // 0=Pazar...
+    const todayIndex = new Date().getDay();
     const todaysZikir = weeklyZikirs.find(z => z.id === todayIndex);
     
     if (todaysZikir) {
@@ -81,7 +80,6 @@ export default function Zikir() {
     
     const nextCount = count + 1;
     
-    // Serbest Mod
     if (label === "Serbest Mod") {
       setCount(nextCount);
       return;
@@ -100,6 +98,7 @@ export default function Zikir() {
             setZehraStage(nextStage);
             setCount(0);
             setLabel(zehraSteps[nextStage].label);
+            setArabicText(zehraSteps[nextStage].arabic); // Arapçasını da güncelle
             setTarget(zehraSteps[nextStage].target);
             setIsTransitioning(false);
           } else {
@@ -121,6 +120,7 @@ export default function Zikir() {
     if (zehraMode) {
       setZehraStage(0);
       setLabel(zehraSteps[0].label);
+      setArabicText(zehraSteps[0].arabic);
       setTarget(zehraSteps[0].target);
     }
   };
@@ -138,8 +138,8 @@ export default function Zikir() {
     setShowSuccess(false);
     setIsTransitioning(false);
 
-    // 1. Haftalık Zikir Kontrolü
-    const weekly = weeklyZikirs.find(z => z.text === value); // value text olarak geliyor
+    // 1. Haftalık Zikir
+    const weekly = weeklyZikirs.find(z => z.text === value);
     if (weekly) {
         setZehraMode(false);
         setSelectedEsma(null);
@@ -149,25 +149,26 @@ export default function Zikir() {
         return;
     }
 
-    // 2. Standart Zikir Kontrolü
+    // 2. Standart Zikir
     const standard = standardZikirs.find(z => z.value === value);
     if (standard) {
       setSelectedEsma(null);
-      setArabicText(""); // Standartlarda arapça yoksa boşalt
       if (value === "zehra") {
         setZehraMode(true);
         setZehraStage(0);
         setLabel(zehraSteps[0].label);
+        setArabicText(zehraSteps[0].arabic); // İlk adımın Arapçası
         setTarget(zehraSteps[0].target);
       } else {
         setZehraMode(false);
         setLabel(standard.label);
+        setArabicText(standard.arabic || ""); // Varsa arapçasını koy
         setTarget(standard.target);
       }
       return;
     }
 
-    // 3. Esma Kontrolü
+    // 3. Esma
     if (value.startsWith("esma_")) {
       const id = parseInt(value.split("_")[1]);
       const esma = esmaUlHusnaData.find(e => e.id === id);
@@ -194,7 +195,7 @@ export default function Zikir() {
         <meta name="description" content="Günlük özel zikirler, Tesbihat-ı Zehra ve Esma-ül Hüsna." />
       </Helmet>
 
-      {/* --- BİLGİ KARTI --- */}
+      {/* BİLGİ KARTI */}
       <div className="mb-6 bg-gold/10 backdrop-blur-md px-6 py-2 rounded-full border border-gold/20 flex items-center gap-2 animate-fade-in">
          <Calendar size={16} className="text-gold" />
          <p className="text-sm text-sand">
@@ -223,7 +224,7 @@ export default function Zikir() {
         </div>
       )}
 
-      {/* --- ARAMA VE SEÇİM --- */}
+      {/* ARAMA VE SEÇİM */}
       <div className="mb-8 w-full max-w-sm space-y-3">
         <div className="relative">
           <Search className="absolute left-3 top-3 text-gold/50" size={18} />
@@ -242,7 +243,6 @@ export default function Zikir() {
           </div>
           <select 
             onChange={handleSelectionChange}
-            // Varsayılan değer olarak label'ı kullanıyoruz (haftalık zikir seçiliyse o görünsün diye)
             value={weeklyZikirs.find(z => z.text === label) ? label : undefined}
             className="w-full appearance-none bg-midnight border-2 border-gold/30 text-gold py-3 px-6 rounded-2xl font-sans font-bold text-lg focus:outline-none focus:border-gold focus:shadow-[0_0_15px_rgba(197,160,89,0.3)] transition-all cursor-pointer"
           >
@@ -271,7 +271,7 @@ export default function Zikir() {
         </div>
       </div>
 
-      {/* --- ZİKİRMATİK GÖVDESİ --- */}
+      {/* ZİKİRMATİK GÖVDESİ */}
       <div className="relative group mb-8">
         <div className="absolute -inset-4 bg-gold/10 rounded-full blur-xl group-hover:bg-gold/20 transition-all duration-500"></div>
         <div className="relative w-80 h-80 bg-[#162e45] rounded-full shadow-2xl border-4 border-gold/10 flex items-center justify-center">
@@ -286,7 +286,6 @@ export default function Zikir() {
               {zehraMode ? `Adım ${zehraStage + 1}/3` : "Ruhun Nefesi"}
             </p>
             
-            {/* Sayaç */}
             <h1 className="text-7xl font-sans font-bold text-sand tabular-nums drop-shadow-lg leading-none">
               {count}
             </h1>
@@ -295,12 +294,11 @@ export default function Zikir() {
               <p className="text-gold/70 text-sm font-bold font-sans">/ {target}</p>
             )}
 
-            {/* Zikir Metni */}
             <div className="mt-2">
                 <p className="text-gold font-serif text-lg md:text-xl max-w-[220px] mx-auto leading-tight font-bold">
                 {label}
                 </p>
-                {/* Arapça Metin (Varsa) */}
+                {/* ARAPÇA METİN (BURADA GÖRÜNECEK) */}
                 {arabicText && (
                     <p className="text-slate-400 font-serif text-xl mt-1 opacity-80" dir="rtl" lang="ar">
                         {arabicText}
@@ -312,7 +310,7 @@ export default function Zikir() {
         <button onClick={handleIncrement} className="absolute inset-0 w-full h-full rounded-full cursor-pointer z-20 focus:outline-none active:scale-95 transition-transform duration-100" aria-label="Zikir Çek"></button>
       </div>
 
-      {/* --- ESMA KARTI (Sadece Esma Seçiliyse) --- */}
+      {/* ESMA KARTI */}
       {selectedEsma && (
         <div className="w-full max-w-lg bg-midnight/50 border border-gold/20 rounded-2xl p-6 animate-fade-in relative overflow-hidden group hover:border-gold/40 transition-colors">
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
@@ -339,7 +337,7 @@ export default function Zikir() {
         </div>
       )}
 
-      {/* --- KONTROL BUTONLARI --- */}
+      {/* KONTROL BUTONLARI */}
       <div className="mt-8 flex gap-6">
         <button onClick={handleReset} className="p-4 rounded-full bg-midnight border border-white/10 text-slate-400 hover:text-white hover:bg-red-500/20 hover:border-red-500/50 transition-all">
           <RotateCcw size={24} />
