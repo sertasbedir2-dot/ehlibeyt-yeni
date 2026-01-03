@@ -3,16 +3,17 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PenTool, Scale, Flower, BookOpen, Sparkles, Search, Heart, HelpCircle, Sun, Gift, RefreshCw, Volume2, Share2, Flame, Bell, Globe } from 'lucide-react';
 import { wisdomData } from '../data/wisdomData';
-import html2canvas from 'html2canvas'; // Resim oluşturmak için gerekli paket
+import html2canvas from 'html2canvas';
 
 export default function Home() {
   const [heroSearch, setHeroSearch] = useState("");
   const navigate = useNavigate();
   
   // --- STATE'LER ---
-  const [streak, setStreak] = useState(0); // Zincir sayacı
-  const [showNotificationModal, setShowNotificationModal] = useState(false); // Bildirim izni penceresi
-  const storyRef = useRef(null); // Resim yapılacak alanın referansı
+  const [streak, setStreak] = useState(0); 
+  const [showNotificationModal, setShowNotificationModal] = useState(false); 
+  const storyRef = useRef(null); 
+  const [isSharing, setIsSharing] = useState(false); // Paylaşım sırasında butonu kilitlemek için
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -73,24 +74,39 @@ export default function Home() {
     }
   };
 
-  // --- 4. GELİŞMİŞ HİKAYE PAYLAŞIMI (VİRAL TASARIM - REVİZE EDİLDİ) ---
+  // --- 4. GELİŞMİŞ HİKAYE PAYLAŞIMI (STABİLİZE EDİLDİ) ---
   const handleShareStory = async () => {
-    if (storyRef.current) {
+    if (storyRef.current && !isSharing) {
+      setIsSharing(true);
       try {
+        // Fontların yüklendiğinden emin ol
+        await document.fonts.ready;
+
         const canvas = await html2canvas(storyRef.current, {
-          scale: 2, // Yüksek kalite
-          backgroundColor: null, // Gradienti korumak için null
-          useCORS: true // QR kod gibi dış kaynaklı görseller için şart
+          scale: 2, // Retina kalitesi
+          backgroundColor: "#0F4C5C", // Arka plan rengini garantiye al
+          useCORS: true, // QR kod ve dış görseller için şart
+          logging: false,
+          allowTaint: true,
+          // Harflerin kaymasını önleyen ayarlar
+          onclone: (clonedDoc) => {
+             const element = clonedDoc.getElementById('story-container');
+             if(element) {
+                 element.style.fontVariantLigatures = 'none';
+             }
+          }
         });
         
         const image = canvas.toDataURL("image/png");
         const link = document.createElement("a");
         link.href = image;
-        link.download = `OnikiKapi_Gunluk_Hikmet_${new Date().toLocaleDateString()}.png`;
+        link.download = `OnikiKapi_Hikmet_${new Date().toLocaleDateString()}.png`;
         link.click();
       } catch (err) {
         console.error("Resim oluşturma hatası:", err);
-        alert("Resim oluşturulurken bir hata oluştu.");
+        alert("Resim oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.");
+      } finally {
+        setIsSharing(false);
       }
     }
   };
@@ -124,78 +140,73 @@ export default function Home() {
         </div>
       )}
 
-      {/* --- TASARIM: VİRAL PAYLAŞIM KARTI (GİZLİ ALAN) --- */}
+      {/* --- TASARIM: VİRAL PAYLAŞIM KARTI (GİZLİ ALAN - REVİZE EDİLDİ) --- */}
+      {/* Not: Bu alan ekranda görünmez, sadece resim oluşturulurken kullanılır */}
       <div className="absolute top-0 left-[-9999px]">
-        <div ref={storyRef} className="w-[1080px] h-[1920px] flex flex-col justify-between items-center text-center relative overflow-hidden bg-gradient-to-br from-[#0F4C5C] via-[#09303a] to-[#04151a]">
-           
-           {/* Arka Plan Deseni */}
-           <div className="absolute inset-0 opacity-15" style={{backgroundImage: "radial-gradient(circle at 50% 50%, #E5C17C 1px, transparent 1px)", backgroundSize: "50px 50px"}}></div>
-           <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] opacity-10"></div>
+        <div 
+          id="story-container"
+          ref={storyRef} 
+          className="w-[1080px] h-[1920px] flex flex-col justify-between items-center text-center relative overflow-hidden bg-[#0F4C5C]"
+        >
+            
+            {/* Arka Plan Gradientleri (Basitleştirildi - Render hatasını önlemek için) */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#0F4C5C] via-[#09303a] to-[#04151a] z-0"></div>
+            <div className="absolute inset-0 opacity-20 z-0" style={{backgroundImage: "radial-gradient(circle at 50% 50%, #E5C17C 2px, transparent 2px)", backgroundSize: "60px 60px"}}></div>
 
-           {/* --- ÜST KISIM --- */}
-           <div className="z-10 mt-32 w-full px-12">
-             <div className="flex flex-col items-center">
-               <div className="p-6 border-4 border-[#E5C17C]/30 rounded-full mb-8 bg-[#0F4C5C]/50 backdrop-blur-md shadow-2xl">
-                 <BookOpen size={80} className="text-[#E5C17C]" />
+            {/* --- ÜST KISIM --- */}
+            <div className="z-10 mt-40 w-full px-12 flex flex-col items-center">
+               <div className="p-8 border-4 border-[#E5C17C] rounded-full mb-10 bg-[#0F4C5C] shadow-2xl">
+                 <BookOpen size={100} className="text-[#E5C17C]" />
                </div>
-               <h3 className="text-[#E5C17C] text-4xl font-sans tracking-[0.4em] uppercase opacity-90 font-bold">Günün Hikmeti</h3>
-               <div className="w-32 h-2 bg-gradient-to-r from-transparent via-[#E5C17C] to-transparent mt-6"></div>
-             </div>
-           </div>
+               <h3 className="text-[#E5C17C] text-5xl font-sans tracking-[0.5em] uppercase font-bold mb-4">Günün Hikmeti</h3>
+               <div className="w-48 h-2 bg-[#E5C17C]"></div>
+            </div>
 
-           {/* --- ORTA KISIM (SÖZ) --- */}
-           <div className="z-10 flex-grow flex flex-col justify-center px-16 relative">
-             <span className="absolute top-20 left-8 text-[#E5C17C] opacity-10 text-[300px] font-serif leading-none">“</span>
-             
-             <h1 className="text-7xl font-serif text-[#FDF6E3] leading-snug italic mb-14 drop-shadow-2xl px-4">
-               {dailyWisdom.quote}
-             </h1>
-             
-             <div className="flex items-center justify-center gap-6">
-               <div className="h-1 w-20 bg-[#E5C17C]"></div>
-               <p className="text-5xl text-[#E5C17C] font-sans font-black tracking-wider uppercase">
-                 {dailyWisdom.source}
-               </p>
-               <div className="h-1 w-20 bg-[#E5C17C]"></div>
-             </div>
-           </div>
+            {/* --- ORTA KISIM (SÖZ) --- */}
+            {/* Harf aralıkları (tracking) ve satır yüksekliği (leading) overlap'i önlemek için açıldı */}
+            <div className="z-10 flex-grow flex flex-col justify-center px-20 relative">
+              <span className="absolute top-10 left-10 text-[#E5C17C] opacity-10 text-[400px] font-serif leading-none">“</span>
+              
+              <h1 className="text-[5.5rem] font-serif text-[#FDF6E3] leading-[1.3] italic mb-16 drop-shadow-xl px-4 tracking-wide">
+                {dailyWisdom.quote}
+              </h1>
+              
+              <div className="flex items-center justify-center gap-8">
+                <div className="h-1 w-24 bg-[#E5C17C]"></div>
+                <p className="text-6xl text-[#E5C17C] font-sans font-black tracking-widest uppercase">
+                  {dailyWisdom.source}
+                </p>
+                <div className="h-1 w-24 bg-[#E5C17C]"></div>
+              </div>
+            </div>
 
-           {/* --- ALT KISIM (REVİZE EDİLEN DOMINANT FOOTER) --- */}
-           <div className="z-10 mb-24 w-full px-8 flex flex-col items-center gap-12">
-             
-             {/* 1. Aksiyon Çağrısı (CTA) */}
-             <div className="bg-[#E5C17C] text-[#09303a] px-14 py-8 rounded-[3rem] shadow-[0_0_50px_rgba(229,193,124,0.3)] flex items-center gap-6 border-4 border-[#09303a]/20 transform scale-105">
-               <Globe size={56} strokeWidth={2.5} />
-               <div className="flex flex-col items-start leading-none text-left">
-                 <span className="text-2xl font-bold uppercase tracking-widest opacity-80 mb-2">Maneviyatı Cebine Taşı</span>
-                 <span className="text-5xl font-black tracking-tight">https://onikikapi.vercel.app/</span>
-               </div>
-             </div>
+            {/* --- ALT KISIM (MARKA & QR) --- */}
+            <div className="z-10 mb-32 w-full px-12 flex flex-col items-center gap-10">
+              
+              {/* QR Kod Kutusu */}
+              <div className="bg-white p-4 rounded-3xl shadow-[0_0_40px_rgba(229,193,124,0.3)] border-8 border-[#E5C17C] mb-8">
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://onikikapi.vercel.app/&color=09303a`} 
+                    alt="QR Kod" 
+                    className="w-52 h-52 block"
+                    crossOrigin="anonymous" 
+                  />
+              </div>
 
-             {/* QR Kod & Marka Alanı */}
-             <div className="relative w-full flex flex-col items-center mt-4">
-                {/* QR Kod - Sağ Alta Sabitlenmiş */}
-                <div className="absolute bottom-10 right-10 bg-white p-3 rounded-2xl shadow-2xl border-4 border-[#E5C17C]">
-                    <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://onikikapi.vercel.app/&color=09303a`} 
-                      alt="QR Kod" 
-                      className="w-40 h-40"
-                      crossOrigin="anonymous" 
-                    />
-                </div>
+              {/* URL */}
+              <div className="bg-[#09303a] px-12 py-4 rounded-full border border-[#E5C17C]/30">
+                 <p className="text-4xl text-[#E5C17C] tracking-wider font-bold">onikikapi.vercel.app</p>
+              </div>
 
-                {/* 2. Devasa Marka (Hiyerarşinin En Tepesi) */}
-                <h1 className="text-[12rem] font-black text-[#E5C17C] leading-none tracking-tighter drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)] font-sans" style={{textShadow: "6px 6px 0px #000000"}}>
+              {/* DEVASA MARKA ADI */}
+              <div className="flex flex-col items-center">
+                <h1 className="text-[13rem] font-black text-[#E5C17C] leading-[0.8] tracking-tighter font-sans drop-shadow-2xl" style={{ textShadow: "10px 10px 0px rgba(0,0,0,0.5)" }}>
                   OnikiKapı
                 </h1>
-                
-                {/* 3. Alt Başlık */}
-                <p className="text-5xl text-slate-300 font-serif tracking-[0.25em] font-bold mt-2 bg-black/40 px-10 py-3 rounded-full backdrop-blur-md border border-white/10">
-                  İlim ve Hikmet Web Uygulaması
-                </p>
-             </div>
+                <p className="text-4xl text-slate-400 font-serif tracking-[0.4em] mt-4 uppercase">İlim ve Hikmet Şehri</p>
+              </div>
 
-           </div>
+            </div>
         </div>
       </div>
 
@@ -264,7 +275,14 @@ export default function Home() {
 
           <div className="flex justify-center gap-4 border-t border-white/5 pt-6">
             <button onClick={handleSpeak} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-[#C5A059]/20 text-slate-300 hover:text-[#C5A059] transition-colors text-sm font-medium"><Volume2 size={18} /><span className="hidden sm:inline">Dinle</span></button>
-            <button onClick={handleShareStory} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C5A059] hover:bg-[#b08d48] text-slate-900 transition-colors text-sm font-bold shadow-lg group-hover:scale-105 transform duration-300"><Share2 size={18} /><span>Hikayende Paylaş</span></button>
+            <button 
+                onClick={handleShareStory} 
+                disabled={isSharing}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C5A059] hover:bg-[#b08d48] text-slate-900 transition-colors text-sm font-bold shadow-lg group-hover:scale-105 transform duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                {isSharing ? <RefreshCw className="animate-spin" size={18}/> : <Share2 size={18} />}
+                <span>{isSharing ? 'Hazırlanıyor...' : 'Hikayende Paylaş'}</span>
+            </button>
           </div>
         </div>
       </div>
