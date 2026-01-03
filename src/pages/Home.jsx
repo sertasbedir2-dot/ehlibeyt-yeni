@@ -1,7 +1,7 @@
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { PenTool, Scale, Flower, BookOpen, Sparkles, Search, Heart, HelpCircle, Sun, Gift, RefreshCw, Volume2, Share2, Flame, Bell, Globe } from 'lucide-react';
+import { PenTool, Scale, Flower, BookOpen, Sparkles, Search, Heart, HelpCircle, Sun, Gift, RefreshCw, Volume2, Share2, Flame, Bell, Globe, X, Download } from 'lucide-react';
 import { wisdomData } from '../data/wisdomData';
 import html2canvas from 'html2canvas';
 
@@ -12,8 +12,9 @@ export default function Home() {
   // --- STATE'LER ---
   const [streak, setStreak] = useState(0); 
   const [showNotificationModal, setShowNotificationModal] = useState(false); 
-  const storyRef = useRef(null); 
-  const [isSharing, setIsSharing] = useState(false); 
+  
+  // YENİ: Paylaşım Önizleme Modu State'i
+  const [showSharePreview, setShowSharePreview] = useState(false);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -74,52 +75,9 @@ export default function Home() {
     }
   };
 
-  // --- 4. GELİŞMİŞ HİKAYE PAYLAŞIMI (TAMİR EDİLDİ - SCROLL FIX) ---
-  const handleShareStory = async () => {
-    if (storyRef.current && !isSharing) {
-      setIsSharing(true);
-      try {
-        await document.fonts.ready;
-
-        // KRİTİK DÜZELTME: scrollY ve x/y parametreleri eklendi.
-        // Bu, kullanıcının sayfada nerede olduğundan bağımsız olarak
-        // gizli elementin en tepesini (0,0) çekmesini sağlar.
-        const canvas = await html2canvas(storyRef.current, {
-          scale: 2, 
-          width: 1080,
-          height: 1920,
-          scrollY: 0, // DİKKAT: Sayfa kaydırmasını sıfırla
-          scrollX: 0,
-          x: 0, // Elementin sol üst köşesinden başla
-          y: 0,
-          backgroundColor: "#0F4C5C", 
-          useCORS: true, 
-          logging: false,
-          allowTaint: true,
-          onclone: (clonedDoc) => {
-             const element = clonedDoc.getElementById('story-container');
-             if(element) {
-                 element.style.display = "flex";
-                 // Cloned document içinde de en tepeye sabitle
-                 element.style.position = "fixed";
-                 element.style.top = "0";
-                 element.style.left = "0";
-             }
-          }
-        });
-        
-        const image = canvas.toDataURL("image/png");
-        const link = document.createElement("a");
-        link.href = image;
-        link.download = `OnikiKapi_Hikmet_${new Date().toLocaleDateString()}.png`;
-        link.click();
-      } catch (err) {
-        console.error("Resim oluşturma hatası:", err);
-        alert("Resim oluşturulurken bir hata oluştu.");
-      } finally {
-        setIsSharing(false);
-      }
-    }
+  // --- 4. PAYLAŞIM BUTONU (Sadece Modalı Açar) ---
+  const openShareModal = () => {
+    setShowSharePreview(true);
   };
 
   const requestNotificationPermission = () => {
@@ -135,6 +93,14 @@ export default function Home() {
   return (
     <div className="space-y-16 animate-fade-in relative">
       
+      {/* --- YENİ: PAYLAŞIM ÖNİZLEME MODALI (ZAHİR) --- */}
+      {showSharePreview && (
+        <SharePreviewModal 
+          dailyWisdom={dailyWisdom} 
+          onClose={() => setShowSharePreview(false)} 
+        />
+      )}
+
       {/* --- BİLDİRİM MODALI --- */}
       {showNotificationModal && (
         <div className="fixed inset-0 bg-black/80 z-[300] flex items-center justify-center p-4 backdrop-blur-sm">
@@ -151,80 +117,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* --- TASARIM: VİRAL PAYLAŞIM KARTI (GİZLİ ALAN) --- */}
-      {/* DÜZELTME: position: fixed, top: 0, left: 0 yaptık.
-          z-index: -100 ile ekranın arkasına attık ama fiziksel olarak
-          ekranın tam üzerinde duruyor. Bu sayede html2canvas onu "görebilir".
-      */}
-      <div style={{ position: "fixed", top: 0, left: 0, zIndex: -100, opacity: 0, pointerEvents: "none" }}>
-        <div 
-          id="story-container"
-          ref={storyRef} 
-          className="w-[1080px] h-[1920px] flex flex-col justify-between items-center text-center relative overflow-hidden bg-[#0F4C5C]"
-        >
-            
-            {/* Arka Plan */}
-            <div className="absolute inset-0 bg-gradient-to-b from-[#0F4C5C] via-[#09303a] to-[#04151a] z-0"></div>
-            <div className="absolute inset-0 opacity-20 z-0" style={{backgroundImage: "radial-gradient(circle at 50% 50%, #E5C17C 2px, transparent 2px)", backgroundSize: "60px 60px"}}></div>
-
-            {/* --- ÜST KISIM --- */}
-            <div className="z-10 mt-32 w-full px-12 flex flex-col items-center">
-               <div className="p-8 border-4 border-[#E5C17C] rounded-full mb-8 bg-[#0F4C5C] shadow-2xl">
-                 <BookOpen size={100} className="text-[#E5C17C]" />
-               </div>
-               <h3 className="text-[#E5C17C] text-5xl font-sans tracking-[0.5em] uppercase font-bold mb-4">Günün Hikmeti</h3>
-               <div className="w-48 h-2 bg-[#E5C17C]"></div>
-            </div>
-
-            {/* --- ORTA KISIM (SÖZ) --- */}
-            <div className="z-10 flex-grow flex flex-col justify-center px-24 relative">
-              <span className="absolute top-0 left-10 text-[#E5C17C] opacity-10 text-[400px] font-serif leading-none">“</span>
-              
-              <h1 className="text-[5rem] font-serif text-[#FDF6E3] leading-tight italic mb-12 drop-shadow-xl px-4 tracking-wide">
-                {dailyWisdom.quote}
-              </h1>
-              
-              <div className="flex items-center justify-center gap-8">
-                <div className="h-1 w-24 bg-[#E5C17C]"></div>
-                <p className="text-5xl text-[#E5C17C] font-sans font-black tracking-widest uppercase">
-                  {dailyWisdom.source}
-                </p>
-                <div className="h-1 w-24 bg-[#E5C17C]"></div>
-              </div>
-            </div>
-
-            {/* --- ALT KISIM (MARKA & QR) --- */}
-            {/* Margin-bottom artırıldı (mb-32) ki aşağıdan kesilme payı kalsın */}
-            <div className="z-10 mb-32 w-full px-12 flex flex-col items-center gap-8">
-              
-              {/* QR Kod Kutusu */}
-              <div className="bg-white p-4 rounded-3xl shadow-[0_0_40px_rgba(229,193,124,0.3)] border-8 border-[#E5C17C]">
-                  <img 
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://onikikapi.vercel.app/&color=09303a`} 
-                    alt="QR Kod" 
-                    className="w-48 h-48 block"
-                    crossOrigin="anonymous" 
-                  />
-              </div>
-
-              {/* URL */}
-              <div className="bg-[#09303a] px-10 py-3 rounded-full border border-[#E5C17C]/30">
-                 <p className="text-3xl text-[#E5C17C] tracking-wider font-bold">onikikapi.vercel.app</p>
-              </div>
-
-              {/* DEVASA MARKA ADI */}
-              <div className="flex flex-col items-center">
-                <h1 className="text-[12rem] font-black text-[#E5C17C] leading-[0.8] tracking-tighter font-sans drop-shadow-2xl" style={{ textShadow: "8px 8px 0px rgba(0,0,0,0.5)" }}>
-                  OnikiKapı
-                </h1>
-                <p className="text-3xl text-slate-400 font-serif tracking-[0.4em] mt-4 uppercase">İlim ve Hikmet Şehri</p>
-              </div>
-
-            </div>
-        </div>
-      </div>
-
-      {/* --- HERO SECTION (MEVCUT GÖRÜNÜM) --- */}
+      {/* --- HERO SECTION --- */}
       <div className="relative py-20 px-6 rounded-3xl overflow-hidden text-center border border-gold/20 shadow-2xl group min-h-[600px] flex flex-col justify-center">
         <div className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1518837695005-2083093ee35b?q=80&w=2000&auto=format&fit=crop')` }}></div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-turquoise-dark mix-blend-multiply"></div>
@@ -290,18 +183,153 @@ export default function Home() {
           <div className="flex justify-center gap-4 border-t border-white/5 pt-6">
             <button onClick={handleSpeak} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-[#C5A059]/20 text-slate-300 hover:text-[#C5A059] transition-colors text-sm font-medium"><Volume2 size={18} /><span className="hidden sm:inline">Dinle</span></button>
             <button 
-                onClick={handleShareStory} 
-                disabled={isSharing}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C5A059] hover:bg-[#b08d48] text-slate-900 transition-colors text-sm font-bold shadow-lg group-hover:scale-105 transform duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={openShareModal} 
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C5A059] hover:bg-[#b08d48] text-slate-900 transition-colors text-sm font-bold shadow-lg group-hover:scale-105 transform duration-300"
             >
-                {isSharing ? <RefreshCw className="animate-spin" size={18}/> : <Share2 size={18} />}
-                <span>{isSharing ? 'Hazırlanıyor...' : 'Hikayende Paylaş'}</span>
+                <Share2 size={18} />
+                <span>Hikayende Paylaş</span>
             </button>
           </div>
         </div>
       </div>
 
       <GununNasibi />
+    </div>
+  );
+}
+
+// --- YENİ BİLEŞEN: PAYLAŞIM ÖNİZLEME PENCERESİ ---
+function SharePreviewModal({ dailyWisdom, onClose }) {
+  const captureRef = useRef(null);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    if (captureRef.current && !downloading) {
+      setDownloading(true);
+      try {
+        await document.fonts.ready; // Fontların yüklendiğinden emin ol
+        
+        const canvas = await html2canvas(captureRef.current, {
+          scale: 2, // Yüksek kalite
+          useCORS: true, // QR kod için gerekli
+          backgroundColor: "#0F4C5C",
+          allowTaint: true
+        });
+
+        const image = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.href = image;
+        link.download = `OnikiKapi_Hikmet_${new Date().toLocaleDateString()}.png`;
+        link.click();
+      } catch (err) {
+        console.error("Hata:", err);
+        alert("Resim indirilemedi.");
+      } finally {
+        setDownloading(false);
+      }
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4 animate-fade-in backdrop-blur-md overflow-y-auto">
+      <div className="relative w-full max-w-lg flex flex-col items-center gap-4">
+        
+        {/* Başlık ve Kapat Butonu */}
+        <div className="flex justify-between items-center w-full text-white px-2">
+            <h3 className="text-lg font-bold text-gold">Önizleme</h3>
+            <button onClick={onClose} className="p-2 bg-white/10 rounded-full hover:bg-white/20"><X size={24} /></button>
+        </div>
+
+        {/* --- CAPTURE ALANI (Bu alan resim olacak) --- */}
+        {/* Görsel 9:16 formatında (Story) olacak. 
+            Ekranda sığması için scale ile küçültüyoruz ama render edilirken tam boyut alınacak.
+        */}
+        <div className="relative overflow-hidden shadow-2xl rounded-xl border-4 border-gold/30">
+             <div 
+                ref={captureRef}
+                className="w-[1080px] h-[1920px] bg-[#0F4C5C] flex flex-col items-center justify-between text-center relative"
+                style={{ 
+                    // Mobilde ekrana sığması için zoom out yapıyoruz.
+                    // Bu sadece görünüşü etkiler, html2canvas orijinal boyutu (1080x1920) alır.
+                    transform: "scale(0.3)", 
+                    transformOrigin: "top left",
+                    width: "1080px",
+                    height: "1920px",
+                    marginBottom: "-1344px" // Scale sonrası oluşan boşluğu al (1920 * 0.7 = ~1344px boşluk kalır)
+                }}
+             >
+                {/* 1. Arka Plan Desenleri */}
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0F4C5C] via-[#09303a] to-[#04151a]"></div>
+                <div className="absolute inset-0 opacity-20" style={{backgroundImage: "radial-gradient(circle at 50% 50%, #E5C17C 2px, transparent 2px)", backgroundSize: "60px 60px"}}></div>
+
+                {/* 2. Üst Kısım: İkon ve Başlık */}
+                <div className="z-10 mt-32 flex flex-col items-center w-full px-12">
+                     <div className="p-8 border-[6px] border-[#E5C17C] rounded-full mb-8 bg-[#0F4C5C] shadow-2xl">
+                        <BookOpen size={120} className="text-[#E5C17C]" />
+                     </div>
+                     <h3 className="text-[#E5C17C] text-6xl font-sans tracking-[0.4em] uppercase font-bold mb-4">Günün Hikmeti</h3>
+                     <div className="w-64 h-2 bg-[#E5C17C] rounded-full"></div>
+                </div>
+
+                {/* 3. Orta Kısım: Söz */}
+                <div className="z-10 flex-grow flex flex-col justify-center px-24 relative w-full">
+                    <span className="absolute top-0 left-12 text-[#E5C17C] opacity-10 text-[500px] font-serif leading-none">“</span>
+                    
+                    <h1 className="text-[5.5rem] font-serif text-[#FDF6E3] leading-[1.2] italic mb-16 drop-shadow-xl px-4 tracking-wide">
+                        {dailyWisdom.quote}
+                    </h1>
+
+                    <div className="flex items-center justify-center gap-8 w-full">
+                        <div className="h-2 w-32 bg-[#E5C17C]"></div>
+                        <p className="text-5xl text-[#E5C17C] font-sans font-black tracking-widest uppercase">
+                        {dailyWisdom.source}
+                        </p>
+                        <div className="h-2 w-32 bg-[#E5C17C]"></div>
+                    </div>
+                </div>
+
+                {/* 4. Alt Kısım: Marka ve QR */}
+                <div className="z-10 mb-32 w-full px-12 flex flex-col items-center gap-10">
+                    
+                    {/* QR Kod Kutusu (Beyaz Çerçeve) */}
+                    <div className="bg-white p-6 rounded-[3rem] shadow-[0_0_50px_rgba(229,193,124,0.3)] border-[10px] border-[#E5C17C]">
+                        <img 
+                            src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://onikikapi.vercel.app/&color=09303a`} 
+                            alt="QR Kod" 
+                            className="w-64 h-64 block"
+                            crossOrigin="anonymous" 
+                        />
+                    </div>
+
+                    {/* Site Adresi */}
+                    <div className="bg-[#09303a] px-16 py-6 rounded-full border-2 border-[#E5C17C]/50 shadow-lg">
+                        <p className="text-4xl text-[#E5C17C] tracking-wider font-bold">onikikapi.vercel.app</p>
+                    </div>
+
+                    {/* Büyük Marka Logosu */}
+                    <div className="flex flex-col items-center mt-4">
+                        <h1 className="text-[14rem] font-black text-[#E5C17C] leading-[0.8] tracking-tighter font-sans drop-shadow-2xl" style={{ textShadow: "10px 10px 0px rgba(0,0,0,0.5)" }}>
+                        OnikiKapı
+                        </h1>
+                        <p className="text-4xl text-slate-400 font-serif tracking-[0.5em] mt-6 uppercase">İlim ve Hikmet Şehri</p>
+                    </div>
+                </div>
+
+             </div>
+        </div>
+
+        {/* Aksiyon Butonu */}
+        <button 
+            onClick={handleDownload}
+            disabled={downloading}
+            className="w-full bg-[#E5C17C] text-[#09303a] font-bold text-lg py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-white transition-all shadow-lg active:scale-95 disabled:opacity-50"
+        >
+            {downloading ? <RefreshCw className="animate-spin" /> : <Download />}
+            {downloading ? "Hazırlanıyor..." : "Resmi İndir"}
+        </button>
+        <p className="text-white/50 text-xs text-center">İndirdikten sonra Instagram veya WhatsApp'ta paylaşabilirsiniz.</p>
+
+      </div>
     </div>
   );
 }
