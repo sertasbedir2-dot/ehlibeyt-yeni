@@ -1,13 +1,44 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
 
-// https://vitejs.dev/config/
+// Zaman damgası (Her build işleminde dosya ismini değiştirir)
+const timestamp = new Date().getTime();
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      manifest: {
+        name: 'OnikiKapı',
+        short_name: 'OnikiKapı',
+        description: 'İlim, Hikmet ve Adalet Kapısı',
+        theme_color: '#0B1120',
+        icons: [
+          {
+            src: 'pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png'
+          }
+        ]
+      }
+    })
+  ],
   build: {
-    chunkSizeWarningLimit: 1600, // Gereksiz uyarıları susturur
-  },
-  server: {
-    host: true // Bazen yerel ağda test için gereklidir
+    // Bu kısım telefonun eski dosyayı kullanmasını engeller
+    rollupOptions: {
+      output: {
+        entryFileNames: `assets/[name].${timestamp}.js`,
+        chunkFileNames: `assets/[name].${timestamp}.js`,
+        assetFileNames: `assets/[name].${timestamp}.[ext]`
+      }
+    }
   }
 })
