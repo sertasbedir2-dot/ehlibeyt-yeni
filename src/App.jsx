@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Search, X, ArrowRight, Book, Star, HelpCircle, FileText, Heart, Trophy, BookOpen, Sparkles, Share2 } from 'lucide-react';
@@ -10,7 +10,7 @@ import { globalSearchData } from './data/siteData';
 import MusicPlayer from './components/MusicPlayer'; 
 import InstallPrompt from './components/InstallPrompt'; 
 import Footer from './components/Footer'; 
-import ScrollToTop from './components/ScrollToTop'; // <--- YENİ: Scroll Bileşeni İçe Aktarıldı
+import ScrollToTop from './components/ScrollToTop';
 
 // --- CONTEXT ---
 import { AppProvider, useAppContext } from './context/AppContext';
@@ -27,6 +27,10 @@ import MediaCenter from './pages/MediaCenter';
 import Library from './pages/Library';
 import KitapOku from './pages/KitapOku';
 import Favorites from './pages/Favorites'; 
+
+// --- SÜRÜM KONTROLÜ (Burası Çok Önemli) ---
+// Her güncellemede bu sayıyı değiştirin (Örn: '1.0.1' -> '1.0.2')
+const CURRENT_VERSION = '1.0.5'; 
 
 // Toast Component
 function Toast() {
@@ -86,7 +90,41 @@ function AppContent() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // --- PAYLAŞIM FONKSİYONU (Navbar İçin) ---
+  // --- OTO-GÜNCELLEME MEKANİZMASI ---
+  useEffect(() => {
+    const checkVersion = () => {
+      const storedVersion = localStorage.getItem('site_version');
+      
+      // Eğer telefondaki sürüm bizim belirlediğimizden farklıysa veya yoksa:
+      if (storedVersion !== CURRENT_VERSION) {
+        console.log("Yeni sürüm tespit edildi. Önbellek temizleniyor...");
+        
+        // 1. Service Worker'ları öldür (PWA önbelleğini kırar)
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for(let registration of registrations) {
+              registration.unregister();
+            }
+          });
+        }
+
+        // 2. LocalStorage'daki eski verileri temizle (kullanıcı ayarları hariç tutulabilir ama garanti olsun diye siliyoruz)
+        // Eğer "zikir sayısı" gibi verileri korumak isterseniz sadece version'u güncelleyin.
+        // Şimdilik temizlik yapıyoruz ki 'System-HardReset' hatası kalmasın.
+        localStorage.clear(); 
+        
+        // 3. Yeni sürümü kaydet
+        localStorage.setItem('site_version', CURRENT_VERSION);
+        
+        // 4. Sayfayı sunucudan sıfırdan çekerek yenile (Hard Reload)
+        window.location.reload(true);
+      }
+    };
+
+    checkVersion();
+  }, []);
+
+  // --- PAYLAŞIM FONKSİYONU ---
   const handleShare = async () => {
     const shareData = {
       title: 'OnikiKapı',
@@ -108,7 +146,6 @@ function AppContent() {
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-turquoise-dark to-turquoise text-sand flex flex-col font-serif relative">
        
-       {/* YENİ: Sayfa değişince en tepeye atan bileşen */}
        <ScrollToTop />
        
        <Helmet>
@@ -137,12 +174,12 @@ function AppContent() {
                </Link>
              </div>
 
-             {/* DESKTOP MENU (BİLGİSAYAR GÖRÜNÜMÜ) */}
+             {/* DESKTOP MENU */}
              <div className="hidden md:flex items-center space-x-1">
                 <div className="flex items-baseline space-x-1 mr-4">
                  <NavLink to="/" label="Ana Sayfa" />
                  <NavLink to="/zikir" label="Tesbihat" />
-                 <NavLink to="/manevi-receteler" label="Reçeteler" />
+                 <NavLink to="/manevi-receteler" label="Şifa Kapısı" /> {/* İsim Güncellendi */}
                  <NavLink to="/library" label="Kütüphane" />
                  <NavLink to="/14-masum" label="14 Masum" />
                  <NavLink to="/soru-cevap" label="Soru/Cevap" />
@@ -152,7 +189,6 @@ function AppContent() {
                  <NavLink to="/heybem" label="Heybem" /> 
                </div>
                
-               {/* Desktop Paylaş Butonu */}
                <button onClick={handleShare} className="flex items-center gap-2 mr-2 bg-gold/10 hover:bg-gold hover:text-turquoise-dark text-gold border border-gold/30 px-3 py-2 rounded-lg transition-all font-bold text-sm">
                  <Share2 size={18} />
                  <span>Tavsiye Et</span>
@@ -163,15 +199,12 @@ function AppContent() {
                </button>
              </div>
 
-             {/* MOBILE MENU BUTTONS (TELEFON GÖRÜNÜMÜ) */}
+             {/* MOBILE MENU BUTTONS */}
              <div className="-mr-2 flex items-center md:hidden gap-2">
-               
-               {/* Mobile Paylaş Butonu (Göz Önünde) */}
                <button onClick={handleShare} className="bg-gold/10 p-2 rounded-full text-gold hover:bg-gold hover:text-turquoise-dark border border-gold/30 transition-colors">
                  <Share2 size={20} />
                </button>
 
-               {/* Menü Açma Butonu */}
                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="bg-turquoise p-2 rounded-md text-sand hover:text-white border border-gold/20">
                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
@@ -198,7 +231,7 @@ function AppContent() {
              <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                <MobileNavLink to="/" label="Ana Sayfa" onClick={() => setIsMenuOpen(false)} />
                <MobileNavLink to="/zikir" label="Tesbihat" onClick={() => setIsMenuOpen(false)} />
-               <MobileNavLink to="/manevi-receteler" label="Reçeteler" onClick={() => setIsMenuOpen(false)} />
+               <MobileNavLink to="/manevi-receteler" label="Şifa Kapısı" onClick={() => setIsMenuOpen(false)} /> {/* İsim Güncellendi */}
                <MobileNavLink to="/library" label="Kütüphane" onClick={() => setIsMenuOpen(false)} />
                <MobileNavLink to="/14-masum" label="14 Masum" onClick={() => setIsMenuOpen(false)} />
                <MobileNavLink to="/soru-cevap" label="Soru/Cevap" onClick={() => setIsMenuOpen(false)} />
@@ -211,7 +244,6 @@ function AppContent() {
          )}
        </nav>
 
-       {/* YENİ: animate-fade-in eklendi. Sayfa geçişleri yumuşak olacak. */}
        <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mb-24 animate-fade-in"> 
          <Routes>
            <Route path="/" element={<Home />} />
@@ -232,10 +264,8 @@ function AppContent() {
          <MusicPlayer />
        </div>
 
-       {/* PWA YÜKLEME MODALI */}
        <InstallPrompt />
 
-       {/* Footer */}
        <Footer />
 
     </div>
