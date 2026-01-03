@@ -5,6 +5,40 @@ import { PenTool, Scale, Flower, BookOpen, Sparkles, Search, Heart, HelpCircle, 
 import { wisdomData } from '../data/wisdomData';
 import { toPng } from 'html-to-image';
 
+// --- GÖREV LİSTESİ (Veritabanı Gibi Dışarı Aldık) ---
+const GOREVLER = [
+    { text: "Bugün telefon rehberinden uzun süredir konuşmadığın bir akrabanı ara ve halini hatırını sor.", type: "Sıla-i Rahim" },
+    { text: "Bugün karşılaştığın bir çocuğun başını okşa veya ona küçük bir çikolata ikram et.", type: "Merhamet" },
+    { text: "Bugün bir sokak hayvanına (kedi/köpek/kuş) su veya mama ver.", type: "Şefkat" },
+    { text: "Bugün öfkelendiğin bir an olursa, hiçbir şey söyleme ve hemen oturup üç kez derin nefes al.", type: "Sabır (Hilim)" },
+    { text: "Bugün yediğin yemeğin ardından, o yemeği hazırlayan kişiye (anne, eş veya aşçı) içtenlikle teşekkür et ve dua et.", type: "Vefa & Şükür" },
+    { text: "Bugün dilini gıybetten tamamen koru; biri yanında gıybet yaparsa konuyu nazikçe değiştir.", type: "Dilin Afeti" },
+    { text: "Bugün evden çıkarken veya işe başlarken 100 defa Salavat getir.", type: "Zikir" },
+    { text: "Bugün tanıdığın veya tanımadığın birine içtenlikle tebessüm et ve selam ver.", type: "Sünnet" },
+    { text: "Bugün vefat etmiş yakınların için bir Fatiha ve üç İhlas suresi oku.", type: "Vefa" },
+    { text: "Bugün yolda yürürken gördüğün rahatsız edici bir şeyi (taş, çöp vb.) kenara çek.", type: "Sadaka" },
+    { text: "Bugün kimse görmeden küçük bir miktar sadaka ver (sadaka kutusuna at veya bir ihtiyaç sahibine ver).", type: "İnfak" },
+    { text: "Bugün aynaya bak ve 'Allah'ım yaratılışımı güzel kıldın, ahlakımı da güzelleştir' diye dua et.", type: "Dua" },
+    { text: "Bugün bir arkadaşının veya ailenden birinin güzel bir huyunu ona söyle ve onu takdir et.", type: "Güzel Söz" },
+    { text: "Bugün namazdan sonra 'Şükür Secdesi' yap ve sahip olduğun üç nimet için Allah'a teşekkür et.", type: "Şükür" },
+    { text: "Bugün sana haksızlık yapmış veya kırmış birini Allah rızası için içinden affet.", type: "Af & Bağışlama" },
+    { text: "Bugün Kur'an-ı Kerim'den (Türkçe mealinden) rastgele bir sayfa aç ve üzerinde düşünerek oku.", type: "İlim & Tefekkür" },
+    { text: "Bugün evde veya iş yerinde başkasının yapması gereken bir işi, ona yardım olsun diye sen yap.", type: "Yardımlaşma" },
+    { text: "Bugün yatmadan önce gününü kısaca düşün ve 'Bugün Allah için ne yaptım?' sorusunu kendine sor.", type: "Nefs Muhasebesi" },
+    { text: "Bugün susuzluğunu giderirken İmam Hüseyin'i (a.s) hatırla ve ona selam gönder.", type: "Ehlibeyt Sevgisi" },
+    { text: "Bugün israftan kaçın; tabağındaki yemeği tamamen bitir ve suyu boşa akıtma.", type: "İktisat" },
+    { text: "Bugün bir dostuna veya ailene 'Seni Allah için seviyorum' de.", type: "Uhuvvet" },
+    { text: "Bugün çok konuşmak yerine daha çok dinlemeyi tercih et.", type: "Edep" },
+    { text: "Bugün bir hasta tanıdığını ara veya mümkünse kısa bir ziyarette bulun.", type: "Ziyaret" },
+    { text: "Bugün yapacağın bir iyiliği (ibadet veya yardım) hiç kimseye anlatma, sadece Allah bilsin.", type: "İhlas" },
+    { text: "Bugün komşunla karşılaşırsan halini sor, karşılaşmazsan onun huzuru için dua et.", type: "Komşuluk" },
+    { text: "Bugün 'Zamanım yok' deme; ertelediğin hayırlı bir işi hemen yap.", type: "Gayret" },
+    { text: "Bugün bulunduğun ortamı (oda, masa, ev) temizle ve düzenle. Temizlik imandandır.", type: "Temizlik" },
+    { text: "Bugün İmam Mehdi (a.f) için 'Allahumme kün li-veliyyike...' duasını (Ferec Duası) oku.", type: "İntizar" },
+    { text: "Bugün konuştuğun sözlerde 'Yemin etmekten' (Vallahi, Billahi demekten) kaçın.", type: "Dil Terbiyesi" },
+    { text: "Bugün anne ve babanı (hayattalarsa) ara veya sarıl; vefat etmişlerse onlar adına bir hayır işle.", type: "Birr (İyilik)" }
+];
+
 export default function Home() {
   const [heroSearch, setHeroSearch] = useState("");
   const navigate = useNavigate();
@@ -21,7 +55,7 @@ export default function Home() {
     }
   };
 
-  // --- 1. GÜNÜN HİKMETİ MANTIĞI ---
+  // --- 1. GÜNÜN HİKMETİ MANTIĞI (DETERMİNİSTİK) ---
   const dailyWisdom = useMemo(() => {
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 0);
@@ -32,9 +66,49 @@ export default function Home() {
     return wisdomData[dataIndex] || wisdomData[0];
   }, []);
 
-  // --- 2. ZİNCİR VE BİLDİRİM KONTROLÜ ---
+  // --- 2. GÜNÜN GÖREVİ MANTIĞI (ARTIK BU DA DETERMINİSTİK - HERKESE AYNI) ---
+  // Not: Rastgele çekme yerine, günü baz alıyoruz ki sabah bildirimdeki ile sitedeki tutsun.
+  const dailyTask = useMemo(() => {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    const diff = now - start;
+    const oneDay = 1000 * 60 * 60 * 24;
+    const dayOfYear = Math.floor(diff / oneDay);
+    const dataIndex = (dayOfYear - 1) % GOREVLER.length;
+    return GOREVLER[dataIndex] || GOREVLER[0];
+  }, []);
+
+  // --- 3. BİLDİRİM GÖNDERME FONKSİYONU ---
+  const sendMorningNotification = () => {
+    if (!("Notification" in window)) return;
+
+    if (Notification.permission === "granted") {
+       // İçerik: Kısa Hikmet + Görev
+       const title = "🌅 Günün Manevi İkramı Hazır";
+       const options = {
+          body: `💡 Hikmet: "${dailyWisdom.quote.substring(0, 50)}..."\n🎯 Görev: ${dailyTask.text}`,
+          icon: "/favicon.ico", // Varsa ikon
+          badge: "/favicon.ico",
+          vibrate: [200, 100, 200],
+          tag: "daily-wisdom" // Aynı gün üst üste bildirim yığılmasın diye
+       };
+
+       // Service Worker üzerinden veya direkt gönder
+       if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+          navigator.serviceWorker.ready.then(registration => {
+             registration.showNotification(title, options);
+          });
+       } else {
+          new Notification(title, options);
+       }
+    }
+  };
+
+  // --- 4. ZİNCİR, BİLDİRİM İZNİ VE OTOMATİK BİLDİRİM TETİKLEME ---
   useEffect(() => {
     const today = new Date().toDateString();
+    
+    // A. ZİNCİR MANTIĞI
     const lastVisit = localStorage.getItem('lastVisit');
     let currentStreak = parseInt(localStorage.getItem('streak') || '0');
 
@@ -47,20 +121,30 @@ export default function Home() {
       } else {
         currentStreak = 1; 
       }
-      
       localStorage.setItem('lastVisit', today);
       localStorage.setItem('streak', currentStreak.toString());
     }
     setStreak(currentStreak);
 
+    // B. BİLDİRİM İZNİ İSTEME (Hiç sorulmadıysa)
     const notificationAsked = localStorage.getItem('notificationAsked');
     if (!notificationAsked && 'Notification' in window) {
       const timer = setTimeout(() => setShowNotificationModal(true), 3000);
       return () => clearTimeout(timer);
     }
-  }, []);
 
-  // --- 3. SESLİ OKUMA (TTS) ---
+    // C. GÜNLÜK BİLDİRİMİ GÖNDERME (Eğer bugün gönderilmediyse)
+    const lastNotificationDate = localStorage.getItem('lastNotificationDate');
+    if (Notification.permission === "granted" && lastNotificationDate !== today) {
+        // Bildirimi gönder
+        sendMorningNotification();
+        // Bugünü kaydet ki tekrar atmasın
+        localStorage.setItem('lastNotificationDate', today);
+    }
+
+  }, [dailyWisdom, dailyTask]);
+
+  // --- 5. SESLİ OKUMA (TTS) ---
   const handleSpeak = () => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
@@ -80,7 +164,10 @@ export default function Home() {
   const requestNotificationPermission = () => {
     Notification.requestPermission().then((permission) => {
       if (permission === "granted") {
-        alert("Teşekkürler! Sabah virdiniz her gün 09:00'da gönderilecektir.");
+        alert("Teşekkürler! Sabah virdiniz her gün cihazınıza iletilecektir.");
+        // İzin verilir verilmez ilk bildirimi atalım
+        sendMorningNotification();
+        localStorage.setItem('lastNotificationDate', new Date().toDateString());
       }
       localStorage.setItem('notificationAsked', 'true');
       setShowNotificationModal(false);
@@ -105,10 +192,10 @@ export default function Home() {
             <button onClick={() => {setShowNotificationModal(false); localStorage.setItem('notificationAsked', 'true');}} className="absolute top-2 right-2 text-slate-400 hover:text-white"><RefreshCw className="rotate-45" size={20}/></button>
             <div className="mx-auto w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4"><Bell className="text-gold" size={24} /></div>
             <h3 className="text-xl font-bold text-sand mb-2">Sabah Virdi</h3>
-            <p className="text-slate-300 text-sm mb-6">Her sabah 09:00'da günün hikmetini cebinize gönderelim mi?</p>
+            <p className="text-slate-300 text-sm mb-6">Her sabah günün hikmeti ve manevi görevini bildirim olarak almak ister misin?</p>
             <div className="flex gap-3">
               <button onClick={() => {setShowNotificationModal(false); localStorage.setItem('notificationAsked', 'true');}} className="flex-1 py-2 rounded-lg border border-slate-600 text-slate-400 text-sm font-bold">Daha Sonra</button>
-              <button onClick={requestNotificationPermission} className="flex-1 py-2 rounded-lg bg-gold text-turquoise-dark text-sm font-bold hover:bg-white transition-colors">Evet</button>
+              <button onClick={requestNotificationPermission} className="flex-1 py-2 rounded-lg bg-gold text-turquoise-dark text-sm font-bold hover:bg-white transition-colors">Evet, İsterim</button>
             </div>
           </div>
         </div>
@@ -191,7 +278,8 @@ export default function Home() {
       </div>
 
       {/* --- GÜNÜN MANEVİ GÖREVİ (ACTION) --- */}
-      <GununGorevi />
+      {/* Artık prop olarak dailyTask'i gönderiyoruz, böylece komponent kendi içinde hesap yapmaz, yukarıdaki ile aynı veriyi kullanır */}
+      <GununGorevi task={dailyTask} />
     </div>
   );
 }
@@ -316,52 +404,8 @@ function SharePreviewModal({ dailyWisdom, onClose }) {
 }
 
 // --- YENİLENEN BİLEŞEN: GÜNÜN MANEVİ GÖREVİ ---
-function GununGorevi() {
-  const [gorev, setGorev] = useState(null);
-  const [loading, setLoading] = useState(false);
-  
-  // 30 GÜNLÜK TAM MANEVİ GÖREV LİSTESİ
-  const gorevler = [
-    { text: "Bugün telefon rehberinden uzun süredir konuşmadığın bir akrabanı ara ve halini hatırını sor.", type: "Sıla-i Rahim" },
-    { text: "Bugün karşılaştığın bir çocuğun başını okşa veya ona küçük bir çikolata ikram et.", type: "Merhamet" },
-    { text: "Bugün bir sokak hayvanına (kedi/köpek/kuş) su veya mama ver.", type: "Şefkat" },
-    { text: "Bugün öfkelendiğin bir an olursa, hiçbir şey söyleme ve hemen oturup üç kez derin nefes al.", type: "Sabır (Hilim)" },
-    { text: "Bugün yediğin yemeğin ardından, o yemeği hazırlayan kişiye (anne, eş veya aşçı) içtenlikle teşekkür et ve dua et.", type: "Vefa & Şükür" },
-    { text: "Bugün dilini gıybetten tamamen koru; biri yanında gıybet yaparsa konuyu nazikçe değiştir.", type: "Dilin Afeti" },
-    { text: "Bugün evden çıkarken veya işe başlarken 100 defa Salavat getir.", type: "Zikir" },
-    { text: "Bugün tanıdığın veya tanımadığın birine içtenlikle tebessüm et ve selam ver.", type: "Sünnet" },
-    { text: "Bugün vefat etmiş yakınların için bir Fatiha ve üç İhlas suresi oku.", type: "Vefa" },
-    { text: "Bugün yolda yürürken gördüğün rahatsız edici bir şeyi (taş, çöp vb.) kenara çek.", type: "Sadaka" },
-    { text: "Bugün kimse görmeden küçük bir miktar sadaka ver (sadaka kutusuna at veya bir ihtiyaç sahibine ver).", type: "İnfak" },
-    { text: "Bugün aynaya bak ve 'Allah'ım yaratılışımı güzel kıldın, ahlakımı da güzelleştir' diye dua et.", type: "Dua" },
-    { text: "Bugün bir arkadaşının veya ailenden birinin güzel bir huyunu ona söyle ve onu takdir et.", type: "Güzel Söz" },
-    { text: "Bugün namazdan sonra 'Şükür Secdesi' yap ve sahip olduğun üç nimet için Allah'a teşekkür et.", type: "Şükür" },
-    { text: "Bugün sana haksızlık yapmış veya kırmış birini Allah rızası için içinden affet.", type: "Af & Bağışlama" },
-    { text: "Bugün Kur'an-ı Kerim'den (Türkçe mealinden) rastgele bir sayfa aç ve üzerinde düşünerek oku.", type: "İlim & Tefekkür" },
-    { text: "Bugün evde veya iş yerinde başkasının yapması gereken bir işi, ona yardım olsun diye sen yap.", type: "Yardımlaşma" },
-    { text: "Bugün yatmadan önce gününü kısaca düşün ve 'Bugün Allah için ne yaptım?' sorusunu kendine sor.", type: "Nefs Muhasebesi" },
-    { text: "Bugün susuzluğunu giderirken İmam Hüseyin'i (a.s) hatırla ve ona selam gönder.", type: "Ehlibeyt Sevgisi" },
-    { text: "Bugün israftan kaçın; tabağındaki yemeği tamamen bitir ve suyu boşa akıtma.", type: "İktisat" },
-    { text: "Bugün bir dostuna veya ailene 'Seni Allah için seviyorum' de.", type: "Uhuvvet" },
-    { text: "Bugün çok konuşmak yerine daha çok dinlemeyi tercih et.", type: "Edep" },
-    { text: "Bugün bir hasta tanıdığını ara veya mümkünse kısa bir ziyarette bulun.", type: "Ziyaret" },
-    { text: "Bugün yapacağın bir iyiliği (ibadet veya yardım) hiç kimseye anlatma, sadece Allah bilsin.", type: "İhlas" },
-    { text: "Bugün komşunla karşılaşırsan halini sor, karşılaşmazsan onun huzuru için dua et.", type: "Komşuluk" },
-    { text: "Bugün 'Zamanım yok' deme; ertelediğin hayırlı bir işi hemen yap.", type: "Gayret" },
-    { text: "Bugün bulunduğun ortamı (oda, masa, ev) temizle ve düzenle. Temizlik imandandır.", type: "Temizlik" },
-    { text: "Bugün İmam Mehdi (a.f) için 'Allahumme kün li-veliyyike...' duasını (Ferec Duası) oku.", type: "İntizar" },
-    { text: "Bugün konuştuğun sözlerde 'Yemin etmekten' (Vallahi, Billahi demekten) kaçın.", type: "Dil Terbiyesi" },
-    { text: "Bugün anne ve babanı (hayattalarsa) ara veya sarıl; vefat etmişlerse onlar adına bir hayır işle.", type: "Birr (İyilik)" }
-  ];
-
-  const gorevCek = () => {
-    setLoading(true); setGorev(null);
-    setTimeout(() => {
-      const randomIndex = Math.floor(Math.random() * gorevler.length);
-      setGorev(gorevler[randomIndex]); setLoading(false);
-    }, 800);
-  };
-
+function GununGorevi({ task }) {
+  // Artık task'i prop olarak alıyoruz. Böylece ana sayfadaki ve bildirimdeki görev aynı oluyor.
   return (
     <div className="bg-gradient-to-br from-[#0F4C5C] to-[#09303a] p-10 rounded-3xl border border-gold/20 relative overflow-hidden shadow-xl mx-4 transition-all duration-500 hover:shadow-gold/10 group">
       <div className="absolute -bottom-10 -left-10 p-4 opacity-5 rotate-12 pointer-events-none group-hover:opacity-10 transition-opacity"><HandHeart size={200} className="text-gold" /></div>
@@ -371,27 +415,12 @@ function GununGorevi() {
             <CheckCircle2 size={16} /> Günün Manevi Görevi
         </div>
         
-        {gorev ? (
-          <div className="space-y-6 animate-fade-in w-full max-w-2xl">
+        <div className="space-y-6 animate-fade-in w-full max-w-2xl">
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-6 rounded-2xl">
-                 <p className="text-gold text-xs font-bold uppercase tracking-widest mb-2 opacity-80">{gorev.type}</p>
-                 <blockquote className="text-2xl md:text-3xl font-sans font-medium text-sand leading-relaxed">"{gorev.text}"</blockquote>
+                 <p className="text-gold text-xs font-bold uppercase tracking-widest mb-2 opacity-80">{task.type}</p>
+                 <blockquote className="text-2xl md:text-3xl font-sans font-medium text-sand leading-relaxed">"{task.text}"</blockquote>
             </div>
-            <button onClick={gorevCek} className="mt-4 flex items-center gap-2 mx-auto text-sm text-slate-400 hover:text-white transition-colors"><RefreshCw size={14} /> Yeni bir görev seç</button>
-          </div>
-        ) : (
-          <div className="py-8 space-y-4">
-              <h3 className="text-2xl font-serif text-slate-200 leading-normal">
-                  {loading ? "Kalbinize uygun bir görev aranıyor..." : "İlim bilmek yetmez, amel etmek gerekir.\nBugünkü görevinizi almaya hazır mısınız?"}
-              </h3>
-              {!loading && (
-                  <button onClick={gorevCek} className="bg-gold text-turquoise-dark px-10 py-4 rounded-full font-bold hover:bg-white transition-all transform hover:scale-105 shadow-[0_0_20px_rgba(197,160,89,0.4)] flex items-center gap-3 mx-auto mt-4 text-lg">
-                      <HandHeart size={24} /> 
-                      Görevimi Göster
-                  </button>
-              )}
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
