@@ -74,20 +74,24 @@ export default function Home() {
     }
   };
 
-  // --- 4. GELİŞMİŞ HİKAYE PAYLAŞIMI (TAMİR EDİLDİ) ---
+  // --- 4. GELİŞMİŞ HİKAYE PAYLAŞIMI (TAMİR EDİLDİ - SCROLL FIX) ---
   const handleShareStory = async () => {
     if (storyRef.current && !isSharing) {
       setIsSharing(true);
       try {
         await document.fonts.ready;
 
-        // ÖNEMLİ DÜZELTME: width ve height zorunlu kılındı
+        // KRİTİK DÜZELTME: scrollY ve x/y parametreleri eklendi.
+        // Bu, kullanıcının sayfada nerede olduğundan bağımsız olarak
+        // gizli elementin en tepesini (0,0) çekmesini sağlar.
         const canvas = await html2canvas(storyRef.current, {
           scale: 2, 
           width: 1080,
           height: 1920,
-          windowWidth: 1080,
-          windowHeight: 1920,
+          scrollY: 0, // DİKKAT: Sayfa kaydırmasını sıfırla
+          scrollX: 0,
+          x: 0, // Elementin sol üst köşesinden başla
+          y: 0,
           backgroundColor: "#0F4C5C", 
           useCORS: true, 
           logging: false,
@@ -95,9 +99,11 @@ export default function Home() {
           onclone: (clonedDoc) => {
              const element = clonedDoc.getElementById('story-container');
              if(element) {
-                 // Görünürlüğü garanti et
                  element.style.display = "flex";
-                 element.style.visibility = "visible";
+                 // Cloned document içinde de en tepeye sabitle
+                 element.style.position = "fixed";
+                 element.style.top = "0";
+                 element.style.left = "0";
              }
           }
         });
@@ -145,12 +151,12 @@ export default function Home() {
         </div>
       )}
 
-      {/* --- TASARIM: VİRAL PAYLAŞIM KARTI (GİZLİ ALAN - SABİTLENDİ) --- */}
-      {/* DÜZELTME: "absolute left-[-9999px]" yerine "fixed z-[-50]" kullanıldı.
-         Böylece tarayıcı bunu "ekranın arkasında" ama "render edilmiş" olarak görür.
-         Kesilme sorununu çözer.
+      {/* --- TASARIM: VİRAL PAYLAŞIM KARTI (GİZLİ ALAN) --- */}
+      {/* DÜZELTME: position: fixed, top: 0, left: 0 yaptık.
+          z-index: -100 ile ekranın arkasına attık ama fiziksel olarak
+          ekranın tam üzerinde duruyor. Bu sayede html2canvas onu "görebilir".
       */}
-      <div className="fixed top-0 left-0 z-[-50] opacity-0 pointer-events-none">
+      <div style={{ position: "fixed", top: 0, left: 0, zIndex: -100, opacity: 0, pointerEvents: "none" }}>
         <div 
           id="story-container"
           ref={storyRef} 
@@ -188,7 +194,8 @@ export default function Home() {
             </div>
 
             {/* --- ALT KISIM (MARKA & QR) --- */}
-            <div className="z-10 mb-20 w-full px-12 flex flex-col items-center gap-8">
+            {/* Margin-bottom artırıldı (mb-32) ki aşağıdan kesilme payı kalsın */}
+            <div className="z-10 mb-32 w-full px-12 flex flex-col items-center gap-8">
               
               {/* QR Kod Kutusu */}
               <div className="bg-white p-4 rounded-3xl shadow-[0_0_40px_rgba(229,193,124,0.3)] border-8 border-[#E5C17C]">
@@ -206,7 +213,7 @@ export default function Home() {
               </div>
 
               {/* DEVASA MARKA ADI */}
-              <div className="flex flex-col items-center pb-10">
+              <div className="flex flex-col items-center">
                 <h1 className="text-[12rem] font-black text-[#E5C17C] leading-[0.8] tracking-tighter font-sans drop-shadow-2xl" style={{ textShadow: "8px 8px 0px rgba(0,0,0,0.5)" }}>
                   OnikiKapı
                 </h1>
