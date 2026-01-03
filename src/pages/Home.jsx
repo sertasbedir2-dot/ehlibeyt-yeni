@@ -48,7 +48,7 @@ export default function Home() {
   const [showNotificationModal, setShowNotificationModal] = useState(false); 
   const [showSharePreview, setShowSharePreview] = useState(false);
 
-  // YENİ: Hedef bölüme odaklanmak için referans noktası
+  // YENİ: Hedef bölüme odaklanmak için referans noktası (Çapa)
   const wisdomSectionRef = useRef(null);
 
   const handleSearch = (e) => {
@@ -91,11 +91,11 @@ export default function Home() {
           icon: "/favicon.ico", 
           badge: "/favicon.ico",
           vibrate: [200, 100, 200],
-          tag: "daily-wisdom" 
+          tag: "daily-wisdom",
+          requireInteraction: true // Kullanıcı kapatana kadar ekranda kalsın
        };
 
-       // DÜZELTME: Service Worker yerine doğrudan Notification API kullanarak onclick ekliyoruz
-       // (Sayfa açıkken çalışan en güvenli yöntem budur)
+       // DÜZELTME: Service Worker yerine doğrudan Notification API ve onclick ekliyoruz
        const notification = new Notification(title, options);
        
        // KRİTİK EKLENTİ: BİLDİRİME TIKLANINCA NE OLSUN?
@@ -104,9 +104,13 @@ export default function Home() {
           window.focus(); // Tarayıcı penceresini öne getir
           notification.close(); // Bildirimi kapat
           
-          // Hedef bölüme yumuşak bir şekilde kaydır
+          // Hedef bölüme (Günün Hikmeti) yumuşak bir şekilde kaydır
           if (wisdomSectionRef.current) {
              wisdomSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          } else {
+             // Yedek plan: ID ile bulmaya çalış
+             const element = document.getElementById('gunun-hikmeti-alani');
+             if(element) element.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
        };
     }
@@ -249,8 +253,8 @@ export default function Home() {
       </div>
 
       {/* --- GÜNÜN HİKMETİ --- */}
-      {/* BURAYA REFERANS EKLEDİK: BİLDİRİME TIKLAYINCA BURAYA KAYACAK */}
-      <div ref={wisdomSectionRef} className="w-full max-w-4xl mx-auto my-8 px-4 scroll-mt-24">
+      {/* BURAYA REFERANS (wisdomSectionRef) ve ID EKLEDİK */}
+      <div id="gunun-hikmeti-alani" ref={wisdomSectionRef} className="w-full max-w-4xl mx-auto my-8 px-4 scroll-mt-24">
         <div className="relative bg-gradient-to-r from-[#0f172a] to-[#1e293b] border border-[#C5A059]/30 rounded-2xl p-8 text-center shadow-[0_0_25px_rgba(197,160,89,0.15)] group hover:border-[#C5A059]/50 transition-all duration-500">
           
           <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/40 border border-[#C5A059]/30 px-3 py-1 rounded-full text-[#C5A059] text-xs font-bold shadow-lg z-10" title="Aralıksız ziyaret serisi">
