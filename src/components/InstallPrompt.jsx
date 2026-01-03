@@ -7,6 +7,10 @@ export default function InstallPrompt() {
   const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
+    // 0. Önce "Daha önce reddetti mi?" kontrolü yapalım
+    const isDismissed = localStorage.getItem('pwa_prompt_dismissed');
+    if (isDismissed) return; // Eğer reddettiyse hiç çalıştırma
+
     // 1. Android/Desktop için install eventini yakala
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
@@ -21,7 +25,6 @@ export default function InstallPrompt() {
 
     // 2. iOS Tespiti
     const isIosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    // Eğer PWA modunda değilse ve iOS ise göster
     const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
     
     if (isIosDevice && !isStandalone) {
@@ -40,11 +43,19 @@ export default function InstallPrompt() {
       deferredPrompt.userChoice.then((choiceResult) => {
         if (choiceResult.outcome === 'accepted') {
           console.log('Kullanıcı kabul etti');
+          // Kabul ettiyse de artık sormayalım
+          localStorage.setItem('pwa_prompt_dismissed', 'true');
         }
         setDeferredPrompt(null);
         setShowPrompt(false);
       });
     }
+  };
+
+  const handleClose = () => {
+    setShowPrompt(false);
+    // Kapatırsa "Bir daha sorma" diyoruz (İsterseniz bunu SessionStorage yapıp sadece o oturumda sormamasını sağlayabilirsiniz)
+    localStorage.setItem('pwa_prompt_dismissed', 'true');
   };
 
   if (!showPrompt) return null;
@@ -55,8 +66,8 @@ export default function InstallPrompt() {
         
         {/* Kapatma Butonu */}
         <button 
-          onClick={() => setShowPrompt(false)} 
-          className="absolute top-2 right-2 p-2 text-slate-400 hover:text-white bg-white/5 rounded-full"
+          onClick={handleClose} 
+          className="absolute top-2 right-2 p-2 text-slate-400 hover:text-white bg-white/5 rounded-full transition-colors"
         >
           <X size={20} />
         </button>
