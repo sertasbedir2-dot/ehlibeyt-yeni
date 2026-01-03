@@ -1,9 +1,8 @@
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { PenTool, Scale, Flower, BookOpen, Sparkles, Search, Heart, HelpCircle, Sun, Gift, RefreshCw, Volume2, Share2, Flame, Bell, Globe, X, Download } from 'lucide-react';
+import { PenTool, Scale, Flower, BookOpen, Sparkles, Search, Heart, HelpCircle, Sun, Gift, RefreshCw, Volume2, Share2, Flame, Bell, Globe, X, Download, HandHeart, CheckCircle2 } from 'lucide-react';
 import { wisdomData } from '../data/wisdomData';
-// DEĞİŞİKLİK 1: Yeni nesil kütüphane
 import { toPng } from 'html-to-image';
 
 export default function Home() {
@@ -91,7 +90,7 @@ export default function Home() {
   return (
     <div className="space-y-16 animate-fade-in relative">
       
-      {/* --- YENİ: PAYLAŞIM ÖNİZLEME MODALI --- */}
+      {/* --- PAYLAŞIM ÖNİZLEME MODALI --- */}
       {showSharePreview && (
         <SharePreviewModal 
           dailyWisdom={dailyWisdom} 
@@ -157,7 +156,7 @@ export default function Home() {
         <FeatureCard icon={<Scale size={32} className="text-turquoise-light" />} title="Adalet ve Hakikat Arayışı" desc="Evrensel adalet ilkesi ve hakikat üzerine Soru/Cevap kapısı." link="/soru-cevap" />
       </div>
 
-      {/* --- GÜNÜN HİKMETİ --- */}
+      {/* --- GÜNÜN HİKMETİ (KNOWLEDGE) --- */}
       <div className="w-full max-w-4xl mx-auto my-8 px-4">
         <div className="relative bg-gradient-to-r from-[#0f172a] to-[#1e293b] border border-[#C5A059]/30 rounded-2xl p-8 text-center shadow-[0_0_25px_rgba(197,160,89,0.15)] group hover:border-[#C5A059]/50 transition-all duration-500">
           
@@ -191,20 +190,19 @@ export default function Home() {
         </div>
       </div>
 
-      <GununNasibi />
+      {/* --- GÜNÜN MANEVİ GÖREVİ (ACTION) --- */}
+      <GununGorevi />
     </div>
   );
 }
 
-// --- ORTAK KART BİLEŞENİ (Hem Önizleme Hem İndirme İçin) ---
+// --- ORTAK KART BİLEŞENİ ---
 function StoryCardContent({ dailyWisdom }) {
   return (
     <div className="w-[1080px] h-[1920px] bg-[#0F4C5C] flex flex-col items-center justify-between text-center relative overflow-hidden">
-        {/* 1. Arka Plan Desenleri */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#0F4C5C] via-[#09303a] to-[#04151a]"></div>
         <div className="absolute inset-0 opacity-20" style={{backgroundImage: "radial-gradient(circle at 50% 50%, #E5C17C 2px, transparent 2px)", backgroundSize: "60px 60px"}}></div>
 
-        {/* 2. Üst Kısım: İkon ve Başlık */}
         <div className="z-10 mt-32 flex flex-col items-center w-full px-12">
               <div className="p-8 border-[6px] border-[#E5C17C] rounded-full mb-8 bg-[#0F4C5C] shadow-2xl">
                 <BookOpen size={120} className="text-[#E5C17C]" />
@@ -213,14 +211,11 @@ function StoryCardContent({ dailyWisdom }) {
               <div className="w-64 h-2 bg-[#E5C17C] rounded-full"></div>
         </div>
 
-        {/* 3. Orta Kısım: Söz */}
         <div className="z-10 flex-grow flex flex-col justify-center px-24 relative w-full">
             <span className="absolute top-0 left-12 text-[#E5C17C] opacity-10 text-[500px] font-serif leading-none">“</span>
-            
             <h1 className="text-[5.5rem] font-serif text-[#FDF6E3] leading-[1.2] italic mb-16 drop-shadow-xl px-4 tracking-wide">
                 {dailyWisdom.quote}
             </h1>
-
             <div className="flex items-center justify-center gap-8 w-full">
                 <div className="h-2 w-32 bg-[#E5C17C]"></div>
                 <p className="text-5xl text-[#E5C17C] font-sans font-black tracking-widest uppercase">
@@ -230,10 +225,7 @@ function StoryCardContent({ dailyWisdom }) {
             </div>
         </div>
 
-        {/* 4. Alt Kısım: Marka ve QR */}
         <div className="z-10 mb-32 w-full px-12 flex flex-col items-center gap-10">
-            
-            {/* QR Kod Kutusu (Beyaz Çerçeve) */}
             <div className="bg-white p-6 rounded-[3rem] shadow-[0_0_50px_rgba(229,193,124,0.3)] border-[10px] border-[#E5C17C]">
                 <img 
                     src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://onikikapi.vercel.app/&color=09303a`} 
@@ -242,13 +234,9 @@ function StoryCardContent({ dailyWisdom }) {
                     crossOrigin="anonymous" 
                 />
             </div>
-
-            {/* Site Adresi */}
             <div className="bg-[#09303a] px-16 py-6 rounded-full border-2 border-[#E5C17C]/50 shadow-lg">
                 <p className="text-4xl text-[#E5C17C] tracking-wider font-bold">onikikapi.vercel.app</p>
             </div>
-
-            {/* Büyük Marka Logosu */}
             <div className="flex flex-col items-center mt-4">
                 <h1 className="text-[14rem] font-black text-[#E5C17C] leading-[0.8] tracking-tighter font-sans drop-shadow-2xl" style={{ textShadow: "10px 10px 0px rgba(0,0,0,0.5)" }}>
                 OnikiKapı
@@ -260,24 +248,20 @@ function StoryCardContent({ dailyWisdom }) {
   );
 }
 
-// --- ÖNİZLEME PENCERESİ (YENİLENMİŞ MOTOR) ---
+// --- ÖNİZLEME PENCERESİ ---
 function SharePreviewModal({ dailyWisdom, onClose }) {
-  const captureRef = useRef(null); // GİZLİ MASTER referansı
+  const captureRef = useRef(null); 
   const [downloading, setDownloading] = useState(false);
 
   const handleDownload = async () => {
     if (captureRef.current && !downloading) {
       setDownloading(true);
       try {
-        // Fontların tam yüklenmesini bekle
         await document.fonts.ready;
-        
-        // DEĞİŞİKLİK 2: toPng kullanımı (Modern Yöntem)
         const dataUrl = await toPng(captureRef.current, {
-          cacheBust: true, // Önbellek sorunlarını önler
+          cacheBust: true,
           width: 1080,
           height: 1920,
-          // CSS Hack: Element gizli olsa bile, resim oluşturulurken zorla görünür yap
           style: {
             transform: 'scale(1)',
             transformOrigin: 'top left',
@@ -303,31 +287,20 @@ function SharePreviewModal({ dailyWisdom, onClose }) {
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4 animate-fade-in backdrop-blur-md overflow-hidden">
       <div className="relative w-full max-w-lg flex flex-col items-center gap-4">
-        
-        {/* Başlık ve Kapat Butonu */}
         <div className="flex justify-between items-center w-full text-white px-2">
             <h3 className="text-lg font-bold text-gold">Önizleme</h3>
             <button onClick={onClose} className="p-2 bg-white/10 rounded-full hover:bg-white/20"><X size={24} /></button>
         </div>
-
-        {/* --- 1. GÖRÜNEN KÜÇÜK KARDEŞ (Sadece Kullanıcı Görsün Diye) --- */}
         <div className="relative overflow-hidden shadow-2xl rounded-xl border-4 border-gold/30">
-             {/* Mobilde ekrana sığması için scale ile küçültüyoruz */}
              <div style={{ transform: "scale(0.3)", transformOrigin: "top left", width: "1080px", height: "1920px", marginBottom: "-1344px" }}>
                 <StoryCardContent dailyWisdom={dailyWisdom} />
              </div>
         </div>
-
-        {/* --- 2. GİZLİ DEVASA KARDEŞ (Fotoğrafı Çekilecek Olan) --- */}
-        {/* opacity: 0 ile gizledik, ancak z-index -9999 ile arkaya attık. 
-            toPng fonksiyonu style prop'u ile bunu resim anında opacity: 1 yapacak. */}
         <div style={{ position: "fixed", top: 0, left: 0, zIndex: -9999, opacity: 0, pointerEvents: "none" }}>
             <div ref={captureRef}>
                 <StoryCardContent dailyWisdom={dailyWisdom} />
             </div>
         </div>
-
-        {/* Aksiyon Butonu */}
         <button 
             onClick={handleDownload}
             disabled={downloading}
@@ -337,51 +310,86 @@ function SharePreviewModal({ dailyWisdom, onClose }) {
             {downloading ? "Hazırlanıyor..." : "Resmi İndir"}
         </button>
         <p className="text-white/50 text-xs text-center">İndirdikten sonra Instagram veya WhatsApp'ta paylaşabilirsiniz.</p>
-
       </div>
     </div>
   );
 }
 
-function GununNasibi() {
-  const [nasip, setNasip] = useState(null);
+// --- YENİLENEN BİLEŞEN: GÜNÜN MANEVİ GÖREVİ ---
+function GununGorevi() {
+  const [gorev, setGorev] = useState(null);
   const [loading, setLoading] = useState(false);
-  const nasipler = [
-    { text: "İnsanlar uykudadır, öldükleri zaman uyanırlar.", source: "Hz. Ali (a.s)" },
-    { text: "Hiçbir süs, edep kadar güzel değildir.", source: "Hz. Ali (a.s)" },
-    { text: "İlim bir hazinedir, anahtarı ise sorudur.", source: "Hz. Muhammed (s.a.a)" },
-    { text: "Dua müminin silahı, dinin direği ve göklerin nurudur.", source: "Hz. Muhammed (s.a.a)" },
-    { text: "Haksızlık karşısında susan dilsiz şeytandır.", source: "Hz. Muhammed (s.a.a)" },
-    { text: "Komşusu açken tok yatan bizden değildir.", source: "Hz. Muhammed (s.a.a)" },
-    { text: "Mazlumun zalimden öcünü alacağı gün, zalimin mazluma zulmettiği günden daha çetin olacaktır.", source: "Hz. Ali (a.s)" },
-    { text: "Senin hakkında zannını güzel yapan kimsenin zannını, o işi yaparak gerçekleştir.", source: "Hz. Ali (a.s)" },
-    { text: "Dünya, müminin zindanı ve kafirin cennetidir.", source: "Hadis-i Şerif" },
-    { text: "En hayırlınız, ahlakı en güzel olanınızdır.", source: "Hz. Muhammed (s.a.a)" }
+  
+  // 30 GÜNLÜK TAM MANEVİ GÖREV LİSTESİ
+  const gorevler = [
+    { text: "Bugün telefon rehberinden uzun süredir konuşmadığın bir akrabanı ara ve halini hatırını sor.", type: "Sıla-i Rahim" },
+    { text: "Bugün karşılaştığın bir çocuğun başını okşa veya ona küçük bir çikolata ikram et.", type: "Merhamet" },
+    { text: "Bugün bir sokak hayvanına (kedi/köpek/kuş) su veya mama ver.", type: "Şefkat" },
+    { text: "Bugün öfkelendiğin bir an olursa, hiçbir şey söyleme ve hemen oturup üç kez derin nefes al.", type: "Sabır (Hilim)" },
+    { text: "Bugün yediğin yemeğin ardından, o yemeği hazırlayan kişiye (anne, eş veya aşçı) içtenlikle teşekkür et ve dua et.", type: "Vefa & Şükür" },
+    { text: "Bugün dilini gıybetten tamamen koru; biri yanında gıybet yaparsa konuyu nazikçe değiştir.", type: "Dilin Afeti" },
+    { text: "Bugün evden çıkarken veya işe başlarken 100 defa Salavat getir.", type: "Zikir" },
+    { text: "Bugün tanıdığın veya tanımadığın birine içtenlikle tebessüm et ve selam ver.", type: "Sünnet" },
+    { text: "Bugün vefat etmiş yakınların için bir Fatiha ve üç İhlas suresi oku.", type: "Vefa" },
+    { text: "Bugün yolda yürürken gördüğün rahatsız edici bir şeyi (taş, çöp vb.) kenara çek.", type: "Sadaka" },
+    { text: "Bugün kimse görmeden küçük bir miktar sadaka ver (sadaka kutusuna at veya bir ihtiyaç sahibine ver).", type: "İnfak" },
+    { text: "Bugün aynaya bak ve 'Allah'ım yaratılışımı güzel kıldın, ahlakımı da güzelleştir' diye dua et.", type: "Dua" },
+    { text: "Bugün bir arkadaşının veya ailenden birinin güzel bir huyunu ona söyle ve onu takdir et.", type: "Güzel Söz" },
+    { text: "Bugün namazdan sonra 'Şükür Secdesi' yap ve sahip olduğun üç nimet için Allah'a teşekkür et.", type: "Şükür" },
+    { text: "Bugün sana haksızlık yapmış veya kırmış birini Allah rızası için içinden affet.", type: "Af & Bağışlama" },
+    { text: "Bugün Kur'an-ı Kerim'den (Türkçe mealinden) rastgele bir sayfa aç ve üzerinde düşünerek oku.", type: "İlim & Tefekkür" },
+    { text: "Bugün evde veya iş yerinde başkasının yapması gereken bir işi, ona yardım olsun diye sen yap.", type: "Yardımlaşma" },
+    { text: "Bugün yatmadan önce gününü kısaca düşün ve 'Bugün Allah için ne yaptım?' sorusunu kendine sor.", type: "Nefs Muhasebesi" },
+    { text: "Bugün susuzluğunu giderirken İmam Hüseyin'i (a.s) hatırla ve ona selam gönder.", type: "Ehlibeyt Sevgisi" },
+    { text: "Bugün israftan kaçın; tabağındaki yemeği tamamen bitir ve suyu boşa akıtma.", type: "İktisat" },
+    { text: "Bugün bir dostuna veya ailene 'Seni Allah için seviyorum' de.", type: "Uhuvvet" },
+    { text: "Bugün çok konuşmak yerine daha çok dinlemeyi tercih et.", type: "Edep" },
+    { text: "Bugün bir hasta tanıdığını ara veya mümkünse kısa bir ziyarette bulun.", type: "Ziyaret" },
+    { text: "Bugün yapacağın bir iyiliği (ibadet veya yardım) hiç kimseye anlatma, sadece Allah bilsin.", type: "İhlas" },
+    { text: "Bugün komşunla karşılaşırsan halini sor, karşılaşmazsan onun huzuru için dua et.", type: "Komşuluk" },
+    { text: "Bugün 'Zamanım yok' deme; ertelediğin hayırlı bir işi hemen yap.", type: "Gayret" },
+    { text: "Bugün bulunduğun ortamı (oda, masa, ev) temizle ve düzenle. Temizlik imandandır.", type: "Temizlik" },
+    { text: "Bugün İmam Mehdi (a.f) için 'Allahumme kün li-veliyyike...' duasını (Ferec Duası) oku.", type: "İntizar" },
+    { text: "Bugün konuştuğun sözlerde 'Yemin etmekten' (Vallahi, Billahi demekten) kaçın.", type: "Dil Terbiyesi" },
+    { text: "Bugün anne ve babanı (hayattalarsa) ara veya sarıl; vefat etmişlerse onlar adına bir hayır işle.", type: "Birr (İyilik)" }
   ];
 
-  const nasipCek = () => {
-    setLoading(true); setNasip(null);
+  const gorevCek = () => {
+    setLoading(true); setGorev(null);
     setTimeout(() => {
-      const randomIndex = Math.floor(Math.random() * nasipler.length);
-      setNasip(nasipler[randomIndex]); setLoading(false);
+      const randomIndex = Math.floor(Math.random() * gorevler.length);
+      setGorev(gorevler[randomIndex]); setLoading(false);
     }, 800);
   };
 
   return (
-    <div className="bg-turquoise-dark p-10 rounded-3xl border border-gold/20 relative overflow-hidden shadow-xl mx-4 transition-all duration-500 hover:shadow-gold/10">
-      <div className="absolute -bottom-10 -left-10 p-4 opacity-5 rotate-12 pointer-events-none"><Gift size={200} className="text-gold" /></div>
+    <div className="bg-gradient-to-br from-[#0F4C5C] to-[#09303a] p-10 rounded-3xl border border-gold/20 relative overflow-hidden shadow-xl mx-4 transition-all duration-500 hover:shadow-gold/10 group">
+      <div className="absolute -bottom-10 -left-10 p-4 opacity-5 rotate-12 pointer-events-none group-hover:opacity-10 transition-opacity"><HandHeart size={200} className="text-gold" /></div>
+      
       <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-6">
-        <div className="flex items-center gap-2 text-gold font-bold uppercase tracking-widest text-sm"><Sparkles size={16} /> Günün Nasibi</div>
-        {nasip ? (
-          <div className="space-y-6 animate-fade-in">
-              <blockquote className="text-2xl md:text-4xl font-serif text-sand italic leading-relaxed drop-shadow-md">"{nasip.text}"</blockquote>
-            <p className="text-turquoise-light font-bold text-lg">— {nasip.source}</p>
-            <button onClick={nasipCek} className="mt-4 flex items-center gap-2 mx-auto text-sm text-slate-400 hover:text-white transition-colors"><RefreshCw size={14} /> Başka bir nasip çek</button>
+        <div className="flex items-center gap-2 text-gold font-bold uppercase tracking-widest text-sm bg-black/20 px-4 py-1 rounded-full border border-gold/10">
+            <CheckCircle2 size={16} /> Günün Manevi Görevi
+        </div>
+        
+        {gorev ? (
+          <div className="space-y-6 animate-fade-in w-full max-w-2xl">
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-6 rounded-2xl">
+                 <p className="text-gold text-xs font-bold uppercase tracking-widest mb-2 opacity-80">{gorev.type}</p>
+                 <blockquote className="text-2xl md:text-3xl font-sans font-medium text-sand leading-relaxed">"{gorev.text}"</blockquote>
+            </div>
+            <button onClick={gorevCek} className="mt-4 flex items-center gap-2 mx-auto text-sm text-slate-400 hover:text-white transition-colors"><RefreshCw size={14} /> Yeni bir görev seç</button>
           </div>
         ) : (
           <div className="py-8 space-y-4">
-              <h3 className="text-2xl font-serif text-slate-200">{loading ? "Kalbinize doğan nasip aranıyor..." : "Bugün sizin için ayrılan manevi rızkı görmek ister misiniz?"}</h3>
-              {!loading && (<button onClick={nasipCek} className="bg-gold text-turquoise-dark px-8 py-3 rounded-full font-bold hover:bg-white transition-all transform hover:scale-105 shadow-lg flex items-center gap-2 mx-auto"><Gift size={20} /> Niyet Et ve Nasibini Gör</button>)}
+              <h3 className="text-2xl font-serif text-slate-200 leading-normal">
+                  {loading ? "Kalbinize uygun bir görev aranıyor..." : "İlim bilmek yetmez, amel etmek gerekir.\nBugünkü görevinizi almaya hazır mısınız?"}
+              </h3>
+              {!loading && (
+                  <button onClick={gorevCek} className="bg-gold text-turquoise-dark px-10 py-4 rounded-full font-bold hover:bg-white transition-all transform hover:scale-105 shadow-[0_0_20px_rgba(197,160,89,0.4)] flex items-center gap-3 mx-auto mt-4 text-lg">
+                      <HandHeart size={24} /> 
+                      Görevimi Göster
+                  </button>
+              )}
           </div>
         )}
       </div>
