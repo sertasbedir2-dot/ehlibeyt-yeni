@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Search, X, ArrowRight, Book, Star, HelpCircle, FileText, Heart, Trophy, BookOpen, Sparkles, Share2 } from 'lucide-react';
@@ -27,10 +27,6 @@ import MediaCenter from './pages/MediaCenter';
 import Library from './pages/Library';
 import KitapOku from './pages/KitapOku';
 import Favorites from './pages/Favorites'; 
-
-// --- SÜRÜM KONTROLÜ (Burası Çok Önemli) ---
-// Her güncellemede bu sayıyı değiştirin (Örn: '1.0.1' -> '1.0.2')
-const CURRENT_VERSION = '1.0.5'; 
 
 // Toast Component
 function Toast() {
@@ -90,40 +86,6 @@ function AppContent() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // --- OTO-GÜNCELLEME MEKANİZMASI ---
-  useEffect(() => {
-    const checkVersion = () => {
-      const storedVersion = localStorage.getItem('site_version');
-      
-      // Eğer telefondaki sürüm bizim belirlediğimizden farklıysa veya yoksa:
-      if (storedVersion !== CURRENT_VERSION) {
-        console.log("Yeni sürüm tespit edildi. Önbellek temizleniyor...");
-        
-        // 1. Service Worker'ları öldür (PWA önbelleğini kırar)
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            for(let registration of registrations) {
-              registration.unregister();
-            }
-          });
-        }
-
-        // 2. LocalStorage'daki eski verileri temizle (kullanıcı ayarları hariç tutulabilir ama garanti olsun diye siliyoruz)
-        // Eğer "zikir sayısı" gibi verileri korumak isterseniz sadece version'u güncelleyin.
-        // Şimdilik temizlik yapıyoruz ki 'System-HardReset' hatası kalmasın.
-        localStorage.clear(); 
-        
-        // 3. Yeni sürümü kaydet
-        localStorage.setItem('site_version', CURRENT_VERSION);
-        
-        // 4. Sayfayı sunucudan sıfırdan çekerek yenile (Hard Reload)
-        window.location.reload(true);
-      }
-    };
-
-    checkVersion();
-  }, []);
-
   // --- PAYLAŞIM FONKSİYONU ---
   const handleShare = async () => {
     const shareData = {
@@ -179,7 +141,7 @@ function AppContent() {
                 <div className="flex items-baseline space-x-1 mr-4">
                  <NavLink to="/" label="Ana Sayfa" />
                  <NavLink to="/zikir" label="Tesbihat" />
-                 <NavLink to="/manevi-receteler" label="Şifa Kapısı" /> {/* İsim Güncellendi */}
+                 <NavLink to="/manevi-receteler" label="Şifa Kapısı" />
                  <NavLink to="/library" label="Kütüphane" />
                  <NavLink to="/14-masum" label="14 Masum" />
                  <NavLink to="/soru-cevap" label="Soru/Cevap" />
@@ -231,7 +193,7 @@ function AppContent() {
              <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                <MobileNavLink to="/" label="Ana Sayfa" onClick={() => setIsMenuOpen(false)} />
                <MobileNavLink to="/zikir" label="Tesbihat" onClick={() => setIsMenuOpen(false)} />
-               <MobileNavLink to="/manevi-receteler" label="Şifa Kapısı" onClick={() => setIsMenuOpen(false)} /> {/* İsim Güncellendi */}
+               <MobileNavLink to="/manevi-receteler" label="Şifa Kapısı" onClick={() => setIsMenuOpen(false)} />
                <MobileNavLink to="/library" label="Kütüphane" onClick={() => setIsMenuOpen(false)} />
                <MobileNavLink to="/14-masum" label="14 Masum" onClick={() => setIsMenuOpen(false)} />
                <MobileNavLink to="/soru-cevap" label="Soru/Cevap" onClick={() => setIsMenuOpen(false)} />
