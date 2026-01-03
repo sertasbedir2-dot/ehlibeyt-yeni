@@ -2,10 +2,10 @@ import { Brain, Heart, Moon, Shield, Zap, Home, Users, Eye, Feather, Activity, W
 
 // --- KATEGORİLER ---
 export const categories = [
-  { id: 'psych', name: 'Ruh Sağlığı & Zihin', icon: Brain, desc: "Vesvese, öfke, uyku ve hafıza sorunları." },
-  { id: 'family', name: 'Aile & Sosyal Hayat', icon: Home, desc: "Huzur, rızık, evlat ve nazar." },
+  { id: 'psych', name: 'Ruh Sağlığı & Zihin', icon: Brain, desc: "Vesvese, öfke, uyku ve hafıza sorunları için manevi destek." },
+  { id: 'family', name: 'Aile & Sosyal Hayat', icon: Home, desc: "Huzur, muhabbet, evlat terbiyesi ve nazar korunması." },
   { id: 'spiritual', name: 'Seyr-ü Süluk (Manevi)', icon: Feather, desc: "Kalp katılığı, tevbe ve manevi arınma." },
-  { id: 'physical', name: 'Bedensel Şifa', icon: Activity, desc: "Hastalıklar ve fiziksel şifa." }
+  { id: 'physical', name: 'Bedensel Şifa', icon: Activity, desc: "Halsizlik ve ağrılar için Ehl-i Beyt tıbbından tavsiyeler." }
 ];
 
 // --- RUH HALİ (MOODS) ---
@@ -14,11 +14,11 @@ export const moods = [
   { id: 'angry', label: 'Öfkeli', emoji: '😠', targetCategory: 'psych' },
   { id: 'anxious', label: 'Kaygılı', emoji: '😨', targetCategory: 'psych' },
   { id: 'tired', label: 'Yorgun', emoji: '😴', targetCategory: 'physical' },
-  { id: 'poor', label: 'Darda', emoji: '💸', targetCategory: 'family' }, // Rızık için
+  { id: 'poor', label: 'Darda', emoji: '💸', targetCategory: 'family' }, 
   { id: 'sick', label: 'Hasta', emoji: '🤒', targetCategory: 'physical' }
 ];
 
-// --- REÇETELER LİSTESİ ---
+// --- REÇETELER LİSTESİ (TAM METİN) ---
 export const recipes = [
   // --- PSİKOLOJİK ---
   {
@@ -60,9 +60,9 @@ export const recipes = [
     icon: Moon,
     diagnosis: "Uykuya dalamama, sık uyanma veya korkulu rüyalar görme.",
     cure: {
-      arabic: "يَا مُشْبِعَ الْبُطُونِ الْجَائِعَةِ... (Tam Dua)", 
-      transliteration: "Ya muşbi'al butunel caiy'a ve ya kasiyel cuyubil ariy'a...",
-      meaning: "Ey aç karınları doyuran, çıplak bedenleri giydiren... Damarlarımı sakinleştir ve gözüme acil bir uyku ver.",
+      arabic: "يَا مُشْبِعَ الْبُطُونِ الْجَائِعَةِ وَ يَا كَاسِيَ الْجُيُوبِ الْعَارِيَةِ وَ يَا مُسَكِّنَ الْعُرُوقِ الضَّارِبَةِ وَ يَا مُنَوِّمَ الْعُيُونِ السَّاهِرَةِ سَكِّنْ عُرُوقِيَ الضَّارِبَةَ وَ أْذَنِ لِعَيْنِي نَوْماً عَاجِلًا",
+      transliteration: "Ya muşbi'al butunel caiy'a ve ya kasiyel cuyubil ariy'a ve ya müsekkinel urugid daribe ve ya münevvimel uyunis sahira, sekkin urugiyed daribe ve'zen li-ayniy nevmen acila.",
+      meaning: "Ey aç karınları doyuran, çıplak bedenleri giydiren, atan damarları sakinleştiren ve uykusuz gözleri uyutan! Damarlarımı sakinleştir ve gözüme acil bir uyku ver.",
       source: "Hz. Fatıma (s.a)"
     },
     wisdom: "Hz. Peygamber'in kızı Hz. Fatıma'ya öğrettiği özel uyku duasıdır.",
@@ -126,9 +126,9 @@ export const recipes = [
     icon: Eye,
     diagnosis: "Sebepsiz halsizlik, işlerin ters gitmesi, ani hastalıklar.",
     cure: {
-      arabic: "وَإِن يَكَادُ الَّذِينَ كَفَرُوا لَيُزْلِقُونَكَ بِأَبْصَارِهِمْ...",
-      transliteration: "Ve in yekâdullezîne keferû le-yuzlikûneke bi-ebsârihim...",
-      meaning: "O inkâr edenler Zikr'i (Kur'an'ı) işittikleri zaman, neredeyse seni gözleriyle devireceklerdi...",
+      arabic: "وَإِن يَكَادُ الَّذِينَ كَفَرُوا لَيُزْلِقُونَكَ بِأَبْصَارِهِمْ لَمَّا سَمِعُوا الذِّكْرَ وَيَقُولُونَ إِنَّهُ لَمَجْنُونٌ وَمَا هُوَ إِلَّا ذِكْرٌ لِّلْعَالَمِينَ",
+      transliteration: "Ve in yekâdullezîne keferû le-yuzlikûneke bi-ebsârihim lemmâ semiûz-zikra ve yekûlûne innehû le-mecnûn. Ve mâ huve illâ zikrun lil-âlemîn.",
+      meaning: "O inkâr edenler Zikr'i (Kur'an'ı) işittikleri zaman, neredeyse seni gözleriyle devireceklerdi. Ve diyorlar ki: 'O, gerçekten bir delidir.' Oysa o (Kur'an), alemler için bir zikirden (öğütten) başka bir şey değildir.",
       source: "Kalem Suresi 51-52"
     },
     wisdom: "Nazar haktır. Bu ayetler ve Ayete'l-Kürsi ilahi bir kalkan oluşturur.",
@@ -142,9 +142,9 @@ export const recipes = [
     icon: Wallet,
     diagnosis: "Geçim sıkıntısı, borçlar ve bereketin azalması.",
     cure: {
-      arabic: "يَا خَيْرَ مَدْعُوٍّ وَ يَا خَيْرَ مَسْئُولٍ...",
-      transliteration: "Ya hayra med'uvvin ve ya hayra mes'ulin ve ya evsea men a'ta...",
-      meaning: "Ey çağrılanların en hayırlısı, ey istenilenlerin en hayırlısı... Beni rızıklandır ve rızkını bana genişlet.",
+      arabic: "يَا خَيْرَ مَدْعُوٍّ وَ يَا خَيْرَ مَسْئُولٍ وَ يَا أَوْسَعَ مَنْ أَعْطَى وَ يَا خَيْرَ مُرْتَجًى اُرْزُقْنِي وَ أَوْسِعْ عَلَيَّ مِنْ رِزْقِكَ",
+      transliteration: "Ya hayra med'uvvin ve ya hayra mes'ulin ve ya evsea men a'ta ve ya hayra murtaca, urzuknî ve evsi' aleyye min rızkike.",
+      meaning: "Ey çağrılanların en hayırlısı, ey istenilenlerin en hayırlısı, ey verenlerin en cömerdi! Beni rızıklandır ve rızkını bana genişlet.",
       source: "İmam Sadık (a.s)"
     },
     wisdom: "İmam Sadık'tan (a.s) rızkın artması için öğretilen özel duadır.",
@@ -176,9 +176,9 @@ export const recipes = [
     icon: Feather,
     diagnosis: "Günahların ağırlığı altında ezilmek, ümitsizlik.",
     cure: {
-      arabic: "اَسْتَغْفِرُ اللهَ الَّذي لا اِلهَ اِلاّ هُوَ الْحَيُّ الْقَيُّومُ...",
-      transliteration: "Estağfirullahe'llezi la ilahe illa huve, el-Hayyu'l-Kayyum...",
-      meaning: "Kendisinden başka ilah olmayan Allah'tan mağfiret diler ve O'na tövbe ederim.",
+      arabic: "اَسْتَغْفِرُ اللهَ الَّذي لا اِلهَ اِلاّ هُوَ الْحَيُّ الْقَيُّومُ الرَّحْمنُ الرَّحيمُ ذُو الْجَلالِ وَ الاِْكْرامِ وَ اَتُوبُ اِلَيْهِ",
+      transliteration: "Estağfirullahe'llezi la ilahe illa huve, el-Hayyu'l-Kayyum, er-Rahmanu'r-Rahim, zu'l-celali ve'l-ikram ve etubu ileyh.",
+      meaning: "Kendisinden başka ilah olmayan, Diri, Kayyum, Rahman, Rahim, Celal ve İkram sahibi Allah'tan mağfiret diler ve O'na tövbe ederim.",
       source: "Mefatihu'l-Cinan"
     },
     wisdom: "Uyumadan önce okuyanın günahları denizlerin köpüğü kadar olsa da bağışlanır.",
@@ -194,8 +194,8 @@ export const recipes = [
     icon: Activity,
     diagnosis: "Fiziksel ağrılar, kronik rahatsızlıklar ve şifa arayışı.",
     cure: {
-      arabic: "يَا مَنِ اسْمُهُ دَوَاءٌ وَ ذِكْرُهُ شِفَاءٌ...",
-      transliteration: "Ya menismuhu deva ve zikruhu şifa ve taatuhu ğina...",
+      arabic: "يَا مَنِ اسْمُهُ دَوَاءٌ وَ ذِكْرُهُ شِفَاءٌ وَ طَاعَتُهُ غِنًى اِرْحَمْ مَنْ رَأْسُ مَالِهِ الرَّجَاءُ وَ سِلاَحُهُ الْبُكَاءُ",
+      transliteration: "Ya menismuhu deva ve zikruhu şifa ve taatuhu ğina! İrham men re'su malihir-reca ve silahuhul buka.",
       meaning: "Ey ismi deva, zikri şifa ve itaati zenginlik olan! Sermayesi ümit ve silahı ağlamak olan (bu kuluna) merhamet et.",
       source: "Dua-i Kumeyl"
     },
