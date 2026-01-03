@@ -16,37 +16,40 @@ export default function Layout({ children }) {
     { name: 'Zikirmatik', href: '/zikir' },
   ];
 
-  // GÜNCELLEME: Kutu stili ve İkon rengi ayrıştırıldı.
+  // GÜNCELLEME: "Pastel" yerine "DOYGUN (Solid)" renkler kullanıldı.
+  // Kutular artık doğrudan marka renginde, ikonlar ise beyaz.
   const socialLinks = [
     { 
       name: "Facebook",
       icon: Facebook, 
       href: "https://facebook.com", 
-      // Kutunun arka planı, kenarlığı ve gölgesi
-      containerStyle: "bg-blue-100 border-blue-300 shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_40px_rgba(37,99,235,0.6)]",
-      // İkonun doğrudan kendi rengi
-      iconColor: "text-blue-600"
+      // Zemin: Koyu Mavi, İkon: Beyaz
+      containerStyle: "bg-[#1877F2] border-[#1877F2] shadow-[0_0_30px_rgba(24,119,242,0.4)] hover:shadow-[0_0_50px_rgba(24,119,242,0.8)] hover:bg-[#166fe5]",
+      iconColor: "text-white"
     },
     { 
       name: "Twitter",
       icon: Twitter, 
       href: "https://twitter.com", 
-      containerStyle: "bg-sky-100 border-sky-300 shadow-[0_0_20px_rgba(14,165,233,0.3)] hover:shadow-[0_0_40px_rgba(14,165,233,0.6)]",
-      iconColor: "text-sky-500"
+      // Zemin: Gök Mavisi, İkon: Beyaz
+      containerStyle: "bg-[#1DA1F2] border-[#1DA1F2] shadow-[0_0_30px_rgba(29,161,242,0.4)] hover:shadow-[0_0_50px_rgba(29,161,242,0.8)] hover:bg-[#1a91da]",
+      iconColor: "text-white"
     },
     { 
       name: "Instagram",
       icon: Instagram, 
       href: "https://instagram.com", 
-      containerStyle: "bg-pink-100 border-pink-300 shadow-[0_0_20px_rgba(219,39,119,0.3)] hover:shadow-[0_0_40px_rgba(219,39,119,0.6)]",
-      iconColor: "text-pink-600"
+      // Zemin: Fuşya/Pembe, İkon: Beyaz
+      containerStyle: "bg-[#E1306C] border-[#E1306C] shadow-[0_0_30px_rgba(225,48,108,0.4)] hover:shadow-[0_0_50px_rgba(225,48,108,0.8)] hover:bg-[#d62e65]",
+      iconColor: "text-white"
     },
     { 
       name: "Youtube",
       icon: Youtube, 
       href: "https://youtube.com", 
-      containerStyle: "bg-red-100 border-red-300 shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_40px_rgba(220,38,38,0.6)]",
-      iconColor: "text-red-600"
+      // Zemin: Kırmızı, İkon: Beyaz
+      containerStyle: "bg-[#FF0000] border-[#FF0000] shadow-[0_0_30px_rgba(255,0,0,0.4)] hover:shadow-[0_0_50px_rgba(255,0,0,0.8)] hover:bg-[#cc0000]",
+      iconColor: "text-white"
     }
   ];
 
@@ -155,7 +158,7 @@ export default function Layout({ children }) {
                 Ehlibeyt mektebinin ilim ve hikmet pınarlarından süzülen hakikatleri, modern çağın idrakine sunan dijital bir külliye.
               </p>
               
-              {/* --- DEVASA & GARANTİLİ RENKLİ İKONLAR --- */}
+              {/* --- DEVASA & DOYGUN RENKLİ İKONLAR --- */}
               <div className="flex flex-wrap items-center gap-6 pt-4">
                 {socialLinks.map((social, index) => (
                   <a
@@ -163,7 +166,6 @@ export default function Layout({ children }) {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    // Kutu stilleri buraya (bg, border, shadow)
                     className={`
                         group relative flex items-center justify-center 
                         w-40 h-40 rounded-3xl border-4
@@ -173,7 +175,6 @@ export default function Layout({ children }) {
                     `}
                     aria-label={social.name}
                   >
-                    {/* İkon rengi (text-blue-600 vb.) DOĞRUDAN buraya */}
                     <social.icon 
                         className={`w-24 h-24 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110 ${social.iconColor}`}
                         strokeWidth={3.5} 
