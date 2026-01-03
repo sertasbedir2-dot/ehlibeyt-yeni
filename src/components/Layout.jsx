@@ -16,13 +16,36 @@ export default function Layout({ children }) {
     { name: 'Zikirmatik', href: '/zikir' },
   ];
 
-  // GÜNCELLEME: Renkler artık varsayılan olarak aktif (hover: ön eki kaldırıldı)
-  // Ayrıca Twitter logosu siyah yerine gökyüzü mavisi yapıldı ki koyu zeminde görünsün.
+  // GÜNCELLEME: Canlı Renkler ve Stil Tanımları
   const socialLinks = [
-    { icon: Facebook, href: "https://facebook.com", color: "text-blue-500 bg-blue-500/10 border-blue-500/20" },
-    { icon: Twitter, href: "https://twitter.com", color: "text-sky-400 bg-sky-400/10 border-sky-400/20" },
-    { icon: Instagram, href: "https://instagram.com", color: "text-pink-500 bg-pink-500/10 border-pink-500/20" },
-    { icon: Youtube, href: "https://youtube.com", color: "text-red-500 bg-red-500/10 border-red-500/20" }
+    { 
+      name: "Facebook",
+      icon: Facebook, 
+      href: "https://facebook.com", 
+      // Marka Rengi: Mavi
+      style: "text-blue-500 border-blue-500/30 bg-blue-500/10 hover:bg-blue-500 hover:text-white hover:shadow-[0_0_30px_rgba(59,130,246,0.6)]" 
+    },
+    { 
+      name: "Twitter",
+      icon: Twitter, 
+      href: "https://twitter.com", 
+      // Marka Rengi: Gökyüzü Mavisi
+      style: "text-sky-400 border-sky-400/30 bg-sky-400/10 hover:bg-sky-400 hover:text-white hover:shadow-[0_0_30px_rgba(56,189,248,0.6)]" 
+    },
+    { 
+      name: "Instagram",
+      icon: Instagram, 
+      href: "https://instagram.com", 
+      // Marka Rengi: Pembe/Mor
+      style: "text-pink-500 border-pink-500/30 bg-pink-500/10 hover:bg-pink-500 hover:text-white hover:shadow-[0_0_30px_rgba(236,72,153,0.6)]" 
+    },
+    { 
+      name: "Youtube",
+      icon: Youtube, 
+      href: "https://youtube.com", 
+      // Marka Rengi: Kırmızı
+      style: "text-red-500 border-red-500/30 bg-red-500/10 hover:bg-red-500 hover:text-white hover:shadow-[0_0_30px_rgba(239,68,68,0.6)]" 
+    }
   ];
 
   return (
@@ -135,19 +158,28 @@ export default function Layout({ children }) {
                 Ehlibeyt mektebinin ilim ve hikmet pınarlarından süzülen hakikatleri, modern çağın idrakine sunan dijital bir külliye.
               </p>
               
-              {/* YENİLENEN CANLI İKONLAR */}
-              <div className="flex items-center space-x-5 pt-6">
+              {/* --- YENİLENEN DEVASA & CANLI İKONLAR --- */}
+              <div className="flex items-center gap-6 pt-8">
                 {socialLinks.map((social, index) => (
                   <a
                     key={index}
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    // Değişiklik: p-4 (daha büyük), border-2 (çerçeveli), gölge efektli ve varsayılan renkli
-                    className={`p-3.5 rounded-full border-2 transition-all duration-300 transform hover:scale-125 hover:-translate-y-1 hover:shadow-lg ${social.color}`}
-                    aria-label={`Sosyal medya ${index + 1}`}
+                    className={`
+                        group relative flex items-center justify-center 
+                        w-20 h-20 rounded-2xl border-2 
+                        transition-all duration-300 ease-out 
+                        hover:scale-110 hover:-translate-y-2
+                        ${social.style}
+                    `}
+                    aria-label={social.name}
                   >
-                    <social.icon size={28} strokeWidth={2.5} />
+                    {/* Size prop'u kaldırıldı, yerine Tailwind classları verildi */}
+                    <social.icon 
+                        className="w-10 h-10 md:w-12 md:h-12 transition-transform duration-300 group-hover:rotate-6" 
+                        strokeWidth={2.5} 
+                    />
                   </a>
                 ))}
               </div>
