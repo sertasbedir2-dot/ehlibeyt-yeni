@@ -13,7 +13,7 @@ export default function Home() {
   const [streak, setStreak] = useState(0); 
   const [showNotificationModal, setShowNotificationModal] = useState(false); 
   const storyRef = useRef(null); 
-  const [isSharing, setIsSharing] = useState(false); // Paylaşım sırasında butonu kilitlemek için
+  const [isSharing, setIsSharing] = useState(false); 
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -74,25 +74,30 @@ export default function Home() {
     }
   };
 
-  // --- 4. GELİŞMİŞ HİKAYE PAYLAŞIMI (STABİLİZE EDİLDİ) ---
+  // --- 4. GELİŞMİŞ HİKAYE PAYLAŞIMI (TAMİR EDİLDİ) ---
   const handleShareStory = async () => {
     if (storyRef.current && !isSharing) {
       setIsSharing(true);
       try {
-        // Fontların yüklendiğinden emin ol
         await document.fonts.ready;
 
+        // ÖNEMLİ DÜZELTME: width ve height zorunlu kılındı
         const canvas = await html2canvas(storyRef.current, {
-          scale: 2, // Retina kalitesi
-          backgroundColor: "#0F4C5C", // Arka plan rengini garantiye al
-          useCORS: true, // QR kod ve dış görseller için şart
+          scale: 2, 
+          width: 1080,
+          height: 1920,
+          windowWidth: 1080,
+          windowHeight: 1920,
+          backgroundColor: "#0F4C5C", 
+          useCORS: true, 
           logging: false,
           allowTaint: true,
-          // Harflerin kaymasını önleyen ayarlar
           onclone: (clonedDoc) => {
              const element = clonedDoc.getElementById('story-container');
              if(element) {
-                 element.style.fontVariantLigatures = 'none';
+                 // Görünürlüğü garanti et
+                 element.style.display = "flex";
+                 element.style.visibility = "visible";
              }
           }
         });
@@ -104,7 +109,7 @@ export default function Home() {
         link.click();
       } catch (err) {
         console.error("Resim oluşturma hatası:", err);
-        alert("Resim oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.");
+        alert("Resim oluşturulurken bir hata oluştu.");
       } finally {
         setIsSharing(false);
       }
@@ -140,22 +145,25 @@ export default function Home() {
         </div>
       )}
 
-      {/* --- TASARIM: VİRAL PAYLAŞIM KARTI (GİZLİ ALAN - REVİZE EDİLDİ) --- */}
-      {/* Not: Bu alan ekranda görünmez, sadece resim oluşturulurken kullanılır */}
-      <div className="absolute top-0 left-[-9999px]">
+      {/* --- TASARIM: VİRAL PAYLAŞIM KARTI (GİZLİ ALAN - SABİTLENDİ) --- */}
+      {/* DÜZELTME: "absolute left-[-9999px]" yerine "fixed z-[-50]" kullanıldı.
+         Böylece tarayıcı bunu "ekranın arkasında" ama "render edilmiş" olarak görür.
+         Kesilme sorununu çözer.
+      */}
+      <div className="fixed top-0 left-0 z-[-50] opacity-0 pointer-events-none">
         <div 
           id="story-container"
           ref={storyRef} 
           className="w-[1080px] h-[1920px] flex flex-col justify-between items-center text-center relative overflow-hidden bg-[#0F4C5C]"
         >
             
-            {/* Arka Plan Gradientleri (Basitleştirildi - Render hatasını önlemek için) */}
+            {/* Arka Plan */}
             <div className="absolute inset-0 bg-gradient-to-b from-[#0F4C5C] via-[#09303a] to-[#04151a] z-0"></div>
             <div className="absolute inset-0 opacity-20 z-0" style={{backgroundImage: "radial-gradient(circle at 50% 50%, #E5C17C 2px, transparent 2px)", backgroundSize: "60px 60px"}}></div>
 
             {/* --- ÜST KISIM --- */}
-            <div className="z-10 mt-40 w-full px-12 flex flex-col items-center">
-               <div className="p-8 border-4 border-[#E5C17C] rounded-full mb-10 bg-[#0F4C5C] shadow-2xl">
+            <div className="z-10 mt-32 w-full px-12 flex flex-col items-center">
+               <div className="p-8 border-4 border-[#E5C17C] rounded-full mb-8 bg-[#0F4C5C] shadow-2xl">
                  <BookOpen size={100} className="text-[#E5C17C]" />
                </div>
                <h3 className="text-[#E5C17C] text-5xl font-sans tracking-[0.5em] uppercase font-bold mb-4">Günün Hikmeti</h3>
@@ -163,17 +171,16 @@ export default function Home() {
             </div>
 
             {/* --- ORTA KISIM (SÖZ) --- */}
-            {/* Harf aralıkları (tracking) ve satır yüksekliği (leading) overlap'i önlemek için açıldı */}
-            <div className="z-10 flex-grow flex flex-col justify-center px-20 relative">
-              <span className="absolute top-10 left-10 text-[#E5C17C] opacity-10 text-[400px] font-serif leading-none">“</span>
+            <div className="z-10 flex-grow flex flex-col justify-center px-24 relative">
+              <span className="absolute top-0 left-10 text-[#E5C17C] opacity-10 text-[400px] font-serif leading-none">“</span>
               
-              <h1 className="text-[5.5rem] font-serif text-[#FDF6E3] leading-[1.3] italic mb-16 drop-shadow-xl px-4 tracking-wide">
+              <h1 className="text-[5rem] font-serif text-[#FDF6E3] leading-tight italic mb-12 drop-shadow-xl px-4 tracking-wide">
                 {dailyWisdom.quote}
               </h1>
               
               <div className="flex items-center justify-center gap-8">
                 <div className="h-1 w-24 bg-[#E5C17C]"></div>
-                <p className="text-6xl text-[#E5C17C] font-sans font-black tracking-widest uppercase">
+                <p className="text-5xl text-[#E5C17C] font-sans font-black tracking-widest uppercase">
                   {dailyWisdom.source}
                 </p>
                 <div className="h-1 w-24 bg-[#E5C17C]"></div>
@@ -181,29 +188,29 @@ export default function Home() {
             </div>
 
             {/* --- ALT KISIM (MARKA & QR) --- */}
-            <div className="z-10 mb-32 w-full px-12 flex flex-col items-center gap-10">
+            <div className="z-10 mb-20 w-full px-12 flex flex-col items-center gap-8">
               
               {/* QR Kod Kutusu */}
-              <div className="bg-white p-4 rounded-3xl shadow-[0_0_40px_rgba(229,193,124,0.3)] border-8 border-[#E5C17C] mb-8">
+              <div className="bg-white p-4 rounded-3xl shadow-[0_0_40px_rgba(229,193,124,0.3)] border-8 border-[#E5C17C]">
                   <img 
                     src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://onikikapi.vercel.app/&color=09303a`} 
                     alt="QR Kod" 
-                    className="w-52 h-52 block"
+                    className="w-48 h-48 block"
                     crossOrigin="anonymous" 
                   />
               </div>
 
               {/* URL */}
-              <div className="bg-[#09303a] px-12 py-4 rounded-full border border-[#E5C17C]/30">
-                 <p className="text-4xl text-[#E5C17C] tracking-wider font-bold">onikikapi.vercel.app</p>
+              <div className="bg-[#09303a] px-10 py-3 rounded-full border border-[#E5C17C]/30">
+                 <p className="text-3xl text-[#E5C17C] tracking-wider font-bold">onikikapi.vercel.app</p>
               </div>
 
               {/* DEVASA MARKA ADI */}
-              <div className="flex flex-col items-center">
-                <h1 className="text-[13rem] font-black text-[#E5C17C] leading-[0.8] tracking-tighter font-sans drop-shadow-2xl" style={{ textShadow: "10px 10px 0px rgba(0,0,0,0.5)" }}>
+              <div className="flex flex-col items-center pb-10">
+                <h1 className="text-[12rem] font-black text-[#E5C17C] leading-[0.8] tracking-tighter font-sans drop-shadow-2xl" style={{ textShadow: "8px 8px 0px rgba(0,0,0,0.5)" }}>
                   OnikiKapı
                 </h1>
-                <p className="text-4xl text-slate-400 font-serif tracking-[0.4em] mt-4 uppercase">İlim ve Hikmet Şehri</p>
+                <p className="text-3xl text-slate-400 font-serif tracking-[0.4em] mt-4 uppercase">İlim ve Hikmet Şehri</p>
               </div>
 
             </div>
