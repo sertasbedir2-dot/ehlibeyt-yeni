@@ -5,7 +5,7 @@ import { PenTool, Scale, Flower, BookOpen, Sparkles, Search, Heart, HelpCircle, 
 import { wisdomData } from '../data/wisdomData';
 import { toPng } from 'html-to-image';
 
-// --- GÖREV LİSTESİ (Veritabanı Gibi Dışarı Aldık) ---
+// --- GÖREV LİSTESİ ---
 const GOREVLER = [
     { text: "Bugün telefon rehberinden uzun süredir konuşmadığın bir akrabanı ara ve halini hatırını sor.", type: "Sıla-i Rahim" },
     { text: "Bugün karşılaştığın bir çocuğun başını okşa veya ona küçük bir çikolata ikram et.", type: "Merhamet" },
@@ -48,6 +48,9 @@ export default function Home() {
   const [showNotificationModal, setShowNotificationModal] = useState(false); 
   const [showSharePreview, setShowSharePreview] = useState(false);
 
+  // YENİ: Hedef bölüme odaklanmak için referans noktası
+  const wisdomSectionRef = useRef(null);
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (heroSearch.trim()) {
@@ -55,7 +58,7 @@ export default function Home() {
     }
   };
 
-  // --- 1. GÜNÜN HİKMETİ MANTIĞI (DETERMİNİSTİK) ---
+  // --- 1. GÜNÜN HİKMETİ ---
   const dailyWisdom = useMemo(() => {
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 0);
@@ -66,8 +69,7 @@ export default function Home() {
     return wisdomData[dataIndex] || wisdomData[0];
   }, []);
 
-  // --- 2. GÜNÜN GÖREVİ MANTIĞI (ARTIK BU DA DETERMINİSTİK - HERKESE AYNI) ---
-  // Not: Rastgele çekme yerine, günü baz alıyoruz ki sabah bildirimdeki ile sitedeki tutsun.
+  // --- 2. GÜNÜN GÖREVİ ---
   const dailyTask = useMemo(() => {
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 0);
@@ -78,37 +80,43 @@ export default function Home() {
     return GOREVLER[dataIndex] || GOREVLER[0];
   }, []);
 
-  // --- 3. BİLDİRİM GÖNDERME FONKSİYONU ---
+  // --- 3. BİLDİRİM GÖNDERME VE TIKLAMA MANTIĞI ---
   const sendMorningNotification = () => {
     if (!("Notification" in window)) return;
 
     if (Notification.permission === "granted") {
-       // İçerik: Kısa Hikmet + Görev
        const title = "🌅 Günün Manevi İkramı Hazır";
        const options = {
           body: `💡 Hikmet: "${dailyWisdom.quote.substring(0, 50)}..."\n🎯 Görev: ${dailyTask.text}`,
-          icon: "/favicon.ico", // Varsa ikon
+          icon: "/favicon.ico", 
           badge: "/favicon.ico",
           vibrate: [200, 100, 200],
-          tag: "daily-wisdom" // Aynı gün üst üste bildirim yığılmasın diye
+          tag: "daily-wisdom" 
        };
 
-       // Service Worker üzerinden veya direkt gönder
-       if (navigator.serviceWorker && navigator.serviceWorker.ready) {
-          navigator.serviceWorker.ready.then(registration => {
-             registration.showNotification(title, options);
-          });
-       } else {
-          new Notification(title, options);
-       }
+       // DÜZELTME: Service Worker yerine doğrudan Notification API kullanarak onclick ekliyoruz
+       // (Sayfa açıkken çalışan en güvenli yöntem budur)
+       const notification = new Notification(title, options);
+       
+       // KRİTİK EKLENTİ: BİLDİRİME TIKLANINCA NE OLSUN?
+       notification.onclick = (event) => {
+          event.preventDefault(); // Standart davranışı durdur
+          window.focus(); // Tarayıcı penceresini öne getir
+          notification.close(); // Bildirimi kapat
+          
+          // Hedef bölüme yumuşak bir şekilde kaydır
+          if (wisdomSectionRef.current) {
+             wisdomSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+       };
     }
   };
 
-  // --- 4. ZİNCİR, BİLDİRİM İZNİ VE OTOMATİK BİLDİRİM TETİKLEME ---
+  // --- 4. ZİNCİR VE TETİKLEME ---
   useEffect(() => {
     const today = new Date().toDateString();
     
-    // A. ZİNCİR MANTIĞI
+    // ZİNCİR
     const lastVisit = localStorage.getItem('lastVisit');
     let currentStreak = parseInt(localStorage.getItem('streak') || '0');
 
@@ -126,25 +134,23 @@ export default function Home() {
     }
     setStreak(currentStreak);
 
-    // B. BİLDİRİM İZNİ İSTEME (Hiç sorulmadıysa)
+    // BİLDİRİM İZNİ
     const notificationAsked = localStorage.getItem('notificationAsked');
     if (!notificationAsked && 'Notification' in window) {
       const timer = setTimeout(() => setShowNotificationModal(true), 3000);
       return () => clearTimeout(timer);
     }
 
-    // C. GÜNLÜK BİLDİRİMİ GÖNDERME (Eğer bugün gönderilmediyse)
+    // GÜNLÜK BİLDİRİM
     const lastNotificationDate = localStorage.getItem('lastNotificationDate');
     if (Notification.permission === "granted" && lastNotificationDate !== today) {
-        // Bildirimi gönder
         sendMorningNotification();
-        // Bugünü kaydet ki tekrar atmasın
         localStorage.setItem('lastNotificationDate', today);
     }
 
   }, [dailyWisdom, dailyTask]);
 
-  // --- 5. SESLİ OKUMA (TTS) ---
+  // --- 5. SESLİ OKUMA ---
   const handleSpeak = () => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
@@ -165,7 +171,6 @@ export default function Home() {
     Notification.requestPermission().then((permission) => {
       if (permission === "granted") {
         alert("Teşekkürler! Sabah virdiniz her gün cihazınıza iletilecektir.");
-        // İzin verilir verilmez ilk bildirimi atalım
         sendMorningNotification();
         localStorage.setItem('lastNotificationDate', new Date().toDateString());
       }
@@ -177,7 +182,7 @@ export default function Home() {
   return (
     <div className="space-y-16 animate-fade-in relative">
       
-      {/* --- PAYLAŞIM ÖNİZLEME MODALI --- */}
+      {/* --- PAYLAŞIM MODALI --- */}
       {showSharePreview && (
         <SharePreviewModal 
           dailyWisdom={dailyWisdom} 
@@ -185,7 +190,7 @@ export default function Home() {
         />
       )}
 
-      {/* --- BİLDİRİM MODALI --- */}
+      {/* --- BİLDİRİM İZİN MODALI --- */}
       {showNotificationModal && (
         <div className="fixed inset-0 bg-black/80 z-[300] flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-turquoise-dark border border-gold rounded-2xl p-6 max-w-sm text-center shadow-2xl relative animate-fade-in">
@@ -243,8 +248,9 @@ export default function Home() {
         <FeatureCard icon={<Scale size={32} className="text-turquoise-light" />} title="Adalet ve Hakikat Arayışı" desc="Evrensel adalet ilkesi ve hakikat üzerine Soru/Cevap kapısı." link="/soru-cevap" />
       </div>
 
-      {/* --- GÜNÜN HİKMETİ (KNOWLEDGE) --- */}
-      <div className="w-full max-w-4xl mx-auto my-8 px-4">
+      {/* --- GÜNÜN HİKMETİ --- */}
+      {/* BURAYA REFERANS EKLEDİK: BİLDİRİME TIKLAYINCA BURAYA KAYACAK */}
+      <div ref={wisdomSectionRef} className="w-full max-w-4xl mx-auto my-8 px-4 scroll-mt-24">
         <div className="relative bg-gradient-to-r from-[#0f172a] to-[#1e293b] border border-[#C5A059]/30 rounded-2xl p-8 text-center shadow-[0_0_25px_rgba(197,160,89,0.15)] group hover:border-[#C5A059]/50 transition-all duration-500">
           
           <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/40 border border-[#C5A059]/30 px-3 py-1 rounded-full text-[#C5A059] text-xs font-bold shadow-lg z-10" title="Aralıksız ziyaret serisi">
@@ -277,8 +283,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* --- GÜNÜN MANEVİ GÖREVİ (ACTION) --- */}
-      {/* Artık prop olarak dailyTask'i gönderiyoruz, böylece komponent kendi içinde hesap yapmaz, yukarıdaki ile aynı veriyi kullanır */}
+      {/* --- GÜNÜN MANEVİ GÖREVİ --- */}
       <GununGorevi task={dailyTask} />
     </div>
   );
@@ -403,9 +408,8 @@ function SharePreviewModal({ dailyWisdom, onClose }) {
   );
 }
 
-// --- YENİLENEN BİLEŞEN: GÜNÜN MANEVİ GÖREVİ ---
+// --- GÜNÜN MANEVİ GÖREVİ ---
 function GununGorevi({ task }) {
-  // Artık task'i prop olarak alıyoruz. Böylece ana sayfadaki ve bildirimdeki görev aynı oluyor.
   return (
     <div className="bg-gradient-to-br from-[#0F4C5C] to-[#09303a] p-10 rounded-3xl border border-gold/20 relative overflow-hidden shadow-xl mx-4 transition-all duration-500 hover:shadow-gold/10 group">
       <div className="absolute -bottom-10 -left-10 p-4 opacity-5 rotate-12 pointer-events-none group-hover:opacity-10 transition-opacity"><HandHeart size={200} className="text-gold" /></div>
