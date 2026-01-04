@@ -8,12 +8,10 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate', // Otomatik güncelleme modu
+      registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       
-      // --- YENİ EKLENEN GÜÇLENDİRİLMİŞ AYARLAR ---
-      // Bu ayarlar Service Worker'ın kullanıcıya sormadan
-      // anında güncellemeyi yapmasını zorlar.
+      // Sessiz güncelleme ayarları (Önceki ayarlarınız korunuyor)
       workbox: {
         cleanupOutdatedCaches: true,
         clientsClaim: true,
@@ -28,6 +26,10 @@ export default defineConfig({
         theme_color: '#008080',
         background_color: '#0f172a',
         display: 'standalone',
+        
+        // --- YENİ EKLENEN SATIR: YATAY/DİKEY DÖNDÜRMEYİ SERBEST BIRAK ---
+        orientation: 'any', 
+        
         icons: [
           {
             src: 'web-app-manifest-192x192.png',
@@ -46,7 +48,6 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        // Cache-busting (Önbellek kırma) için zaman damgası
         entryFileNames: `assets/[name].${timestamp}.js`,
         chunkFileNames: `assets/[name].${timestamp}.js`,
         assetFileNames: `assets/[name].${timestamp}.[ext]`
