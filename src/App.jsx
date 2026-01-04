@@ -8,10 +8,10 @@ import { globalSearchData } from './data/siteData';
 
 // --- COMPONENTS ---
 import MusicPlayer from './components/MusicPlayer'; 
-import InstallPrompt from './components/InstallPrompt'; 
+// InstallPrompt importunu buradan siliyoruz çünkü Layout.jsx içinde zaten var
 import Footer from './components/Footer'; 
 import ScrollToTop from './components/ScrollToTop';
-import ErrorBoundary from './components/ErrorBoundary'; // EKLENDİ
+import ErrorBoundary from './components/ErrorBoundary';
 
 // --- CONTEXT ---
 import { AppProvider, useAppContext } from './context/AppContext';
@@ -224,8 +224,8 @@ function AppContent() {
          <MusicPlayer />
        </div>
 
-       {/* PWA Yükleme Butonu (Bağımsız ve Donma Korumalı) */}
-       <InstallPrompt />
+       {/* SİLİNDİ: <InstallPrompt /> satırı burada yok artık. */}
+       {/* Çünkü Layout.jsx içinde zaten bir tane var. */}
 
        <Footer />
 
@@ -249,10 +249,10 @@ const MobileNavLink = ({ to, label, onClick }) => (
 export default function App() {
   return (
     <AppProvider>
-      <ErrorBoundary> {/* 1. Uygulama patlarsa kurtar */}
+      <ErrorBoundary>
         <Router>
-          <ScrollToTop /> {/* 2. Her sayfa değişiminde tepeye çıkar */}
-          <AppContent />  {/* 3. Gerçek uygulama içeriği */}
+          <ScrollToTop />
+          <AppContent />
         </Router>
       </ErrorBoundary>
     </AppProvider>

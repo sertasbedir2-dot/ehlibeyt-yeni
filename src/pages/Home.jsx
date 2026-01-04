@@ -87,31 +87,27 @@ export default function Home() {
     if (Notification.permission === "granted") {
        const title = "🌅 Günün Manevi İkramı Hazır";
        const options = {
-          body: `💡 Hikmet: "${dailyWisdom.quote.substring(0, 50)}..."\n🎯 Görev: ${dailyTask.text}`,
-          icon: "/favicon.ico", 
-          badge: "/favicon.ico",
-          vibrate: [200, 100, 200],
-          tag: "daily-wisdom",
-          requireInteraction: true // Kullanıcı kapatana kadar ekranda kalsın
+         body: `💡 Hikmet: "${dailyWisdom.quote.substring(0, 50)}..."\n🎯 Görev: ${dailyTask.text}`,
+         icon: "/favicon.ico", 
+         badge: "/favicon.ico",
+         vibrate: [200, 100, 200],
+         tag: "daily-wisdom",
+         requireInteraction: true // Kullanıcı kapatana kadar ekranda kalsın
        };
 
-       // DÜZELTME: Service Worker yerine doğrudan Notification API ve onclick ekliyoruz
        const notification = new Notification(title, options);
        
-       // KRİTİK EKLENTİ: BİLDİRİME TIKLANINCA NE OLSUN?
        notification.onclick = (event) => {
-          event.preventDefault(); // Standart davranışı durdur
-          window.focus(); // Tarayıcı penceresini öne getir
-          notification.close(); // Bildirimi kapat
-          
-          // Hedef bölüme (Günün Hikmeti) yumuşak bir şekilde kaydır
-          if (wisdomSectionRef.current) {
+         event.preventDefault(); 
+         window.focus(); 
+         notification.close(); 
+         
+         if (wisdomSectionRef.current) {
              wisdomSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          } else {
-             // Yedek plan: ID ile bulmaya çalış
+         } else {
              const element = document.getElementById('gunun-hikmeti-alani');
              if(element) element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
+         }
        };
     }
   };
@@ -120,7 +116,7 @@ export default function Home() {
   useEffect(() => {
     const today = new Date().toDateString();
     
-    // ZİNCİR
+    // ZİNCİR MANTIĞI
     const lastVisit = localStorage.getItem('lastVisit');
     let currentStreak = parseInt(localStorage.getItem('streak') || '0');
 
@@ -138,14 +134,19 @@ export default function Home() {
     }
     setStreak(currentStreak);
 
-    // BİLDİRİM İZNİ
-    const notificationAsked = localStorage.getItem('notificationAsked');
-    if (!notificationAsked && 'Notification' in window) {
-      const timer = setTimeout(() => setShowNotificationModal(true), 3000);
+    // --- KRİTİK DÜZELTME: BİLDİRİM PENCERESİ KONTROLÜ ---
+    // Sadece daha önce "Evet" veya "Hayır" cevabı VERİLMEMİŞSE (null ise) çalışır.
+    const hasAnswered = localStorage.getItem('notificationAsked');
+    
+    if (!hasAnswered && 'Notification' in window && Notification.permission === 'default') {
+      // Sayfa yüklendikten 3 saniye sonra sor (kullanıcı hemen kaçmasın)
+      const timer = setTimeout(() => {
+         setShowNotificationModal(true);
+      }, 3000);
       return () => clearTimeout(timer);
     }
 
-    // GÜNLÜK BİLDİRİM
+    // GÜNLÜK OTOMATİK BİLDİRİM (Zaten izin verilmişse)
     const lastNotificationDate = localStorage.getItem('lastNotificationDate');
     if (Notification.permission === "granted" && lastNotificationDate !== today) {
         sendMorningNotification();
@@ -171,16 +172,35 @@ export default function Home() {
     setShowSharePreview(true);
   };
 
+  // KULLANICI "EVET" DEDİĞİNDE
   const requestNotificationPermission = () => {
+    // 1. Önce pencreyi kapat (Donmayı önler)
+    setShowNotificationModal(false);
+    
+    // 2. Tercihi hafızaya yaz (Bir daha sorma)
+    localStorage.setItem('notificationAsked', 'true');
+
+    // 3. Tarayıcıdan izin iste
     Notification.requestPermission().then((permission) => {
       if (permission === "granted") {
-        alert("Teşekkürler! Sabah virdiniz her gün cihazınıza iletilecektir.");
+        // İzin verildiyse hemen teşekkür etme, doğal akışa bırak veya küçük bir toast göster
+        // alert() yerine console.log veya custom Toast kullanmak daha iyidir, ama şimdilik alert kalsın.
+        setTimeout(() => {
+            alert("Teşekkürler! Sabah virdiniz her gün cihazınıza iletilecektir.");
+        }, 300); // Pencere kapandıktan sonra çıksın
+        
         sendMorningNotification();
         localStorage.setItem('lastNotificationDate', new Date().toDateString());
       }
-      localStorage.setItem('notificationAsked', 'true');
-      setShowNotificationModal(false);
     });
+  };
+
+  // KULLANICI "DAHA SONRA" DEDİĞİNDE
+  const handleLater = () => {
+      setShowNotificationModal(false);
+      // "Daha Sonra" dediği için hafızaya 'notificationAsked' yazmıyoruz.
+      // Böylece sayfa yenilendiğinde (veya bir sonraki girişte) tekrar soracak.
+      // Eğer "Bir daha sorma" demek isterseniz buraya da localStorage.setItem ekleyebilirsiniz.
   };
 
   return (
@@ -194,17 +214,34 @@ export default function Home() {
         />
       )}
 
-      {/* --- BİLDİRİM İZİN MODALI --- */}
+      {/* --- BİLDİRİM İZİN MODALI (DÜZELTİLMİŞ) --- */}
       {showNotificationModal && (
         <div className="fixed inset-0 bg-black/80 z-[300] flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-turquoise-dark border border-gold rounded-2xl p-6 max-w-sm text-center shadow-2xl relative animate-fade-in">
-            <button onClick={() => {setShowNotificationModal(false); localStorage.setItem('notificationAsked', 'true');}} className="absolute top-2 right-2 text-slate-400 hover:text-white"><RefreshCw className="rotate-45" size={20}/></button>
+            {/* Sağ Üst Kapatma Butonu: Buna basınca 'Daha Sonra' gibi davranır */}
+            <button 
+                onClick={handleLater} 
+                className="absolute top-2 right-2 text-slate-400 hover:text-white"
+            >
+                <X size={20}/>
+            </button>
+            
             <div className="mx-auto w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4"><Bell className="text-gold" size={24} /></div>
             <h3 className="text-xl font-bold text-sand mb-2">Sabah Virdi</h3>
             <p className="text-slate-300 text-sm mb-6">Her sabah günün hikmeti ve manevi görevini bildirim olarak almak ister misin?</p>
             <div className="flex gap-3">
-              <button onClick={() => {setShowNotificationModal(false); localStorage.setItem('notificationAsked', 'true');}} className="flex-1 py-2 rounded-lg border border-slate-600 text-slate-400 text-sm font-bold">Daha Sonra</button>
-              <button onClick={requestNotificationPermission} className="flex-1 py-2 rounded-lg bg-gold text-turquoise-dark text-sm font-bold hover:bg-white transition-colors">Evet, İsterim</button>
+              <button 
+                onClick={handleLater} 
+                className="flex-1 py-2 rounded-lg border border-slate-600 text-slate-400 text-sm font-bold hover:bg-white/5 transition-colors"
+              >
+                Daha Sonra
+              </button>
+              <button 
+                onClick={requestNotificationPermission} 
+                className="flex-1 py-2 rounded-lg bg-gold text-turquoise-dark text-sm font-bold hover:bg-white transition-colors"
+              >
+                Evet, İsterim
+              </button>
             </div>
           </div>
         </div>
@@ -253,7 +290,6 @@ export default function Home() {
       </div>
 
       {/* --- GÜNÜN HİKMETİ --- */}
-      {/* BURAYA REFERANS (wisdomSectionRef) ve ID EKLEDİK */}
       <div id="gunun-hikmeti-alani" ref={wisdomSectionRef} className="w-full max-w-4xl mx-auto my-8 px-4 scroll-mt-24">
         <div className="relative bg-gradient-to-r from-[#0f172a] to-[#1e293b] border border-[#C5A059]/30 rounded-2xl p-8 text-center shadow-[0_0_25px_rgba(197,160,89,0.15)] group hover:border-[#C5A059]/50 transition-all duration-500">
           
