@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, BookOpen, Sparkles, Search, Facebook, Twitter, Instagram, Youtube, Mail, MapPin, Phone } from 'lucide-react';
+// EKLENDİ: Globe import edildi (Hata düzeltildi)
+import { Menu, X, BookOpen, Sparkles, Search, Facebook, Twitter, Instagram, Youtube, Mail, MapPin, Phone, Globe } from 'lucide-react';
 import PrayerTimesWidget from './PrayerTimesWidget';
+// EKLENDİ: PWA Yükleme Bileşeni
+import InstallPrompt from './components/InstallPrompt'; 
 
 export default function Layout({ children }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,15 +19,11 @@ export default function Layout({ children }) {
     { name: 'Zikirmatik', href: '/zikir' },
   ];
 
-  // GÜNCELLEME: Tüm renklere "!" (Important) eklendi.
-  // Bu, diğer stillerin bu renkleri ezmesini engeller.
   const socialLinks = [
     { 
       name: "Facebook",
       icon: Facebook, 
       href: "https://facebook.com", 
-      // !bg-[#1877F2] -> Kesinlikle bu arka planı kullan
-      // !text-white -> Kesinlikle beyaz ikon kullan
       containerStyle: "!bg-[#1877F2] !border-[#1877F2] shadow-[0_0_30px_rgba(24,119,242,0.4)] hover:shadow-[0_0_50px_rgba(24,119,242,0.8)] hover:!bg-[#166fe5]",
       iconColor: "!text-white"
     },
@@ -53,6 +52,10 @@ export default function Layout({ children }) {
 
   return (
     <div className="min-h-screen bg-sand-light flex flex-col font-sans">
+      
+      {/* EKLENDİ: PWA Yükleme Butonu (Sadece yüklenebilir olduğunda görünür) */}
+      <InstallPrompt />
+
       {/* --- HEADER --- */}
       <header className="bg-turquoise-dark/95 backdrop-blur-md shadow-lg border-b border-gold/20 fixed w-full z-50 transition-all duration-300">
         <nav className="container mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
@@ -156,7 +159,6 @@ export default function Layout({ children }) {
                 Ehlibeyt mektebinin ilim ve hikmet pınarlarından süzülen hakikatleri, modern çağın idrakine sunan dijital bir külliye.
               </p>
               
-              {/* --- DEVASA & GARANTİLİ RENKLİ İKONLAR (IMPORTANT) --- */}
               <div className="flex flex-wrap items-center gap-6 pt-4">
                 {socialLinks.map((social, index) => (
                   <a
@@ -166,7 +168,7 @@ export default function Layout({ children }) {
                     rel="noopener noreferrer"
                     className={`
                         group relative flex items-center justify-center 
-                        !w-40 !h-40 rounded-3xl border-4  /* ! ile zorlandı */
+                        !w-40 !h-40 rounded-3xl border-4 
                         transition-all duration-500 ease-out 
                         hover:scale-110 hover:-translate-y-2
                         ${social.containerStyle}

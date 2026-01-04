@@ -1,123 +1,69 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Download, X } from 'lucide-react';
+import { Download, X } from 'lucide-react';
 
 export default function InstallPrompt() {
-  const [isVisible, setIsVisible] = useState(false);
-  const [promptType, setPromptType] = useState(null); // 'install' veya 'notification'
   const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // 1. Önce PWA Yükleme Kontrolü
-    const handleBeforeInstallPrompt = (e) => {
+    const handler = (e) => {
+      // 1. Varsayılan tarayıcı penceresini engelle
       e.preventDefault();
+      // 2. Olayı sakla (daha sonra tetiklemek için)
       setDeferredPrompt(e);
-      if (!localStorage.getItem('pwa_prompt_dismissed')) {
-        setPromptType('install');
-        // Sayfa tam yüklensin diye 2 saniye bekle
-        setTimeout(() => setIsVisible(true), 2000);
-      }
+      // 3. Kendi özel butonumuzu göster
+      setIsVisible(true);
     };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('beforeinstallprompt', handler);
 
-    // 2. Bildirim Kontrolü
-    const checkNotification = () => {
-      if (!deferredPrompt && Notification.permission === 'default' && !localStorage.getItem('notification_prompt_dismissed')) {
-        setPromptType('notification');
-        setTimeout(() => setIsVisible(true), 3000);
-      }
-    };
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
 
-    checkNotification();
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
 
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    };
-  }, [deferredPrompt]);
-
-  const handleAccept = async () => {
-    // ADIM 1: PENCEREYİ HEMEN KAPAT (Donmayı önler)
+    // --- KRİTİK DONMA ÖNLEYİCİ ---
+    // React'in bu butonu ekrandan kaldırması için ona zaman veriyoruz.
     setIsVisible(false);
+    
+    // UI render edilsin diye 300ms bekletiyoruz (Yielding)
+    await new Promise(resolve => setTimeout(resolve, 300));
 
-    // ADIM 2: GÜVENLİ GECİKME (500ms)
-    setTimeout(async () => {
-      try {
-        if (promptType === 'install' && deferredPrompt) {
-          await deferredPrompt.prompt();
-          const { outcome } = await deferredPrompt.userChoice;
-          if (outcome === 'accepted') {
-            localStorage.setItem('pwa_prompt_dismissed', 'true');
-          }
-          setDeferredPrompt(null);
-        } 
-        else if (promptType === 'notification') {
-          const permission = await Notification.requestPermission();
-          if (permission === 'granted') {
-            localStorage.setItem('notification_enabled', 'true');
-            new Notification("Hoş Geldiniz", {
-              body: "Sabah Virdiniz her sabah size ulaşacaktır.",
-              icon: "/icon-192x192.png" 
-            });
-          }
-          localStorage.setItem('notification_prompt_dismissed', 'true');
-        }
-      } catch (error) {
-        console.error("İşlem hatası (Önemsiz):", error);
-      }
-    }, 500); 
-  };
+    // Şimdi tarayıcının kendi penceresini açıyoruz
+    deferredPrompt.prompt();
 
-  const handleDismiss = () => {
-    setIsVisible(false);
-    if (promptType === 'install') {
-      localStorage.setItem('pwa_prompt_dismissed', 'true');
-    } else {
-      localStorage.setItem('notification_prompt_dismissed', 'true');
-    }
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`Kullanıcı tercihi: ${outcome}`);
+    
+    setDeferredPrompt(null);
   };
 
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-[#0B1120] border-2 border-[#C5A059] w-full max-w-sm rounded-2xl p-6 shadow-2xl relative">
-        
-        <button 
-          onClick={handleDismiss}
-          className="absolute top-3 right-3 text-slate-400 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors"
-        >
-          <X size={20} />
-        </button>
-
-        <div className="flex flex-col items-center text-center space-y-4">
-          <div className="p-4 bg-[#C5A059]/10 rounded-full border border-[#C5A059]/30 text-[#C5A059] shadow-[0_0_15px_rgba(197,160,89,0.2)]">
-            {promptType === 'install' ? <Download size={32} /> : <Bell size={32} />}
-          </div>
-
-          <h3 className="text-xl font-bold text-[#fdf6e3] font-serif">
-            {promptType === 'install' ? 'Uygulamayı Yükle' : 'Sabah Virdi'}
-          </h3>
-
-          <p className="text-slate-300 text-sm leading-relaxed">
-            {promptType === 'install' 
-              ? 'Daha hızlı erişim ve çevrimdışı kullanım için OnikiKapı\'yı ana ekranına ekle.' 
-              : 'Her sabah günün hikmeti ve manevi görevini bildirim olarak almak ister misin?'}
-          </p>
-
-          <div className="flex gap-3 w-full mt-2">
+    <div className="fixed bottom-4 left-4 z-50 animate-fade-in-up">
+      <div className="bg-turquoise-dark border border-gold/30 text-sand p-4 rounded-xl shadow-[0_0_20px_rgba(0,128,128,0.4)] flex items-center gap-4 max-w-sm backdrop-blur-md">
+        <div className="bg-white/10 p-2 rounded-full">
+          <Download className="text-gold animate-pulse" size={24} />
+        </div>
+        <div className="flex-1">
+          <h4 className="font-bold text-sm text-gold">Uygulamayı Yükle</h4>
+          <p className="text-xs text-slate-300">İnternetsiz erişim için ana ekrana ekle.</p>
+        </div>
+        <div className="flex items-center gap-2">
             <button 
-              onClick={handleDismiss}
-              className="flex-1 py-3 px-4 rounded-xl border border-slate-600 text-slate-300 font-bold text-sm hover:bg-white/5 transition-colors"
+              onClick={() => setIsVisible(false)}
+              className="p-1 hover:bg-white/10 rounded-full transition-colors"
             >
-              Daha Sonra
+              <X size={18} className="text-slate-400" />
             </button>
             <button 
-              onClick={handleAccept}
-              className="flex-1 py-3 px-4 rounded-xl bg-[#C5A059] text-[#0B1120] font-bold text-sm hover:bg-[#b08d48] transition-colors shadow-lg active:scale-95 transform"
+              onClick={handleInstallClick}
+              className="px-3 py-1.5 bg-gold text-turquoise-dark font-bold text-xs rounded-lg hover:bg-white hover:scale-105 transition-all shadow-lg"
             >
-              Evet, İsterim
+              Yükle
             </button>
-          </div>
         </div>
       </div>
     </div>

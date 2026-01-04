@@ -7,15 +7,13 @@ export default function PrayerTimesWidget() {
   const [countdown, setCountdown] = useState("");
   const [hijriDate, setHijriDate] = useState("");
   const [gregorianDate, setGregorianDate] = useState("");
-  const [statusColor, setStatusColor] = useState("text-[#E5C17C]"); // Varsayılan Altın
+  const [statusColor, setStatusColor] = useState("text-[#E5C17C]"); 
   const [statusBg, setStatusBg] = useState("bg-midnight");
   const [pulse, setPulse] = useState(false);
   
-  // Hicri Takvim Sapması (Backend Toggle Simülasyonu)
-  // Ayın görülmesine göre +1 veya -1 yapılabilir.
+  // Hicri Takvim Sapması (Ayın görülmesine göre ayarlanabilir)
   const HIJRI_OFFSET = 0; 
 
-  // Şehir Ayarı (İleride dinamik yapılabilir)
   const CITY = "Istanbul";
   const COUNTRY = "Turkey";
 
@@ -32,27 +30,55 @@ export default function PrayerTimesWidget() {
 
   const fetchPrayerTimes = async () => {
     try {
-      // 1. API CONFIGURATION (CRITICAL)
-      // method=0 (Shia Ithna-Ashari, Leva Institute, Qum)
+      // Method 0: Shia Ithna-Ashari (Leva Research Institute, Qum)
       const response = await fetch(
-        `https://api.aladhan.com/v1/timingsByCity?city=${CITY}&country=${COUNTRY}&method=0&school=0&adjustment=${HIJRI_OFFSET}`
+        `https://api.aladhan.com/v1/timingsByCity?city=${CITY}&country=${COUNTRY}&method=0&adjustment=${HIJRI_OFFSET}`
       );
       const data = await response.json();
       
       if (data.code === 200) {
         setPrayers(data.data.timings);
         
-        // Tarih Formatları
+        // Miladi Tarih
         const gDate = new Date();
         setGregorianDate(gDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }));
         
-        // Hicri Tarih (API'den ham hali)
-        const hData = data.data.date.hijri;
-        setHijriDate(`${hData.day} ${hData.month.en} ${hData.year}`);
+        // Hicri Tarih İşleme
+        updateHijriDisplay(data.data);
       }
     } catch (error) {
       console.error("Namaz vakitleri alınamadı:", error);
     }
+  };
+
+  const updateHijriDisplay = (data) => {
+    const hData = data.date.hijri;
+    const timings = data.timings;
+    
+    // Fıkhi Mantık: Akşam ezanı okunduğunda Hicri gün bir sonraki güne geçer.
+    const now = new Date();
+    const [mHours, mMinutes] = timings.Maghrib.split(':').map(Number);
+    const maghribTime = new Date();
+    maghribTime.setHours(mHours, mMinutes, 0);
+
+    let day = parseInt(hData.day);
+    let month = hData.month.tr || hData.month.en;
+    let year = hData.year;
+
+    if (now >= maghribTime) {
+      // Akşam geçtiyse günü 1 artır (Basit yaklaşım, API sonraki gün verisiyle desteklenebilir)
+      day += 1;
+      // Not: Ay sonu geçişleri için API'nin "tomorrow" verisi daha sağlıklıdır.
+    }
+
+    const monthNamesTr = {
+      "Muharram": "Muharrem", "Safar": "Safer", "Rabi' al-awwal": "Rebiülevvel",
+      "Rabi' ath-thani": "Rebiülahir", "Jumada al-ula": "Cemaziyelevvel",
+      "Jumada al-akhira": "Cemaziyelahir", "Rajab": "Recep", "Sha'ban": "Şaban",
+      "Ramadan": "Ramazan", "Shawwal": "Şevval", "Dhu al-Qi'dah": "Zilkade", "Dhu al-Hijjah": "Zilhicce"
+    };
+
+    setHijriDate(`${day} ${monthNamesTr[hData.month.en] || hData.month.en} ${year}`);
   };
 
   const calculateCountdown = () => {
@@ -60,7 +86,6 @@ export default function PrayerTimesWidget() {
 
     const now = new Date();
     const times = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
-    // API isimlerinin Türkçe karşılıkları
     const trNames = {
       'Fajr': 'Sabah', 'Sunrise': 'Güneş', 'Dhuhr': 'Öğle', 
       'Asr': 'İkindi', 'Maghrib': 'Akşam', 'Isha': 'Yatsı'
@@ -68,62 +93,42 @@ export default function PrayerTimesWidget() {
 
     let upcoming = null;
     let minDiff = Infinity;
-    let isMaghribPassed = false;
 
-    // Vakitleri Kontrol Et
     for (let timeName of times) {
       const timeStr = prayers[timeName];
       const [hours, minutes] = timeStr.split(':').map(Number);
-      
       const prayerTime = new Date();
       prayerTime.setHours(hours, minutes, 0);
 
       let diff = prayerTime - now;
-
-      // Eğer vakit geçmişse yarına bak (Sadece en yakın vakti bulmak için)
-      if (diff < 0) {
-        // Akşam namazı geçti mi kontrolü (Hicri gün değişimi için)
-        if (timeName === 'Maghrib') isMaghribPassed = true;
-        diff += 24 * 60 * 60 * 1000; 
-      }
+      if (diff < 0) diff += 24 * 60 * 60 * 1000; 
 
       if (diff < minDiff) {
         minDiff = diff;
-        upcoming = { name: trNames[timeName], rawName: timeName, diff };
+        upcoming = { name: trNames[timeName], diff };
       }
     }
 
-    // 2. HIJRI DATE LOGIC (Akşam'dan sonra gün değişimi)
-    // Eğer Akşam namazı girdiyse veya geçtiyse, Hicri günü manuel güncellemek gerekir.
-    // (Basit simülasyon: API zaten o günün verisini verir, görsel olarak metni değiştirebiliriz
-    // ancak tam doğruluk için API'nin 'next day' verisine bakmak gerekir. 
-    // Burada basitçe 'Akşamdan sonra Hicri gün döner' mantığını not düşüyoruz.)
-    
-    // Countdown Formatlama
-    const hoursLeft = Math.floor(minDiff / (1000 * 60 * 60));
-    const minutesLeft = Math.floor((minDiff % (1000 * 60 * 60)) / (1000 * 60));
-    const secondsLeft = Math.floor((minDiff % (1000 * 60)) / 1000);
+    const h = Math.floor(minDiff / (1000 * 60 * 60));
+    const m = Math.floor((minDiff % (1000 * 60 * 60)) / (1000 * 60));
+    const s = Math.floor((minDiff % (1000 * 60)) / 1000);
 
     setNextPrayer(upcoming.name);
-    setCountdown(`${hoursLeft > 0 ? hoursLeft + ' sa ' : ''}${minutesLeft} dk ${secondsLeft} sn`);
+    setCountdown(`${h > 0 ? h + 's ' : ''}${m}d ${s}s`);
 
-    // 3. VISUAL STATES (The "Reddening" Clock)
-    const totalMinutesLeft = (minDiff / 1000) / 60;
-
-    if (totalMinutesLeft <= 5) {
-      // STATE 3: ACTIVE/ADHAN TIME (Son 5 dk ve Ezan anı)
-      setStatusColor("text-[#ffcccc]"); // Açık pembe/beyaz
-      setStatusBg("bg-[#800000]"); // Maroon / Bordo
+    // GÖRSEL DURUM YÖNETİMİ
+    const totalMin = (minDiff / 1000) / 60;
+    if (totalMin <= 5) {
+      setStatusColor("text-white");
+      setStatusBg("bg-red-900"); 
       setPulse(true);
-    } else if (totalMinutesLeft <= 15) {
-      // STATE 2: APPROACHING (Son 15 dk)
+    } else if (totalMin <= 15) {
       setStatusColor("text-midnight");
-      setStatusBg("bg-[#FFA500]"); // Amber / Turuncu
+      setStatusBg("bg-amber-500");
       setPulse(false);
     } else {
-      // STATE 1: NORMAL
-      setStatusColor("text-[#E5C17C]"); // Gold
-      setStatusBg("bg-midnight/80"); // Koyu Lacivert
+      setStatusColor("text-[#E5C17C]");
+      setStatusBg("bg-turquoise-dark/90");
       setPulse(false);
     }
   };
@@ -131,44 +136,44 @@ export default function PrayerTimesWidget() {
   if (!prayers) return null;
 
   return (
-    <div className={`relative group rounded-2xl border border-gold/20 shadow-xl overflow-hidden transition-all duration-1000 ${statusBg} ${pulse ? 'animate-pulse' : ''}`}>
+    <div className={`relative overflow-hidden rounded-2xl border border-gold/30 shadow-2xl transition-all duration-700 ${statusBg} ${pulse ? 'animate-pulse' : ''}`}>
       
-      {/* 5. THEOLOGICAL SAFETY NET (Tooltip) */}
+      {/* İlim ve Fıkıh Bilgi Notu */}
       <div className="absolute top-2 right-2 z-20 group/info">
-        <Info size={16} className={`${statusBg === 'bg-[#FFA500]' ? 'text-midnight' : 'text-slate-400'} cursor-help`} />
-        <div className="absolute right-0 top-6 w-64 bg-black/95 text-slate-300 text-xs p-3 rounded-lg opacity-0 group-hover/info:opacity-100 transition-opacity pointer-events-none border border-gold/20 shadow-xl z-30">
-          <strong>Leva Enstitüsü (Qum) Hesabı:</strong><br/>
-          Namaz vakitleri Caferi fıkhına göre (Method 0) hesaplanmıştır. Akşam ve Yatsı vakitlerinde "Doğu Kızıllığının Kaybolması" esas alınır (Sünni vaktinden ~15 dk sonra). Temkin süreleri dahildir.
+        <Info size={14} className="text-gold/50 cursor-help hover:text-gold transition-colors" />
+        <div className="absolute right-0 top-6 w-56 bg-midnight/95 border border-gold/20 text-[10px] text-slate-300 p-3 rounded-lg opacity-0 group-hover/info:opacity-100 transition-opacity pointer-events-none z-50 shadow-2xl backdrop-blur-md">
+          <p className="font-bold text-gold mb-1 underline">Caferi Fıkhı (Leva Enstitüsü)</p>
+          Akşam vakti için "Doğu Kızıllığının Kaybolması" (Müşrik-i İstiva) esas alınmıştır. Bu vakit Sünni takviminden yaklaşık 15-20 dk sonradır.
         </div>
       </div>
 
-      <div className="p-6 flex flex-col items-center justify-center text-center space-y-3 relative z-10">
+      <div className="p-5 flex flex-col items-center gap-2">
         
-        {/* LINE 1: GREGORIAN DATE */}
-        <div className={`flex items-center gap-2 text-sm font-bold opacity-80 ${statusBg === 'bg-[#FFA500]' ? 'text-midnight' : 'text-sand'}`}>
-          <Calendar size={14} />
-          <span>{gregorianDate}</span>
+        {/* Tarih Şeridi */}
+        <div className="flex flex-col items-center gap-1">
+          <div className="flex items-center gap-2 text-[10px] font-bold text-sand/80 uppercase tracking-tighter">
+            <Calendar size={12} className="text-gold" />
+            <span>{gregorianDate}</span>
+          </div>
+          <div className="flex items-center gap-2 text-[11px] font-bold text-gold tracking-[0.1em] uppercase">
+            <Moon size={12} />
+            <span>{hijriDate}</span>
+          </div>
         </div>
 
-        {/* LINE 2: HIJRI DATE */}
-        <div className={`flex items-center gap-2 text-xs uppercase tracking-widest font-bold ${statusBg === 'bg-[#FFA500]' ? 'text-midnight/70' : 'text-turquoise-light'}`}>
-          <Moon size={12} />
-          <span>{hijriDate}</span>
-        </div>
-
-        {/* LINE 3: COUNTDOWN & PRAYER NAME */}
-        <div className="mt-2">
-          <p className={`text-xs uppercase font-bold mb-1 ${statusBg === 'bg-[#FFA500]' ? 'text-midnight' : 'text-slate-400'}`}>
-            {nextPrayer} Vaktine Kalan
+        {/* Sayaç Alanı */}
+        <div className="py-2 w-full bg-black/20 rounded-xl border border-white/5">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+             {nextPrayer} Vaktine
           </p>
-          <div className={`text-3xl md:text-4xl font-sans font-bold tabular-nums tracking-tight ${statusColor}`}>
+          <div className={`text-3xl font-sans font-black tabular-nums ${statusColor}`}>
             {countdown}
           </div>
         </div>
 
-        {/* Konum Göstergesi */}
-        <div className={`flex items-center gap-1 text-[10px] mt-2 opacity-50 ${statusBg === 'bg-[#FFA500]' ? 'text-midnight' : 'text-slate-400'}`}>
-          <MapPin size={10} />
+        {/* Konum */}
+        <div className="flex items-center gap-1 text-[9px] text-slate-400 font-medium italic">
+          <MapPin size={10} className="text-gold/50" />
           <span>{CITY}, {COUNTRY}</span>
         </div>
 

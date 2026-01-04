@@ -11,6 +11,7 @@ import MusicPlayer from './components/MusicPlayer';
 import InstallPrompt from './components/InstallPrompt'; 
 import Footer from './components/Footer'; 
 import ScrollToTop from './components/ScrollToTop';
+import ErrorBoundary from './components/ErrorBoundary'; // EKLENDİ
 
 // --- CONTEXT ---
 import { AppProvider, useAppContext } from './context/AppContext';
@@ -86,7 +87,6 @@ function AppContent() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // --- PAYLAŞIM FONKSİYONU ---
   const handleShare = async () => {
     const shareData = {
       title: 'OnikiKapı',
@@ -107,8 +107,6 @@ function AppContent() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-turquoise-dark to-turquoise text-sand flex flex-col font-serif relative">
-       
-       <ScrollToTop />
        
        <Helmet>
          <title>OnikiKapı | Adalet, İlim ve Hikmet Kapısı</title>
@@ -226,6 +224,7 @@ function AppContent() {
          <MusicPlayer />
        </div>
 
+       {/* PWA Yükleme Butonu (Bağımsız ve Donma Korumalı) */}
        <InstallPrompt />
 
        <Footer />
@@ -246,13 +245,16 @@ const MobileNavLink = ({ to, label, onClick }) => (
   </Link>
 );
 
-// MAIN EXPORT
+// --- MAIN EXPORT (KORUYUCU KATMANLAR) ---
 export default function App() {
   return (
     <AppProvider>
-      <Router>
-        <AppContent />
-      </Router>
+      <ErrorBoundary> {/* 1. Uygulama patlarsa kurtar */}
+        <Router>
+          <ScrollToTop /> {/* 2. Her sayfa değişiminde tepeye çıkar */}
+          <AppContent />  {/* 3. Gerçek uygulama içeriği */}
+        </Router>
+      </ErrorBoundary>
     </AppProvider>
   );
 }

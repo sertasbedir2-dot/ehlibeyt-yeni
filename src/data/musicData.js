@@ -1,9 +1,11 @@
-// src/data/musicData.js
+/**
+ * ONİKİKAPI - MUSİKİ KÜLLİYATI
+ * Kaynak: Archive.org (Dostum Muhammeddir Koleksiyonu)
+ */
 
 const BASE_URL = "https://archive.org/download/dostum-muhammeddir/";
 
-// Ham dosya listesinden otomatik oluşturulmuş temiz liste
-export const musicList = [
+const rawMusicList = [
   { title: "A Hazreti Shah", file: "A_Hazreti_Shah.mp3" },
   { title: "Alınmış Abdestim", file: "Alinmis_Abdestim.mp3" },
   { title: "Ali'ye de Selman", file: "Aliye_de_Selman.mp3" },
@@ -85,9 +87,14 @@ export const musicList = [
   { title: "Gördüm Düşümde", file: "gordum_dusumde.mp3" },
   { title: "Muhammed Ali'nin Eli Değil Mi", file: "muhammed_alinin_eli_degilmi.mp3" },
   { title: "Söylersen Muhammed", file: "soylersen_muhammed.mp3" }
-].map(track => ({
-  ...track,
-  url: BASE_URL + track.file, // Otomatik Link Oluşturma
+];
+
+export const musicList = rawMusicList.map((track, index) => ({
+  id: `music-track-${index}`,
+  title: track.title,
   artist: "Deyişler & Nefesler",
-  cover: "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?q=80&w=200&auto=format&fit=crop" // Ortak Kapak
+  // encodeURI kullanarak Türkçe karakterlerin URL içinde bozulmamasını sağlıyoruz
+  url: BASE_URL + encodeURI(track.file),
+  cover: "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?q=80&w=400&auto=format&fit=crop",
+  category: "Deyiş"
 }));
