@@ -10,7 +10,7 @@ import { globalSearchData } from './data/siteData';
 import MusicPlayer from './components/MusicPlayer'; 
 import Footer from './components/Footer'; 
 import ScrollToTop from './components/ScrollToTop';
-// import ErrorBoundary from './components/ErrorBoundary'; // <-- SİLİNDİ: Artık çağrılmıyor.
+import InstallPrompt from './components/InstallPrompt'; // <-- GERİ GELDİ
 
 // --- CONTEXT ---
 import { AppProvider, useAppContext } from './context/AppContext';
@@ -80,7 +80,6 @@ function SearchResults({ query, closeSearch }) {
   );
 }
 
-// Extracted App Logic Component
 function AppContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -106,19 +105,17 @@ function AppContent() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-turquoise-dark to-turquoise text-sand flex flex-col font-serif relative">
-       
        <Helmet>
          <title>OnikiKapı | Adalet, İlim ve Hikmet Kapısı</title>
          <meta name="description" content="Ehlibeyt mektebinin evrensel mesajını, ilim, hikmet ve adalet ekseninde sunan dijital külliye." />
        </Helmet>
-       
        <Toast />
 
+       {/* HEADER / NAVBAR */}
        <nav className="bg-turquoise-dark border-b border-gold/20 sticky top-0 z-50 shadow-xl backdrop-blur-md bg-opacity-95 transition-all">
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
            <div className="flex items-center justify-between h-20">
              
-             {/* LOGO */}
              <div className="flex-shrink-0 flex items-center gap-2 group cursor-pointer">
                <Link to="/" className="flex items-center gap-3 relative">
                  <div className="absolute inset-0 bg-gold/30 blur-xl rounded-full animate-pulse-slow group-hover:bg-gold/50 transition-all"></div>
@@ -133,7 +130,6 @@ function AppContent() {
                </Link>
              </div>
 
-             {/* DESKTOP MENU */}
              <div className="hidden md:flex items-center space-x-1">
                 <div className="flex items-baseline space-x-1 mr-4">
                  <NavLink to="/" label="Ana Sayfa" />
@@ -158,12 +154,10 @@ function AppContent() {
                </button>
              </div>
 
-             {/* MOBILE MENU BUTTONS */}
              <div className="-mr-2 flex items-center md:hidden gap-2">
                <button onClick={handleShare} className="bg-gold/10 p-2 rounded-full text-gold hover:bg-gold hover:text-turquoise-dark border border-gold/30 transition-colors">
                  <Share2 size={20} />
                </button>
-
                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="bg-turquoise p-2 rounded-md text-sand hover:text-white border border-gold/20">
                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
@@ -173,7 +167,6 @@ function AppContent() {
            </div>
          </div>
 
-         {/* SEARCH PANEL */}
          {isSearchOpen && (
            <div className="absolute top-full left-0 w-full bg-turquoise-dark border-b border-gold/20 p-6 shadow-2xl animate-fade-in z-40">
              <div className="max-w-3xl mx-auto flex items-center gap-4 border-b-2 border-gold/30 pb-2">
@@ -184,7 +177,6 @@ function AppContent() {
            </div>
          )}
 
-         {/* MOBILE MENU DROP-DOWN */}
          {isMenuOpen && (
            <div className="md:hidden bg-turquoise-dark border-t border-gold/20">
              <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
@@ -222,6 +214,9 @@ function AppContent() {
        <div className="fixed bottom-6 right-6 z-[100] scale-90 md:scale-100 origin-bottom-right">
          <MusicPlayer />
        </div>
+       
+       {/* Geri Geldi: Sadece Yükle butonu görünür, hata vermez */}
+       <InstallPrompt />
 
        <Footer />
 
@@ -241,16 +236,13 @@ const MobileNavLink = ({ to, label, onClick }) => (
   </Link>
 );
 
-// --- MAIN EXPORT (ENGEL KALDIRILDI) ---
 export default function App() {
   return (
     <AppProvider>
-      {/* SİLİNDİ: <ErrorBoundary> */}
         <Router>
           <ScrollToTop />
           <AppContent />
         </Router>
-      {/* SİLİNDİ: </ErrorBoundary> */}
     </AppProvider>
   );
 }
