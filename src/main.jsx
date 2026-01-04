@@ -4,39 +4,33 @@ import App from './App.jsx'
 import './index.css'     
 import './App.css'       
 import { HelmetProvider } from 'react-helmet-async';
-// ErrorBoundary importunu TAMAMEN SİLDİK. Artık o dosya kullanılmıyor.
+import { Analytics } from '@vercel/analytics/react'; // <-- YENİ EKLENDİ
 
 // --- ACİL DURUM KODU: HAFIZA SİLİCİ ---
-// Bu kod, uygulama her açıldığında telefonun hafızasındaki o 'takılı kalmış'
-// eski servis çalışanlarını (Service Worker) zorla siler.
+// Telefonlarda kalan eski sürümleri temizlemeye devam ediyoruz
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then((registrations) => {
     for (const registration of registrations) {
-      console.log('Eski servis siliniyor:', registration);
-      registration.unregister(); // Hepsini kayıttan düşür
+      registration.unregister(); 
     }
   });
 }
 
-// Tarayıcı önbelleğini de temizle
 if ('caches' in window) {
   caches.keys().then((names) => {
     names.forEach(name => caches.delete(name));
   });
 }
 
-// Versiyon bilgisini de sıfırla
 localStorage.removeItem('app_version');
-
 // ------------------------------------
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <HelmetProvider>
-      {/* Burada artık hiçbir engelleyici (ErrorBoundary) yok.
-         Uygulama doğrudan ana sayfayı (App) açacak.
-      */}
       <App />
+      {/* Vercel Analiz Aracı: Ziyaretçileri sayar */}
+      <Analytics /> 
     </HelmetProvider>
   </React.StrictMode>,
 )
