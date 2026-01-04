@@ -7,9 +7,8 @@ const timestamp = new Date().getTime();
 export default defineConfig({
   plugins: [
     react(),
-    // VitePWA eklentisi ile PWA yönetimini otomatize ediyoruz
     VitePWA({
-      registerType: 'autoUpdate', // Yeni sürüm gelince kullanıcıyı bekletmeden güncelle
+      registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
         name: 'OnikiKapı',
@@ -18,14 +17,16 @@ export default defineConfig({
         theme_color: '#008080',
         background_color: '#0f172a',
         display: 'standalone',
+        
+        // --- KRİTİK DÜZELTME: Dosya isimleri t.PNG görselindeki ile eşleşti ---
         icons: [
           {
-            src: 'pwa-192x192.png',
+            src: 'web-app-manifest-192x192.png', // Eski: pwa-192x192.png
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'web-app-manifest-512x512.png', // Eski: pwa-512x512.png
             sizes: '512x512',
             type: 'image/png'
           }
@@ -36,7 +37,6 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        // Cache-busting için sizin timestamp mantığınızı koruyoruz
         entryFileNames: `assets/[name].${timestamp}.js`,
         chunkFileNames: `assets/[name].${timestamp}.js`,
         assetFileNames: `assets/[name].${timestamp}.[ext]`
