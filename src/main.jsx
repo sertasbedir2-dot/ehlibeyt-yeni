@@ -1,60 +1,40 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
-import './index.css'     // Tailwind CSS
-import './App.css'       // Yapısal Stiller ve Kart Tasarımları
+import './index.css'     
+import './App.css'       
 import { HelmetProvider } from 'react-helmet-async';
-// import ErrorBoundary from './components/ErrorBoundary'; // <-- BU SATIRI YORUMA ALDIK (KAPATTIK)
+// ErrorBoundary importunu TAMAMEN SİLDİK. Artık o dosya kullanılmıyor.
 
-// --- 🔥 SÜRÜM KONTROL VE OTOMATİK TEMİZLİK SİSTEMİ 🔥 ---
-// Sürüm adını değiştirdik ki telefonlar yeni kodları kesin olarak alsın.
-const APP_VERSION = 'v2-rescue-mode'; 
-
-const checkVersionAndClearCache = () => {
-  try {
-    const storedVersion = localStorage.getItem('app_version');
-
-    // Eğer telefondaki sürüm bizim yeni sürümden farklıysa:
-    if (storedVersion !== APP_VERSION) {
-      console.log(`⚡ Yeni sürüm tespit edildi: ${APP_VERSION}. Temizlik başlıyor...`);
-      
-      // 1. Service Worker'ları (PWA hafızasını) sil
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then((registrations) => {
-          for (const registration of registrations) {
-            registration.unregister();
-          }
-        });
-      }
-
-      // 2. Tarayıcı önbelleğini (Cache Storage) tamamen sil
-      if ('caches' in window) {
-        caches.keys().then((names) => {
-          for (const name of names) {
-            caches.delete(name);
-          }
-        });
-      }
-
-      // 3. Yeni sürümü kaydet
-      localStorage.setItem('app_version', APP_VERSION);
-
-      // 4. Sayfayı sunucudan sıfırdan yükle
-      window.location.reload(true);
+// --- ACİL DURUM KODU: HAFIZA SİLİCİ ---
+// Bu kod, uygulama her açıldığında telefonun hafızasındaki o 'takılı kalmış'
+// eski servis çalışanlarını (Service Worker) zorla siler.
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    for (const registration of registrations) {
+      console.log('Eski servis siliniyor:', registration);
+      registration.unregister(); // Hepsini kayıttan düşür
     }
-  } catch (e) {
-    console.error("Önbellek temizleme hatası:", e);
-  }
-};
+  });
+}
 
-// Uygulama başlar başlamaz kontrolü yap
-checkVersionAndClearCache();
+// Tarayıcı önbelleğini de temizle
+if ('caches' in window) {
+  caches.keys().then((names) => {
+    names.forEach(name => caches.delete(name));
+  });
+}
+
+// Versiyon bilgisini de sıfırla
+localStorage.removeItem('app_version');
+
+// ------------------------------------
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <HelmetProvider>
-      {/* ErrorBoundary KALDIRILDI. 
-          Artık aradaki güvenlik görevlisi yok, kullanıcıyı direkt içeri alıyoruz.
+      {/* Burada artık hiçbir engelleyici (ErrorBoundary) yok.
+         Uygulama doğrudan ana sayfayı (App) açacak.
       */}
       <App />
     </HelmetProvider>
