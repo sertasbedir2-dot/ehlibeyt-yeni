@@ -8,10 +8,9 @@ import { globalSearchData } from './data/siteData';
 
 // --- COMPONENTS ---
 import MusicPlayer from './components/MusicPlayer'; 
-// InstallPrompt importunu buradan siliyoruz çünkü Layout.jsx içinde zaten var
 import Footer from './components/Footer'; 
 import ScrollToTop from './components/ScrollToTop';
-import ErrorBoundary from './components/ErrorBoundary';
+// import ErrorBoundary from './components/ErrorBoundary'; // <-- SİLİNDİ: Artık çağrılmıyor.
 
 // --- CONTEXT ---
 import { AppProvider, useAppContext } from './context/AppContext';
@@ -224,9 +223,6 @@ function AppContent() {
          <MusicPlayer />
        </div>
 
-       {/* SİLİNDİ: <InstallPrompt /> satırı burada yok artık. */}
-       {/* Çünkü Layout.jsx içinde zaten bir tane var. */}
-
        <Footer />
 
     </div>
@@ -245,16 +241,16 @@ const MobileNavLink = ({ to, label, onClick }) => (
   </Link>
 );
 
-// --- MAIN EXPORT (KORUYUCU KATMANLAR) ---
+// --- MAIN EXPORT (ENGEL KALDIRILDI) ---
 export default function App() {
   return (
     <AppProvider>
-      <ErrorBoundary>
+      {/* SİLİNDİ: <ErrorBoundary> */}
         <Router>
           <ScrollToTop />
           <AppContent />
         </Router>
-      </ErrorBoundary>
+      {/* SİLİNDİ: </ErrorBoundary> */}
     </AppProvider>
   );
 }

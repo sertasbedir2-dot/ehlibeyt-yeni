@@ -3,68 +3,71 @@ import { Download, X } from 'lucide-react';
 
 export default function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const [showInstallButton, setShowInstallButton] = useState(false);
 
   useEffect(() => {
-    const handler = (e) => {
-      // 1. Varsayılan tarayıcı penceresini engelle
+    // Sadece "Uygulamayı Yükle" olayını dinle
+    const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
-      // 2. Olayı sakla (daha sonra tetiklemek için)
       setDeferredPrompt(e);
-      // 3. Kendi özel butonumuzu göster
-      setIsVisible(true);
+      // Eğer uygulama zaten yüklü değilse butonu göster
+      if (!window.matchMedia('(display-mode: standalone)').matches) {
+        setShowInstallButton(true);
+      }
     };
 
-    window.addEventListener('beforeinstallprompt', handler);
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    return () => window.removeEventListener('beforeinstallprompt', handler);
+    // Eğer uygulama zaten yüklüyse butonu gizle
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setShowInstallButton(false);
+    }
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
   }, []);
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
-
-    // --- KRİTİK DONMA ÖNLEYİCİ ---
-    // React'in bu butonu ekrandan kaldırması için ona zaman veriyoruz.
-    setIsVisible(false);
-    
-    // UI render edilsin diye 300ms bekletiyoruz (Yielding)
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    // Şimdi tarayıcının kendi penceresini açıyoruz
     deferredPrompt.prompt();
-
     const { outcome } = await deferredPrompt.userChoice;
-    console.log(`Kullanıcı tercihi: ${outcome}`);
-    
-    setDeferredPrompt(null);
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+      setShowInstallButton(false);
+    }
   };
 
-  if (!isVisible) return null;
+  // Eğer yüklenecek bir durum yoksa hiçbir şey gösterme (Sıfır uyarı)
+  if (!showInstallButton) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 z-50 animate-fade-in-up">
-      <div className="bg-turquoise-dark border border-gold/30 text-sand p-4 rounded-xl shadow-[0_0_20px_rgba(0,128,128,0.4)] flex items-center gap-4 max-w-sm backdrop-blur-md">
-        <div className="bg-white/10 p-2 rounded-full">
-          <Download className="text-gold animate-pulse" size={24} />
+    <div className="fixed bottom-20 left-4 right-4 z-[9999] animate-fade-in md:bottom-6 md:left-auto md:right-6 md:w-auto">
+      <div className="bg-turquoise-dark border border-gold/30 p-4 rounded-xl shadow-2xl flex items-center gap-4 relative overflow-hidden group">
+        <div className="absolute inset-0 bg-gold/5 group-hover:bg-gold/10 transition-colors"></div>
+        
+        <button 
+          onClick={() => setShowInstallButton(false)} 
+          className="absolute top-2 right-2 text-slate-400 hover:text-white p-1"
+        >
+          <X size={16} />
+        </button>
+
+        <div className="bg-gold/20 p-3 rounded-full shrink-0">
+          <Download className="text-gold" size={24} />
         </div>
-        <div className="flex-1">
-          <h4 className="font-bold text-sm text-gold">Uygulamayı Yükle</h4>
-          <p className="text-xs text-slate-300">İnternetsiz erişim için ana ekrana ekle.</p>
+        
+        <div className="flex-1 pr-6">
+          <h4 className="text-sand font-bold text-sm">Uygulamayı Yükle</h4>
+          <p className="text-slate-400 text-xs mt-0.5">Daha hızlı erişim için ana ekrana ekle.</p>
         </div>
-        <div className="flex items-center gap-2">
-            <button 
-              onClick={() => setIsVisible(false)}
-              className="p-1 hover:bg-white/10 rounded-full transition-colors"
-            >
-              <X size={18} className="text-slate-400" />
-            </button>
-            <button 
-              onClick={handleInstallClick}
-              className="px-3 py-1.5 bg-gold text-turquoise-dark font-bold text-xs rounded-lg hover:bg-white hover:scale-105 transition-all shadow-lg"
-            >
-              Yükle
-            </button>
-        </div>
+
+        <button 
+          onClick={handleInstallClick}
+          className="bg-gold text-turquoise-dark px-4 py-2 rounded-lg font-bold text-sm hover:bg-white transition-colors shadow-lg"
+        >
+          Yükle
+        </button>
       </div>
     </div>
   );
