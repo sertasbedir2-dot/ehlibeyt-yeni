@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Search, ChevronRight, X, Play, BookOpen, Clock, Activity, AlertCircle, CheckCircle2, Heart, Sparkles } from 'lucide-react';
+import { Search, ChevronRight, X, Play, BookOpen, Clock, Activity, AlertCircle, CheckCircle2, Heart, Sparkles, Share2 } from 'lucide-react';
 import { categories, recipes, moods } from '../data/recetelerData';
 
 export default function ManeviReceteler() {
@@ -22,6 +22,44 @@ export default function ManeviReceteler() {
     setSearchQuery(""); 
   };
 
+  // --- YENİ EKLENEN PAYLAŞIM FONKSİYONU ---
+  const handleShare = async () => {
+    if (!selectedRecipe) return;
+
+    // Paylaşılacak metni özenle hazırlıyoruz
+    const shareText = `
+🌿 *${selectedRecipe.title}*
+"${selectedRecipe.diagnosis}"
+
+🤲 *Manevi İlaç:*
+${selectedRecipe.cure.arabic}
+(${selectedRecipe.cure.meaning})
+
+💡 *Hikmeti:* ${selectedRecipe.wisdom}
+📜 *Kaynak:* ${selectedRecipe.cure.source}
+
+📲 *OnikiKapı - İlim ve Hikmet Şehri uygulamasından keşfedin:*
+https://onikikapi.vercel.app/manevi-receteler
+    `.trim();
+
+    // Mobil paylaşım API'sini kullan
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `OnikiKapı: ${selectedRecipe.title}`,
+          text: shareText,
+          url: 'https://onikikapi.vercel.app/manevi-receteler'
+        });
+      } catch (err) {
+        console.log('Paylaşım iptal edildi');
+      }
+    } else {
+      // Bilgisayarda ise panoya kopyala
+      navigator.clipboard.writeText(shareText);
+      alert("Reçete kopyalandı! Dilediğiniz yerde yapıştırıp paylaşabilirsiniz.");
+    }
+  };
+
   return (
     <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 animate-fade-in text-sand">
       <Helmet>
@@ -29,8 +67,7 @@ export default function ManeviReceteler() {
         <meta name="description" content="Ehl-i Beyt kaynaklı manevi reçeteler, dualar ve Tıbb-ı Rıza tavsiyeleri." />
       </Helmet>
 
-      {/* HEADER, MOOD VE ARAMA KISIMLARI AYNI KALIYOR... */}
-      {/* ... (Bu kısımlarda değişiklik yok, sadece modal kısmını aşağıya yapıştırıyorum) ... */}
+      {/* --- BAŞLIK ALANI --- */}
       <div className="text-center max-w-3xl mx-auto mb-12">
         <div className="flex justify-center mb-4">
            <div className="p-4 bg-gold/10 rounded-full border border-gold/30 shadow-[0_0_15px_rgba(197,160,89,0.3)]">
@@ -43,6 +80,7 @@ export default function ManeviReceteler() {
         </p>
       </div>
 
+      {/* --- MOOD SEÇİCİ --- */}
       <div className="max-w-4xl mx-auto mb-12 bg-white/5 p-6 rounded-3xl border border-white/5 backdrop-blur-sm">
         <p className="text-center text-turquoise-light font-bold uppercase tracking-widest text-sm mb-6 flex items-center justify-center gap-2">
           <Sparkles size={16} /> Bugün Kendini Nasıl Hissediyorsun?
@@ -65,6 +103,7 @@ export default function ManeviReceteler() {
         </div>
       </div>
 
+      {/* --- KATEGORİLER --- */}
       <div className="max-w-6xl mx-auto mb-8 overflow-x-auto pb-4 custom-scrollbar">
         <div className="flex gap-3 min-w-max justify-center sm:justify-center">
           <button
@@ -90,6 +129,7 @@ export default function ManeviReceteler() {
         </div>
       </div>
 
+      {/* --- ARAMA --- */}
       <div className="max-w-md mx-auto mb-10 relative group">
         <div className="absolute inset-0 bg-gold/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         <Search className="absolute left-4 top-3.5 text-slate-400 group-hover:text-gold transition-colors" size={20} />
@@ -102,6 +142,7 @@ export default function ManeviReceteler() {
         />
       </div>
 
+      {/* --- LİSTE --- */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredRecipes.length > 0 ? (
           filteredRecipes.map((recipe) => (
@@ -142,7 +183,7 @@ export default function ManeviReceteler() {
         )}
       </div>
 
-      {/* --- DETAY MODALI (GÜNCELLENDİ: BÜYÜK FONT) --- */}
+      {/* --- DETAY VE PAYLAŞ MODALI --- */}
       {selectedRecipe && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in overflow-y-auto">
           <div className="bg-[#fdf6e3] w-full max-w-2xl rounded-2xl shadow-2xl relative my-8 font-serif border-4 border-[#C5A059] overflow-hidden flex flex-col max-h-[90vh]">
@@ -179,7 +220,6 @@ export default function ManeviReceteler() {
                   <BookOpen size={18} /> Manevi İlaç (Dua)
                 </h4>
                 
-                {/* ARAPÇA: Tamamen görünür ve büyük */}
                 <p className="text-3xl md:text-4xl text-black mb-8 font-serif leading-loose px-2 select-text text-center" dir="rtl" style={{fontFamily: 'Amiri, serif'}}>
                   {selectedRecipe.cure.arabic}
                 </p>
@@ -187,12 +227,10 @@ export default function ManeviReceteler() {
                 <div className="text-left space-y-5 bg-slate-50 p-6 rounded-xl border border-slate-200">
                   <div>
                     <span className="text-xs font-bold text-slate-500 uppercase block mb-2">Okunuş:</span>
-                    {/* OKUNUŞ: Büyütüldü (text-lg) */}
                     <p className="text-gray-900 italic text-lg leading-relaxed font-medium">{selectedRecipe.cure.transliteration}</p>
                   </div>
                   <div className="border-t border-slate-300 pt-4">
                     <span className="text-xs font-bold text-slate-500 uppercase block mb-2">Anlamı:</span>
-                    {/* ANLAM: Büyütüldü (text-lg) */}
                     <p className="text-black font-semibold text-lg leading-relaxed">{selectedRecipe.cure.meaning}</p>
                   </div>
                 </div>
@@ -224,6 +262,15 @@ export default function ManeviReceteler() {
                   </div>
                 </div>
               )}
+
+              {/* --- PAYLAŞ BUTONU --- */}
+              <button 
+                onClick={handleShare}
+                className="w-full bg-[#C5A059] text-[#0B1120] font-sans font-bold text-lg py-4 rounded-xl shadow-lg hover:bg-[#b08d48] hover:text-white transition-all active:scale-95 flex items-center justify-center gap-2"
+              >
+                <Share2 size={24} />
+                Bu Reçeteyi Paylaş
+              </button>
 
             </div>
 
