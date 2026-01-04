@@ -1,46 +1,52 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Sparkles, Facebook, Twitter, Instagram, Youtube, Mail, MapPin, Phone, Globe } from 'lucide-react';
+import { BookOpen, Sparkles, Facebook, Instagram, Youtube, Music, Mail, MapPin, Phone, Globe } from 'lucide-react';
 
 export default function Footer() {
+  // Sosyal Medya Linkleri (Güncellendi)
   const socialLinks = [
     { 
       name: "Facebook",
       icon: Facebook, 
-      href: "https://facebook.com", 
+      href: "https://www.facebook.com/share/1Bzqaux6JM/", 
       containerStyle: "!bg-[#1877F2] !border-[#1877F2] shadow-[0_0_30px_rgba(24,119,242,0.4)] hover:shadow-[0_0_50px_rgba(24,119,242,0.8)] hover:!bg-[#166fe5]",
-      iconColor: "!text-white"
-    },
-    { 
-      name: "Twitter",
-      icon: Twitter, 
-      href: "https://twitter.com", 
-      containerStyle: "!bg-[#1DA1F2] !border-[#1DA1F2] shadow-[0_0_30px_rgba(29,161,242,0.4)] hover:shadow-[0_0_50px_rgba(29,161,242,0.8)] hover:!bg-[#1a91da]",
       iconColor: "!text-white"
     },
     { 
       name: "Instagram",
       icon: Instagram, 
-      href: "https://instagram.com", 
+      href: "https://www.instagram.com/dunya_ehlibeyt_platformu/?__pwa=1#", 
       containerStyle: "!bg-[#E1306C] !border-[#E1306C] shadow-[0_0_30px_rgba(225,48,108,0.4)] hover:shadow-[0_0_50px_rgba(225,48,108,0.8)] hover:!bg-[#d62e65]",
+      iconColor: "!text-white"
+    },
+    { 
+      name: "TikTok",
+      icon: Music, // TikTok için Müzik ikonu kullanıyoruz
+      href: "https://www.tiktok.com/@dnya.ehlibeyt.pla?is_from_webapp=1&sender_device=pc", 
+      containerStyle: "!bg-[#000000] !border-[#000000] shadow-[0_0_30px_rgba(0,0,0,0.4)] hover:shadow-[0_0_50px_rgba(0,0,0,0.8)] hover:!bg-[#333333]",
       iconColor: "!text-white"
     },
     { 
       name: "Youtube",
       icon: Youtube, 
-      href: "https://youtube.com", 
+      href: "https://www.youtube.com/channel/UCLfgnjX44z95MrXzcywmm1A", 
       containerStyle: "!bg-[#FF0000] !border-[#FF0000] shadow-[0_0_30px_rgba(255,0,0,0.4)] hover:shadow-[0_0_50px_rgba(255,0,0,0.8)] hover:!bg-[#cc0000]",
       iconColor: "!text-white"
     }
   ];
 
+  // Keşfet Menüsü (Tüm Başlıklar Eklendi)
   const navigation = [
     { name: 'Ana Sayfa', href: '/' },
     { name: 'Manevi Reçeteler', href: '/manevi-receteler' },
     { name: 'Kütüphane', href: '/library' },
     { name: 'Soru/Cevap', href: '/soru-cevap' },
     { name: '14 Masum', href: '/14-masum' },
-    { name: 'Zikirmatik', href: '/zikir' },
+    { name: 'Tesbihat & Zikir', href: '/zikir' },
+    { name: 'İlim Köşesi', href: '/ilim' },
+    { name: 'Medya Merkezi', href: '/medya' },
+    { name: 'Bilgi Yarışması', href: '/quiz' },
+    { name: 'Heybem (Favoriler)', href: '/heybem' },
   ];
 
   return (
@@ -88,7 +94,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Hızlı Linkler */}
+          {/* Hızlı Linkler (Keşfet) */}
           <div className="pt-4">
             <h4 className="text-sand font-bold text-lg mb-6 flex items-center gap-2 uppercase tracking-widest">
               <Sparkles size={16} className="text-gold" /> Keşfet
