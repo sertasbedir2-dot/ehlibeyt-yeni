@@ -6,10 +6,6 @@ import './App.css'
 import { HelmetProvider } from 'react-helmet-async';
 import { Analytics } from '@vercel/analytics/react'; 
 
-// --- DÜZELTME: Service Worker SİLİCİ kodları kaldırdık ---
-// Artık tarayıcı, uygulamanın arka plan servislerini (PWA) yükleyebilir.
-// Böylece "Uygulamayı Yükle" butonu tekrar çalışır hale gelecek.
-
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <HelmetProvider>
@@ -18,3 +14,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </HelmetProvider>
   </React.StrictMode>,
 )
+
+
+

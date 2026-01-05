@@ -2,77 +2,23 @@
 <html lang="tr" class="dark">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    
     <link rel="manifest" href="/manifest.webmanifest">
-    
     <link rel="shortcut icon" href="/favicon.ico">
     
     <meta name="msapplication-TileColor" content="#008080">
     <meta name="theme-color" content="#008080">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="OnikiKapı">
-    <meta name="mobile-web-app-capable" content="yes">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    
     <title>OnikiKapı</title>
-
-    <script>
-      (async function() {
-        const CHECK_URL = '/version.json?t=' + new Date().getTime();
-        try {
-          const response = await fetch(CHECK_URL);
-          if (!response.ok) return; 
-          
-          const data = await response.json();
-          const serverVersion = data.version;
-          const localVersion = localStorage.getItem('onikikapi_version');
-
-          if (localVersion && serverVersion !== localVersion) {
-            console.warn('⚡ Yeni Sürüm Tespit Edildi (' + serverVersion + '). Önbellek temizleniyor...');
-            
-            if ('serviceWorker' in navigator) {
-              const registrations = await navigator.serviceWorker.getRegistrations();
-              for (const registration of registrations) {
-                await registration.unregister();
-              }
-            }
-
-            if ('caches' in window) {
-              const keys = await caches.keys();
-              await Promise.all(keys.map(key => caches.delete(key)));
-            }
-
-            localStorage.setItem('onikikapi_version', serverVersion);
-            window.location.reload(true);
-          } else {
-            localStorage.setItem('onikikapi_version', serverVersion);
-          }
-        } catch (e) {
-          console.error('Versiyon kontrolü atlandı:', e);
-        }
-      })();
-    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-              console.log('SW Kaydedildi:', registration.scope);
-            })
-            .catch(error => {
-              console.error('SW Kayıt Hatası:', error);
-            });
-        });
-      }
-    </script>
   </body>
 </html>
+
+

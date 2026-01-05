@@ -2,8 +2,6 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-const timestamp = new Date().getTime();
-
 export default defineConfig({
   plugins: [
     react(),
@@ -11,7 +9,6 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       
-      // Sessiz güncelleme ayarları (Önceki ayarlarınız korunuyor)
       workbox: {
         cleanupOutdatedCaches: true,
         clientsClaim: true,
@@ -26,8 +23,6 @@ export default defineConfig({
         theme_color: '#008080',
         background_color: '#0f172a',
         display: 'standalone',
-        
-        // --- YENİ EKLENEN SATIR: YATAY/DİKEY DÖNDÜRMEYİ SERBEST BIRAK ---
         orientation: 'any', 
         
         icons: [
@@ -44,14 +39,6 @@ export default defineConfig({
         ]
       }
     })
-  ],
-  build: {
-    rollupOptions: {
-      output: {
-        entryFileNames: `assets/[name].${timestamp}.js`,
-        chunkFileNames: `assets/[name].${timestamp}.js`,
-        assetFileNames: `assets/[name].${timestamp}.[ext]`
-      }
-    }
-  }
+  ]
 })
+
