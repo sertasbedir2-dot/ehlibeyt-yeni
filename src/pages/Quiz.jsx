@@ -103,7 +103,6 @@ export default function Quiz() {
     const allOptions = [0, 1, 2, 3];
     const wrongOptions = allOptions.filter(i => i !== correctIndex);
     
-    // Rastgele 2 yanlış şıkkı seç ve ele
     const shuffledWrong = wrongOptions.sort(() => 0.5 - Math.random());
     const toEliminate = shuffledWrong.slice(0, 2);
     
@@ -122,15 +121,13 @@ export default function Quiz() {
     setIsSharing(true);
     if (resultCardRef.current) {
       try {
-        // Mobilde aşırı yüksek çözünürlük bellek sorununa (crash) neden olabilir.
-        // Bu yüzden mobil cihazlarda scale oranını düşürüyoruz.
+        // Mobilde aşırı yüksek çözünürlük çökmeye neden olabilir, scale ayarı
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         
         const canvas = await html2canvas(resultCardRef.current, {
             backgroundColor: "#0f172a", 
-            scale: isMobile ? 1.5 : 2, // Mobilde 1.5x, Masaüstünde 2x kalite
-            useCORS: true, // Dış kaynaklı görsellerin yüklenmesini bekle
-            logging: false
+            scale: isMobile ? 1.5 : 2, // Mobilde performansı koru
+            useCORS: true // Resimlerin yüklenmesini bekle
         });
         
         const image = canvas.toDataURL("image/png");
@@ -138,7 +135,6 @@ export default function Quiz() {
         if (navigator.share) {
             const blob = await (await fetch(image)).blob();
             const file = new File([blob], "onikikapi-skor.png", { type: "image/png" });
-            
             await navigator.share({
                 title: 'OnikiKapı Bilgi Yarışması',
                 text: `Ehlibeyt bilgi yarışmasında ${Math.floor(score)} puan aldım! Sen de dene:`,
@@ -146,7 +142,6 @@ export default function Quiz() {
                 url: 'https://www.onikikapi.com/'
             });
         } else {
-            // Masaüstü için indirme linki oluştur
             const link = document.createElement('a');
             link.href = image;
             link.download = 'onikikapi-skor.png';
@@ -194,8 +189,8 @@ export default function Quiz() {
 
       {/* --- OYUN EKRANI (PLAYING) --- */}
       {gameState === 'playing' && (
-        <div className="w-full max-w-2xl p-6 md:p-8">
-          {/* Üst Bilgi Barı */}
+        <div className="p-6 md:p-8 w-full max-w-2xl">
+          {/* Üst Bar */}
           <div className="flex justify-between items-center mb-6 bg-slate-800/50 p-3 rounded-2xl border border-white/5">
               <div className="flex items-center gap-1 text-red-500">
                   {[...Array(lives)].map((_, i) => <Heart key={i} size={24} fill="currentColor" />)}
@@ -212,12 +207,12 @@ export default function Quiz() {
              <div className="h-full bg-amber-500 transition-all duration-500 ease-out" style={{ width: `${progressPercent}%` }}></div>
           </div>
 
-          {/* Soru Metni */}
+          {/* Soru */}
           <h2 className="text-xl md:text-2xl font-bold text-slate-100 mb-8 font-sans leading-relaxed min-h-[80px]">
             {currentQ.question}
           </h2>
 
-          {/* İpucu Alanı */}
+          {/* İpucu */}
           {showHint && (
               <div className="mb-6 p-4 bg-blue-900/30 border-l-4 border-blue-400 text-blue-200 text-sm rounded-r-lg animate-fade-in flex gap-3 items-start">
                   <HelpCircle className="shrink-0 mt-0.5" size={18} />
@@ -283,7 +278,7 @@ export default function Quiz() {
 
       {/* --- SONUÇ EKRANI (FINISHED) --- */}
       {gameState === 'finished' && (
-        <div className="p-12 text-center space-y-6 animate-fade-in max-w-md w-full">
+        <div className="p-12 text-center space-y-6 animate-fade-in max-w-md w-full relative z-20">
            <div className="w-32 h-32 mx-auto relative">
               <div className="absolute inset-0 bg-amber-500/20 rounded-full animate-ping"></div>
               <div className="relative bg-slate-900 border-4 border-amber-500 rounded-full w-full h-full flex items-center justify-center">
@@ -308,11 +303,10 @@ export default function Quiz() {
                </button>
            </div>
 
-           {/* --- GİZLİ PAYLAŞIM KARTI (Kullanıcı Görmez, Sadece Resim İçin Üretilir) --- */}
-           {/* Not: display:none kullanılamaz, html2canvas render etmez. Görünmez yapmak için absolute ve opacity kullanılır. */}
+           {/* --- GİZLİ PAYLAŞIM KARTI (Kullanıcı Görmez) --- */}
            <div style={{ position: 'absolute', top: 0, left: 0, zIndex: -50, opacity: 0, pointerEvents: 'none' }}>
                <div ref={resultCardRef} className="w-[600px] h-[800px] bg-[#0f172a] p-10 flex flex-col items-center justify-between border-8 border-amber-500/30 relative overflow-hidden">
-                   {/* Arkaplan Deseni */}
+                   {/* Arkaplan Efekti */}
                    <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
                    <div className="absolute top-[-100px] left-[-100px] w-80 h-80 bg-amber-500/20 rounded-full blur-[100px]"></div>
                    
