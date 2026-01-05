@@ -10,7 +10,7 @@ import { QRCodeSVG } from 'qrcode.react';
 
 export default function Quiz() {
   // --- OYUN STATE'LERİ ---
-  const [gameState, setGameState] = useState('intro'); // 'intro', 'playing', 'finished'
+  const [gameState, setGameState] = useState('intro');
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
@@ -21,12 +21,12 @@ export default function Quiz() {
   const [selectedOption, setSelectedOption] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [jokers, setJokers] = useState({ fifty: true, hint: true });
-  const [eliminatedOptions, setEliminatedOptions] = useState([]); // %50 jokeri için
+  const [eliminatedOptions, setEliminatedOptions] = useState([]);
   const [showHint, setShowHint] = useState(false);
   
   // --- PAYLAŞIM STATE'LERİ ---
-  const [isSharing, setIsSharing] = useState(false); 
-  const resultCardRef = useRef(null); // Paylaşılacak kartın referansı
+  const [isSharing, setIsSharing] = useState(false);
+  const resultCardRef = useRef(null);
 
   // --- ZAMANLAYICI MOTORU ---
   useEffect(() => {
@@ -63,17 +63,15 @@ export default function Quiz() {
     setIsAnswered(true);
     setSelectedOption(index);
     
-    // Veri güvenliği kontrolü
+    // Veri kontrolü (Mobil çökmesini önler)
     if (!quizQuestions || !quizQuestions[currentQIndex]) return;
 
     const correctIndex = quizQuestions[currentQIndex].correct;
     
     if (index === correctIndex) {
-      // DOĞRU
       setScore(score + (10 * (1 + streak * 0.1)));
       setStreak(streak + 1);
     } else {
-      // YANLIŞ
       handleWrongAnswer();
     }
   };
@@ -119,19 +117,24 @@ export default function Quiz() {
     setJokers({ ...jokers, hint: false });
   };
 
-  // --- PAYLAŞIM MOTORU (SHARE ENGINE) ---
+  // --- PAYLAŞIM MOTORU (MOBİL OPTİMİZE) ---
   const handleShare = async () => {
     setIsSharing(true);
     if (resultCardRef.current) {
       try {
-        // 1. Kartı Resme Çevir
+        // Mobilde aşırı yüksek çözünürlük bellek sorununa (crash) neden olabilir.
+        // Bu yüzden mobil cihazlarda scale oranını düşürüyoruz.
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        
         const canvas = await html2canvas(resultCardRef.current, {
-          backgroundColor: "#0f172a", // Koyu tema arka planı
-          scale: 2 // Yüksek kalite için scale artırıldı
+            backgroundColor: "#0f172a", 
+            scale: isMobile ? 1.5 : 2, // Mobilde 1.5x, Masaüstünde 2x kalite
+            useCORS: true, // Dış kaynaklı görsellerin yüklenmesini bekle
+            logging: false
         });
+        
         const image = canvas.toDataURL("image/png");
 
-        // 2. Paylaşım API'si (Mobil Cihazlar için)
         if (navigator.share) {
             const blob = await (await fetch(image)).blob();
             const file = new File([blob], "onikikapi-skor.png", { type: "image/png" });
@@ -143,7 +146,7 @@ export default function Quiz() {
                 url: 'https://www.onikikapi.com/'
             });
         } else {
-            // 3. Masaüstü için İndirme (Fallback)
+            // Masaüstü için indirme linki oluştur
             const link = document.createElement('a');
             link.href = image;
             link.download = 'onikikapi-skor.png';
@@ -151,6 +154,7 @@ export default function Quiz() {
         }
       } catch (error) {
         console.error("Paylaşım hatası:", error);
+        alert("Paylaşım sırasında bir hata oluştu. Lütfen tekrar deneyin.");
       }
     }
     setIsSharing(false);
@@ -158,9 +162,10 @@ export default function Quiz() {
 
   // --- RENDER HAZIRLIK ---
   const currentQ = quizQuestions[currentQIndex];
-  // Veri yüklenmediyse hata vermesini engelle
+
+  // Veri yüklenmediyse güvenli çıkış
   if (!currentQ && gameState === 'playing') return <div className="text-white text-center p-10">Soru Yükleniyor...</div>;
-  
+
   const progressPercent = ((currentQIndex) / quizQuestions.length) * 100;
 
   return (
@@ -169,7 +174,7 @@ export default function Quiz() {
         <title>Bilgi Yarışması | OnikiKapı</title>
       </Helmet>
 
-      {/* --- OYUN GİRİŞİ (INTRO) --- */}
+      {/* --- GİRİŞ EKRANI (INTRO) --- */}
       {gameState === 'intro' && (
         <div className="p-12 text-center space-y-6">
           <div className="w-24 h-24 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto animate-pulse border-2 border-amber-500/30">
@@ -190,7 +195,7 @@ export default function Quiz() {
       {/* --- OYUN EKRANI (PLAYING) --- */}
       {gameState === 'playing' && (
         <div className="w-full max-w-2xl p-6 md:p-8">
-          {/* Üst Bar */}
+          {/* Üst Bilgi Barı */}
           <div className="flex justify-between items-center mb-6 bg-slate-800/50 p-3 rounded-2xl border border-white/5">
               <div className="flex items-center gap-1 text-red-500">
                   {[...Array(lives)].map((_, i) => <Heart key={i} size={24} fill="currentColor" />)}
@@ -207,12 +212,12 @@ export default function Quiz() {
              <div className="h-full bg-amber-500 transition-all duration-500 ease-out" style={{ width: `${progressPercent}%` }}></div>
           </div>
 
-          {/* Soru */}
+          {/* Soru Metni */}
           <h2 className="text-xl md:text-2xl font-bold text-slate-100 mb-8 font-sans leading-relaxed min-h-[80px]">
             {currentQ.question}
           </h2>
 
-          {/* İpucu */}
+          {/* İpucu Alanı */}
           {showHint && (
               <div className="mb-6 p-4 bg-blue-900/30 border-l-4 border-blue-400 text-blue-200 text-sm rounded-r-lg animate-fade-in flex gap-3 items-start">
                   <HelpCircle className="shrink-0 mt-0.5" size={18} />
@@ -303,8 +308,9 @@ export default function Quiz() {
                </button>
            </div>
 
-           {/* --- GİZLİ PAYLAŞIM KARTI (Kullanıcı Görmez, Sadece Resim İçin Oluşturulur) --- */}
-           <div className="fixed left-[-9999px] top-0">
+           {/* --- GİZLİ PAYLAŞIM KARTI (Kullanıcı Görmez, Sadece Resim İçin Üretilir) --- */}
+           {/* Not: display:none kullanılamaz, html2canvas render etmez. Görünmez yapmak için absolute ve opacity kullanılır. */}
+           <div style={{ position: 'absolute', top: 0, left: 0, zIndex: -50, opacity: 0, pointerEvents: 'none' }}>
                <div ref={resultCardRef} className="w-[600px] h-[800px] bg-[#0f172a] p-10 flex flex-col items-center justify-between border-8 border-amber-500/30 relative overflow-hidden">
                    {/* Arkaplan Deseni */}
                    <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
@@ -329,7 +335,6 @@ export default function Quiz() {
                    {/* Footer & QR */}
                    <div className="flex items-center gap-6 z-10 bg-black/30 p-6 rounded-2xl border border-white/5 w-full">
                        <div className="bg-white p-2 rounded-lg">
-                           {/* QR KODU */}
                            <QRCodeSVG value="https://www.onikikapi.com/" size={100} />
                        </div>
                        <div className="text-left">
