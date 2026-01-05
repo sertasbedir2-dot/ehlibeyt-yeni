@@ -2,20 +2,11 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { RotateCcw, Volume2, VolumeX, Sparkles, Search, Calendar, Moon, Sun, Heart } from 'lucide-react';
 
-// --- 1. VERİ SETLERİ (DATA) ---
-const MOCK_ESMALAR = [
-  { id: 1, transliteration: "Ya Allah", arabic: "يا الله", meaning_tr: "Her şeyin yaratıcısı", spiritual_benefit: "İman kuvveti", abjad_value: 66 },
-  { id: 2, transliteration: "Ya Rahman", arabic: "يا رحمن", meaning_tr: "Dünyada her varlığa merhamet eden", spiritual_benefit: "Kalp yumuşaklığı", abjad_value: 298 },
-  { id: 3, transliteration: "Ya Rahim", arabic: "يا رحيم", meaning_tr: "Ahirette müminlere merhamet eden", spiritual_benefit: "Maddi manevi rızık", abjad_value: 258 },
-  { id: 4, transliteration: "Ya Melik", arabic: "يا ملك", meaning_tr: "Mülkün gerçek sahibi", spiritual_benefit: "Emir ve yetki", abjad_value: 90 },
-  { id: 5, transliteration: "Ya Kuddüs", arabic: "يا قدوس", meaning_tr: "Her türlü eksiklikten münezzeh", spiritual_benefit: "Ruh temizliği", abjad_value: 170 },
-  { id: 6, transliteration: "Ya Selam", arabic: "يا سلام", meaning_tr: "Esenlik veren", spiritual_benefit: "Korkudan emin olma", abjad_value: 131 },
-  { id: 7, transliteration: "Ya Mümin", arabic: "يا مؤمن", meaning_tr: "Güven veren, emin kılan", spiritual_benefit: "Güvende hissetme", abjad_value: 137 },
-  { id: 8, transliteration: "Ya Müheymin", arabic: "يا مهيمن", meaning_tr: "Gözetip koruyan", spiritual_benefit: "Korunma", abjad_value: 145 },
-  { id: 9, transliteration: "Ya Aziz", arabic: "يا عزيز", meaning_tr: "İzzet sahibi, her şeye galip", spiritual_benefit: "İzzet ve şeref", abjad_value: 94 },
-  { id: 10, transliteration: "Ya Cebbar", arabic: "يا جبار", meaning_tr: "Azamet ve kudret sahibi", spiritual_benefit: "İsteklerin kabulü", abjad_value: 206 }
-];
+// DİKKAT: Gerçek veri dosyasını buradan çekiyoruz
+// Bu dosyanın projenizde '../data/esmalar' yolunda olduğundan emin olun.
+import { esmaUlHusnaData } from '../data/esmalar';
 
+// --- SABİT VERİLER (NAVİGASYON VE NAMAZ İÇİN) ---
 const WEEKLY_ZIKIRS = [
   { id: "w-0", day: "Pazar", text: "Ya Ze'l-Celâli ve'l-İkrâm", arabic: "یا ذَالجَلالِ وَ اْلاِکْرام", target: 100, type: 'weekly' },
   { id: "w-1", day: "Pazartesi", text: "Ya Kâziye'l-Hâcât", arabic: "یا قاضیَ الحاجات", target: 100, type: 'weekly' },
@@ -40,12 +31,9 @@ const ZEHRA_STEPS = [
   { label: "Subhanallah", target: 33, arabic: "سُبْحَانَ ٱللَّٰهِ" }
 ];
 
-// --- 2. ANA BİLEŞEN (COMPONENT) ---
 export default function Zikir() {
-  // State Tanımları
   const [activeTab, setActiveTab] = useState('namaz');
   const [activeZikir, setActiveZikir] = useState(() => {
-    // SSR hatasını önlemek için window kontrolü
     const todayIndex = typeof window !== 'undefined' ? new Date().getDay() : 0;
     return WEEKLY_ZIKIRS.find(z => z.id === `w-${todayIndex}`) || STANDARD_ZIKIRS[0];
   });
@@ -55,12 +43,15 @@ export default function Zikir() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [esmaSearch, setEsmaSearch] = useState("");
   
-  // Ses Motoru
+  // Ses Motoru Ref
   const audioRef = useRef(null);
 
   useEffect(() => {
-    audioRef.current = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
-    audioRef.current.volume = 0.3;
+    // Ses dosyasını sadece bir kez oluştur
+    if (typeof window !== 'undefined') {
+      audioRef.current = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
+      audioRef.current.volume = 0.3;
+    }
     return () => {
       if(audioRef.current) {
         audioRef.current.pause();
@@ -69,7 +60,6 @@ export default function Zikir() {
     };
   }, []);
 
-  // Hesaplamalar
   const currentProgress = progressMap[activeZikir.id] || { count: 0, stage: 0, isComplete: false };
   const currentCount = currentProgress.count;
   const currentStage = currentProgress.stage;
@@ -88,7 +78,6 @@ export default function Zikir() {
 
   const displayInfo = getCurrentDisplayInfo();
 
-  // Olay İşleyiciler (Handlers)
   const playClickSound = () => {
     if (isSoundOn && audioRef.current) {
       audioRef.current.currentTime = 0;
@@ -109,7 +98,6 @@ export default function Zikir() {
     const nextCount = currentCount + 1;
     const target = displayInfo.target;
 
-    // Serbest Mod
     if (activeZikir.type === 'free') {
       updateProgress(activeZikir.id, { count: nextCount, stage: 0, isComplete: false });
       return;
@@ -117,21 +105,17 @@ export default function Zikir() {
 
     if (nextCount > target) return;
 
-    // Hedefe Ulaşma Kontrolü
     if (nextCount === target) {
       if (activeZikir.type === 'zehra') {
         if (currentStage < 2) {
-          // Zehra tesbihatında bir sonraki aşamaya geçiş
           setTimeout(() => {
             updateProgress(activeZikir.id, { count: 0, stage: currentStage + 1, isComplete: false });
           }, 250);
         } else {
-          // Zehra tesbihatı bitişi
           setShowSuccess(true);
           updateProgress(activeZikir.id, { count: target, stage: currentStage, isComplete: true });
         }
       } else {
-        // Normal zikir bitişi
         setShowSuccess(true);
         updateProgress(activeZikir.id, { count: nextCount, stage: 0, isComplete: true });
       }
@@ -151,15 +135,18 @@ export default function Zikir() {
     if(typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // --- KRİTİK BÖLÜM: GERÇEK VERİYİ FİLTRELEME ---
   const filteredEsmalar = useMemo(() => {
-    return MOCK_ESMALAR.filter(esma =>
+    // Eğer esmaUlHusnaData yüklenemezse boş array döner (Hata önleyici)
+    if (!esmaUlHusnaData) return [];
+    
+    return esmaUlHusnaData.filter(esma =>
       esma.transliteration.toLowerCase().includes(esmaSearch.toLowerCase()) ||
       esma.meaning_tr.toLowerCase().includes(esmaSearch.toLowerCase()) ||
       esma.spiritual_benefit.toLowerCase().includes(esmaSearch.toLowerCase())
     );
   }, [esmaSearch]);
 
-  // Görsel Hesaplamalar (Dairesel Progress)
   const radius = 120;
   const circumference = 2 * Math.PI * radius;
   const safeTarget = displayInfo.target || 1;
@@ -172,7 +159,7 @@ export default function Zikir() {
         <title>Tesbihat & Zikir | OnikiKapı</title>
       </Helmet>
 
-      {/* --- BÖLÜM 1: AKTİF ZİKİR KARTI --- */}
+      {/* --- BÖLÜM 1: AKTİF ZİKİR KARTI (GÖRSEL SAYAÇ) --- */}
       <div className="relative group mb-6">
         <div className="absolute -inset-4 bg-yellow-500/5 rounded-full blur-xl group-hover:bg-yellow-500/10 transition-all duration-500"></div>
         <div className="relative w-72 h-72 bg-[#162e45] rounded-full shadow-2xl border-4 border-yellow-500/10 flex items-center justify-center overflow-hidden">
@@ -201,14 +188,15 @@ export default function Zikir() {
         )}
       </div>
 
-      <div className="flex gap-4 mb-8">
+      {/* Kontrol Butonları */}
+      <div className="flex gap-4 mb-6">
         <button onClick={handleReset} className="p-3 rounded-full bg-[#1e293b] border border-white/10 text-slate-400 hover:text-white hover:border-red-500/50 hover:bg-red-500/10 transition-all"><RotateCcw size={20} /></button>
         <button onClick={() => setIsSoundOn(!isSoundOn)} className={`p-3 rounded-full border transition-all ${isSoundOn ? 'bg-yellow-500/10 border-yellow-500 text-yellow-500' : 'bg-[#1e293b] border-white/10 text-slate-400'}`}>{isSoundOn ? <Volume2 size={20} /> : <VolumeX size={20} />}</button>
       </div>
 
       {/* --- BÖLÜM 2: SEKMELİ SEÇİM ALANI --- */}
       <div className="w-full min-h-[300px]">
-          {/* TAB MENÜSÜ - EKSİK OLAN KISIM EKLENDİ */}
+          {/* TAB MENÜSÜ (Eksik olan kısım tamamlandı) */}
           <div className="flex p-1 bg-[#1e293b] rounded-xl mb-4 border border-white/5">
               {['namaz', 'gunluk', 'esma'].map((tab) => (
                   <button
@@ -225,7 +213,6 @@ export default function Zikir() {
               ))}
           </div>
 
-          {/* NAMAZ TAB */}
           {activeTab === 'namaz' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 animate-fade-in">
                   {STANDARD_ZIKIRS.map((zikir) => (
@@ -237,7 +224,6 @@ export default function Zikir() {
               </div>
           )}
 
-          {/* GÜNLÜK TAB */}
           {activeTab === 'gunluk' && (
               <div className="space-y-3 animate-fade-in">
                   <div className="bg-blue-900/20 border border-blue-500/20 p-4 rounded-xl flex items-center gap-3 mb-4">
@@ -257,7 +243,6 @@ export default function Zikir() {
               </div>
           )}
 
-          {/* ESMALAR TAB */}
           {activeTab === 'esma' && (
               <div className="animate-fade-in">
                   <div className="relative mb-4">
@@ -265,6 +250,7 @@ export default function Zikir() {
                     <input type="text" placeholder="Esma ara..." className="w-full bg-[#1e293b] border border-yellow-500/20 rounded-xl py-2 pl-10 pr-4 text-[#eecda3] placeholder-slate-500 focus:outline-none focus:border-yellow-500/50 text-sm focus:ring-1 focus:ring-yellow-500" value={esmaSearch} onChange={(e) => setEsmaSearch(e.target.value)}/>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                      {/* DİKKAT: Burada artık gerçek filteredEsmalar dönüyor */}
                       {filteredEsmalar.map((esma) => (
                           <button key={esma.id} onClick={() => handleSelectZikir({ ...esma, type: 'esma' })} className={`p-3 rounded-lg border text-left transition-all relative overflow-hidden flex flex-col h-full ${activeZikir.id === esma.id ? 'bg-yellow-500 text-[#0f172a] border-yellow-500' : 'bg-[#1e293b] border-white/5 hover:border-yellow-500/30 hover:bg-white/5'}`}>
                               <div className="flex justify-between items-start mb-1">
