@@ -9,7 +9,6 @@ import { toPng } from 'html-to-image';
 import { QRCodeSVG } from 'qrcode.react';
 
 export default function Quiz() {
-  // --- OYUN STATE'LERİ ---
   const [gameState, setGameState] = useState('intro'); 
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -17,17 +16,15 @@ export default function Quiz() {
   const [streak, setStreak] = useState(0);
   const [timer, setTimer] = useState(15);
   
-  // --- CEVAP VE JOKER STATE'LERİ ---
   const [selectedOption, setSelectedOption] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [jokers, setJokers] = useState({ fifty: true, hint: true });
   const [eliminatedOptions, setEliminatedOptions] = useState([]);
   const [showHint, setShowHint] = useState(false);
   
-  // --- PAYLAŞIM MODALI STATE ---
+  // MODAL KONTROLÜ
   const [showShareModal, setShowShareModal] = useState(false);
 
-  // --- ZAMANLAYICI MOTORU ---
   useEffect(() => {
     let interval;
     if (gameState === 'playing' && !isAnswered && timer > 0) {
@@ -40,7 +37,6 @@ export default function Quiz() {
     return () => clearInterval(interval);
   }, [timer, gameState, isAnswered]);
 
-  // --- OYUN MANTIĞI ---
   const startGame = () => {
     setGameState('playing');
     setScore(0);
@@ -91,7 +87,6 @@ export default function Quiz() {
     }
   };
 
-  // --- JOKERLER ---
   const useFiftyFifty = () => {
     if (!jokers.fifty || isAnswered) return;
     const correctIndex = quizQuestions[currentQIndex].correct;
@@ -109,7 +104,6 @@ export default function Quiz() {
     setJokers({ ...jokers, hint: false });
   };
 
-  // --- RENDER ---
   const currentQ = quizQuestions[currentQIndex];
   if (!currentQ && gameState === 'playing') return <div className="text-white text-center p-10">Soru Yükleniyor...</div>;
   const progressPercent = ((currentQIndex) / quizQuestions.length) * 100;
@@ -120,11 +114,11 @@ export default function Quiz() {
         <title>Bilgi Yarışması | OnikiKapı</title>
       </Helmet>
 
-      {/* MODAL: Paylaşım Önizleme */}
+      {/* --- PAYLAŞIM PENCERESİ (MODAL) --- */}
       {showShareModal && (
         <QuizShareModal 
             score={score} 
-            correct={Math.floor(score / 10)} // Yaklaşık doğru sayısı hesabı
+            correct={Math.floor(score / 10)} 
             wrong={3 - lives}
             onClose={() => setShowShareModal(false)} 
         />
@@ -216,7 +210,7 @@ export default function Quiz() {
           </div>
         )}
 
-        {/* --- SONUÇ --- */}
+        {/* --- SONUÇ EKRANI --- */}
         {gameState === 'finished' && (
           <div className="p-12 text-center space-y-6 animate-fade-in relative z-20">
              <div className="w-32 h-32 mx-auto relative">
@@ -252,52 +246,54 @@ export default function Quiz() {
   );
 }
 
-// --- SKOR KARTI BİLEŞENİ (Görsel Tasarım) ---
+// --- SKOR KARTI BİLEŞENİ (YENİLENMİŞ - DEVASA PUNTO) ---
 function ScoreCardContent({ score, correct, wrong }) {
     return (
         <div className="w-[1080px] h-[1920px] bg-[#0F172A] flex flex-col items-center justify-between text-center relative overflow-hidden font-sans">
             {/* Arka Plan */}
             <div className="absolute inset-0 bg-gradient-to-b from-[#0F172A] via-[#1E293B] to-[#0F172A]"></div>
-            <div className="absolute inset-0 opacity-10" style={{backgroundImage: "url('https://www.transparenttextures.com/patterns/cubes.png')"}}></div>
             
-            {/* Üst Kısım: Logo */}
-            <div className="z-10 mt-32 flex flex-col items-center w-full px-12">
-                <div className="p-8 border-[6px] border-amber-500 rounded-full mb-8 bg-[#0F172A] shadow-[0_0_50px_rgba(245,158,11,0.3)]">
-                    <Trophy size={120} className="text-amber-500" />
+            {/* Üst Kısım: Logo ve İsim - BÜYÜTÜLDÜ */}
+            <div className="z-10 mt-40 flex flex-col items-center w-full px-12">
+                <div className="p-10 border-[8px] border-amber-500 rounded-full mb-10 bg-[#0F172A] shadow-[0_0_60px_rgba(245,158,11,0.4)]">
+                    <Trophy size={160} className="text-amber-500" />
                 </div>
-                <h3 className="text-amber-500 text-5xl font-bold tracking-[0.2em] uppercase mb-4">OnikiKapı</h3>
-                <p className="text-slate-400 text-3xl tracking-widest uppercase">Bilgi Yarışması</p>
+                {/* İSİM BURADA PATLIYOR */}
+                <h3 className="text-amber-500 text-[7rem] font-black tracking-[0.15em] uppercase mb-4 drop-shadow-2xl leading-tight">
+                    OnikiKapı
+                </h3>
+                <p className="text-slate-300 text-4xl tracking-[0.5em] uppercase font-light">Bilgi Yarışması</p>
             </div>
 
             {/* Orta Kısım: Skor */}
             <div className="z-10 flex flex-col items-center justify-center w-full px-12">
-                <div className="bg-white/5 border-4 border-amber-500/30 rounded-[3rem] p-16 w-full max-w-3xl backdrop-blur-sm">
-                    <p className="text-slate-300 text-4xl mb-6 uppercase tracking-widest font-bold">Toplam Puan</p>
-                    <h1 className="text-[12rem] font-black text-white leading-none mb-10 drop-shadow-2xl">
+                <div className="bg-white/5 border-[6px] border-amber-500/30 rounded-[4rem] p-20 w-full max-w-4xl backdrop-blur-md shadow-2xl">
+                    <p className="text-slate-300 text-5xl mb-8 uppercase tracking-widest font-bold">Toplam Puan</p>
+                    <h1 className="text-[14rem] font-black text-white leading-none mb-12 drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]">
                         {Math.floor(score)}
                     </h1>
-                    <div className="flex justify-center gap-12 border-t-2 border-white/10 pt-10">
+                    <div className="flex justify-center gap-16 border-t-4 border-white/10 pt-12">
                         <div className="text-center">
-                            <p className="text-6xl font-bold text-green-400 mb-2">{correct}</p>
-                            <p className="text-2xl text-slate-400 uppercase tracking-wider">Doğru</p>
+                            <p className="text-7xl font-bold text-green-400 mb-4">{correct}</p>
+                            <p className="text-3xl text-slate-400 uppercase tracking-wider font-bold">Doğru</p>
                         </div>
-                        <div className="w-1 bg-white/10"></div>
+                        <div className="w-2 bg-white/10 rounded-full"></div>
                         <div className="text-center">
-                            <p className="text-6xl font-bold text-red-400 mb-2">{wrong}</p>
-                            <p className="text-2xl text-slate-400 uppercase tracking-wider">Yanlış</p>
+                            <p className="text-7xl font-bold text-red-400 mb-4">{wrong}</p>
+                            <p className="text-3xl text-slate-400 uppercase tracking-wider font-bold">Yanlış</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Alt Kısım: QR ve Footer */}
-            <div className="z-10 mb-32 w-full px-12 flex flex-col items-center gap-10">
-                <div className="bg-white p-6 rounded-[2.5rem] shadow-2xl border-[8px] border-amber-500">
-                    <QRCodeSVG value="https://www.onikikapi.com/" size={220} />
+            <div className="z-10 mb-40 w-full px-12 flex flex-col items-center gap-12">
+                <div className="bg-white p-8 rounded-[3rem] shadow-2xl border-[10px] border-amber-500">
+                    <QRCodeSVG value="https://www.onikikapi.com/" size={250} />
                 </div>
                 <div className="flex flex-col items-center">
-                    <p className="text-4xl font-bold text-white mb-2">Sen de Katıl!</p>
-                    <p className="text-3xl text-amber-500 font-mono">www.onikikapi.com</p>
+                    <p className="text-5xl font-bold text-white mb-4">Sen de Katıl!</p>
+                    <p className="text-4xl text-amber-500 font-mono font-bold tracking-wider">www.onikikapi.com</p>
                 </div>
             </div>
         </div>
@@ -357,8 +353,8 @@ function QuizShareModal({ score, correct, wrong, onClose }) {
                </div>
           </div>
           
-          {/* Gizli Kart (Resim çekmek için - Kullanıcı Görmez) */}
-          <div style={{ position: "fixed", top: 0, left: 0, zIndex: -9999, opacity: 0, pointerEvents: "none" }}>
+          {/* Gizli Kart (Resim çekmek için - Kullanıcı Görmez ve Sayfayı Bozmaz) */}
+          <div style={{ position: "fixed", top: 0, left: 0, width: 0, height: 0, overflow: 'hidden', zIndex: -1 }}>
               <div ref={captureRef}>
                   <ScoreCardContent score={score} correct={correct} wrong={wrong} />
               </div>
