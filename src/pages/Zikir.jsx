@@ -1,352 +1,285 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { RotateCcw, Volume2, VolumeX, ChevronDown, CheckCircle, Sparkles, Search, BookOpen, Calendar } from 'lucide-react';
-import { esmaUlHusnaData } from '../data/esmalar';
+import { RotateCcw, Volume2, VolumeX, Sparkles, Search, Calendar, Moon, Sun, Heart } from 'lucide-react';
 
+// --- 1. VERİ SETLERİ (DATA) ---
+const MOCK_ESMALAR = [
+  { id: 1, transliteration: "Ya Allah", arabic: "يا الله", meaning_tr: "Her şeyin yaratıcısı", spiritual_benefit: "İman kuvveti", abjad_value: 66 },
+  { id: 2, transliteration: "Ya Rahman", arabic: "يا رحمن", meaning_tr: "Dünyada her varlığa merhamet eden", spiritual_benefit: "Kalp yumuşaklığı", abjad_value: 298 },
+  { id: 3, transliteration: "Ya Rahim", arabic: "يا رحيم", meaning_tr: "Ahirette müminlere merhamet eden", spiritual_benefit: "Maddi manevi rızık", abjad_value: 258 },
+  { id: 4, transliteration: "Ya Melik", arabic: "يا ملك", meaning_tr: "Mülkün gerçek sahibi", spiritual_benefit: "Emir ve yetki", abjad_value: 90 },
+  { id: 5, transliteration: "Ya Kuddüs", arabic: "يا قدوس", meaning_tr: "Her türlü eksiklikten münezzeh", spiritual_benefit: "Ruh temizliği", abjad_value: 170 },
+  { id: 6, transliteration: "Ya Selam", arabic: "يا سلام", meaning_tr: "Esenlik veren", spiritual_benefit: "Korkudan emin olma", abjad_value: 131 },
+  { id: 7, transliteration: "Ya Mümin", arabic: "يا مؤمن", meaning_tr: "Güven veren, emin kılan", spiritual_benefit: "Güvende hissetme", abjad_value: 137 },
+  { id: 8, transliteration: "Ya Müheymin", arabic: "يا مهيمن", meaning_tr: "Gözetip koruyan", spiritual_benefit: "Korunma", abjad_value: 145 },
+  { id: 9, transliteration: "Ya Aziz", arabic: "يا عزيز", meaning_tr: "İzzet sahibi, her şeye galip", spiritual_benefit: "İzzet ve şeref", abjad_value: 94 },
+  { id: 10, transliteration: "Ya Cebbar", arabic: "يا جبار", meaning_tr: "Azamet ve kudret sahibi", spiritual_benefit: "İsteklerin kabulü", abjad_value: 206 }
+];
+
+const WEEKLY_ZIKIRS = [
+  { id: "w-0", day: "Pazar", text: "Ya Ze'l-Celâli ve'l-İkrâm", arabic: "یا ذَالجَلالِ وَ اْلاِکْرام", target: 100, type: 'weekly' },
+  { id: "w-1", day: "Pazartesi", text: "Ya Kâziye'l-Hâcât", arabic: "یا قاضیَ الحاجات", target: 100, type: 'weekly' },
+  { id: "w-2", day: "Salı", text: "Ya Erhame'r-Râhimîn", arabic: "یا أَرْحَمَ الرَّاحِمِین", target: 100, type: 'weekly' },
+  { id: "w-3", day: "Çarşamba", text: "Ya Hayyu Ya Kayyûm", arabic: "یا حَیُّ یا قَیّومُ", target: 100, type: 'weekly' },
+  { id: "w-4", day: "Perşembe", text: "Lâ İlâhe İllallâhu'l-Meliku'l-Hakku'l-Mubîn", arabic: "لا إِلهَ إِلَّا اللَّهُ المَلِک الحقّ المُبین", target: 100, type: 'weekly' },
+  { id: "w-5", day: "Cuma", text: "Allahumme Salli Alâ Muhammedin ve Âl-i Muhammed", arabic: "الّلهُمَّ صَلِّ عَلَی مُحَمَّدٍ وَآلِ مُحَمَّدٍ", target: 100, type: 'weekly' },
+  { id: "w-6", day: "Cumartesi", text: "Ya Rabbe'l-Âlemîn", arabic: "یا رَبِّ الْعالَمِین", target: 100, type: 'weekly' }
+];
+
+const STANDARD_ZIKIRS = [
+  { id: "std-zehra", label: "Tesbihat-ı Zehra", target: 34, arabic: "تسبیحات حضرت زهرا", type: 'zehra' },
+  { id: "std-salavat", label: "Salavat-ı Şerife", target: 100, arabic: "الّلهُمَّ صَلِّ عَلَی مُحَمَّدٍ وَآلِ مُحَمَّدٍ", type: 'standard' },
+  { id: "std-tevhid", label: "La ilahe illallah", target: 100, arabic: "لا إله إلا الله", type: 'standard' },
+  { id: "std-istigfar", label: "Estağfirullah", target: 100, arabic: "أَسْتَغْفِرُ اللَّهَ", type: 'standard' },
+  { id: "std-free", label: "Serbest Mod", target: 99999, arabic: "", type: 'free' }
+];
+
+const ZEHRA_STEPS = [
+  { label: "Allahu Ekber", target: 34, arabic: "اللّٰهُ أَكْبَر" },
+  { label: "Elhamdulillah", target: 33, arabic: "ٱلْحَمْدُ لِلَّٰهِ" },
+  { label: "Subhanallah", target: 33, arabic: "سُبْحَانَ ٱللَّٰهِ" }
+];
+
+// --- 2. ANA BİLEŞEN (COMPONENT) ---
 export default function Zikir() {
-  // --- STATE YÖNETİMİ ---
-  const [count, setCount] = useState(0);
-  const [target, setTarget] = useState(100);
-  const [label, setLabel] = useState("Yükleniyor...");
-  const [arabicText, setArabicText] = useState(""); // Arapça metin state'i
+  // State Tanımları
+  const [activeTab, setActiveTab] = useState('namaz');
+  const [activeZikir, setActiveZikir] = useState(() => {
+    // SSR hatasını önlemek için window kontrolü
+    const todayIndex = typeof window !== 'undefined' ? new Date().getDay() : 0;
+    return WEEKLY_ZIKIRS.find(z => z.id === `w-${todayIndex}`) || STANDARD_ZIKIRS[0];
+  });
+  
+  const [progressMap, setProgressMap] = useState({});
   const [isSoundOn, setIsSoundOn] = useState(true);
-  
-  // Zehra Modu State'leri
-  const [zehraMode, setZehraMode] = useState(false);
-  const [zehraStage, setZehraStage] = useState(0);
-  
-  // UI State'leri
   const [showSuccess, setShowSuccess] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  
-  // Esma Modu State'leri
   const [esmaSearch, setEsmaSearch] = useState("");
-  const [selectedEsma, setSelectedEsma] = useState(null);
+  
+  // Ses Motoru
+  const audioRef = useRef(null);
 
-  // --- 1. HAFTALIK ZİKİRLER ---
-  const weeklyZikirs = [
-    { id: 0, day: "Pazar", text: "Ya Ze'l-Celâli ve'l-İkrâm", arabic: "یا ذَالجَلالِ وَ اْلاِکْرام", target: 100 },
-    { id: 1, day: "Pazartesi", text: "Ya Kâziye'l-Hâcât", arabic: "یا قاضیَ الحاجات", target: 100 },
-    { id: 2, day: "Salı", text: "Ya Erhame'r-Râhimîn", arabic: "یا أَرْحَمَ الرَّاحِمِین", target: 100 },
-    { id: 3, day: "Çarşamba", text: "Ya Hayyu Ya Kayyûm", arabic: "یا حَیُّ یا قَیّومُ", target: 100 },
-    { id: 4, day: "Perşembe", text: "Lâ İlâhe İllallâhu'l-Meliku'l-Hakku'l-Mubîn", arabic: "لا إِلهَ إِلَّا اللَّهُ المَلِک الحقّ المُبین", target: 100 },
-    { id: 5, day: "Cuma", text: "Allahumme Salli Alâ Muhammedin ve Âl-i Muhammed", arabic: "الّلهُمَّ صَلِّ عَلَی مُحَمَّدٍ وَآلِ مُحَمَّدٍ", target: 100 },
-    { id: 6, day: "Cumartesi", text: "Ya Rabbe'l-Âlemîn", arabic: "یا رَبِّ الْعالَمِین", target: 100 }
-  ];
-
-  // --- 2. SABİT ZİKİR LİSTESİ (ARAPÇALARI EKLENDİ) ---
-  const standardZikirs = [
-    { label: "Tesbihat-ı Zehra (Öncelikli)", value: "zehra", target: 34, arabic: "تسبیحات حضرت زهرا" },
-    { label: "Salavat-ı Şerife", value: "salavat", target: 100, arabic: "الّلهُمَّ صَلِّ عَلَی مُحَمَّدٍ وَآلِ مُحَمَّدٍ" },
-    { label: "La ilahe illallah", value: "tehvid", target: 100, arabic: "لا إله إلا الله" },
-    { label: "Estağfirullah", value: "istigfar", target: 100, arabic: "أَسْتَغْفِرُ اللَّهَ" },
-    { label: "Serbest Mod", value: "free", target: 99999, arabic: "" }
-  ];
-
-  // --- ZEHRA MODU ADIMLARI (ARAPÇALARIYLA) ---
-  const zehraSteps = [
-    { label: "Allahu Ekber", target: 34, arabic: "اللّٰهُ أَكْبَر" },
-    { label: "Elhamdulillah", target: 33, arabic: "ٱلْحَمْدُ لِلَّٰهِ" },
-    { label: "Subhanallah", target: 33, arabic: "سُبْحَانَ ٱللَّٰهِ" }
-  ];
-
-  // --- AKILLI GÜN ALGILAMA ---
   useEffect(() => {
-    const todayIndex = new Date().getDay();
-    const todaysZikir = weeklyZikirs.find(z => z.id === todayIndex);
-    
-    if (todaysZikir) {
-      setLabel(todaysZikir.text);
-      setArabicText(todaysZikir.arabic);
-      setTarget(todaysZikir.target);
-      setZehraMode(false);
-      setSelectedEsma(null);
-    }
+    audioRef.current = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
+    audioRef.current.volume = 0.3;
+    return () => {
+      if(audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
   }, []);
 
-  // --- MANTIK MOTORU ---
+  // Hesaplamalar
+  const currentProgress = progressMap[activeZikir.id] || { count: 0, stage: 0, isComplete: false };
+  const currentCount = currentProgress.count;
+  const currentStage = currentProgress.stage;
+
+  const getCurrentDisplayInfo = () => {
+    if (activeZikir.type === 'zehra') {
+      const step = ZEHRA_STEPS[currentStage] || ZEHRA_STEPS[0];
+      return { label: step.label, arabic: step.arabic, target: step.target };
+    }
+    return {
+      label: activeZikir.transliteration || activeZikir.label || activeZikir.text,
+      arabic: activeZikir.arabic,
+      target: activeZikir.abjad_value || activeZikir.target || 100
+    };
+  };
+
+  const displayInfo = getCurrentDisplayInfo();
+
+  // Olay İşleyiciler (Handlers)
   const playClickSound = () => {
-    if (isSoundOn) {
-      const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
-      audio.volume = 0.3;
-      audio.play().catch(() => {});
+    if (isSoundOn && audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(() => {});
     }
   };
 
+  const updateProgress = (id, newProgress) => {
+    setProgressMap(prev => ({ ...prev, [id]: newProgress }));
+  };
+
   const handleIncrement = () => {
-    if (isTransitioning) return;
-    if (navigator.vibrate) navigator.vibrate(50);
+    if (showSuccess) return;
+    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(50);
+    
     playClickSound();
     
-    const nextCount = count + 1;
-    
-    if (label === "Serbest Mod") {
-      setCount(nextCount);
+    const nextCount = currentCount + 1;
+    const target = displayInfo.target;
+
+    // Serbest Mod
+    if (activeZikir.type === 'free') {
+      updateProgress(activeZikir.id, { count: nextCount, stage: 0, isComplete: false });
       return;
     }
 
-    if (count >= target) return;
+    if (nextCount > target) return;
 
-    setCount(nextCount);
-
+    // Hedefe Ulaşma Kontrolü
     if (nextCount === target) {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        if (zehraMode) {
-          if (zehraStage < 2) {
-            const nextStage = zehraStage + 1;
-            setZehraStage(nextStage);
-            setCount(0);
-            setLabel(zehraSteps[nextStage].label);
-            setArabicText(zehraSteps[nextStage].arabic); // Arapçasını da güncelle
-            setTarget(zehraSteps[nextStage].target);
-            setIsTransitioning(false);
-          } else {
-            setShowSuccess(true);
-            setIsTransitioning(false);
-          }
+      if (activeZikir.type === 'zehra') {
+        if (currentStage < 2) {
+          // Zehra tesbihatında bir sonraki aşamaya geçiş
+          setTimeout(() => {
+            updateProgress(activeZikir.id, { count: 0, stage: currentStage + 1, isComplete: false });
+          }, 250);
         } else {
+          // Zehra tesbihatı bitişi
           setShowSuccess(true);
-          setIsTransitioning(false);
+          updateProgress(activeZikir.id, { count: target, stage: currentStage, isComplete: true });
         }
-      }, 500);
+      } else {
+        // Normal zikir bitişi
+        setShowSuccess(true);
+        updateProgress(activeZikir.id, { count: nextCount, stage: 0, isComplete: true });
+      }
+    } else {
+      updateProgress(activeZikir.id, { count: nextCount, stage: currentStage, isComplete: false });
     }
   };
 
   const handleReset = () => {
-    setCount(0);
     setShowSuccess(false);
-    setIsTransitioning(false);
-    if (zehraMode) {
-      setZehraStage(0);
-      setLabel(zehraSteps[0].label);
-      setArabicText(zehraSteps[0].arabic);
-      setTarget(zehraSteps[0].target);
-    }
+    updateProgress(activeZikir.id, { count: 0, stage: 0, isComplete: false });
   };
 
-  // --- SEÇİM MANTIĞI ---
-  const filteredEsmalar = esmaUlHusnaData.filter(esma => 
-    esma.transliteration.toLowerCase().includes(esmaSearch.toLowerCase()) ||
-    esma.meaning_tr.toLowerCase().includes(esmaSearch.toLowerCase()) ||
-    esma.spiritual_benefit.toLowerCase().includes(esmaSearch.toLowerCase())
-  );
-
-  const handleSelectionChange = (e) => {
-    const value = e.target.value;
-    setCount(0);
+  const handleSelectZikir = (zikir) => {
+    setActiveZikir(zikir);
     setShowSuccess(false);
-    setIsTransitioning(false);
-
-    // 1. Haftalık Zikir
-    const weekly = weeklyZikirs.find(z => z.text === value);
-    if (weekly) {
-        setZehraMode(false);
-        setSelectedEsma(null);
-        setLabel(weekly.text);
-        setArabicText(weekly.arabic);
-        setTarget(weekly.target);
-        return;
-    }
-
-    // 2. Standart Zikir
-    const standard = standardZikirs.find(z => z.value === value);
-    if (standard) {
-      setSelectedEsma(null);
-      if (value === "zehra") {
-        setZehraMode(true);
-        setZehraStage(0);
-        setLabel(zehraSteps[0].label);
-        setArabicText(zehraSteps[0].arabic); // İlk adımın Arapçası
-        setTarget(zehraSteps[0].target);
-      } else {
-        setZehraMode(false);
-        setLabel(standard.label);
-        setArabicText(standard.arabic || ""); // Varsa arapçasını koy
-        setTarget(standard.target);
-      }
-      return;
-    }
-
-    // 3. Esma
-    if (value.startsWith("esma_")) {
-      const id = parseInt(value.split("_")[1]);
-      const esma = esmaUlHusnaData.find(e => e.id === id);
-      
-      if (esma) {
-        setZehraMode(false);
-        setSelectedEsma(esma);
-        setLabel(esma.transliteration);
-        setArabicText(esma.arabic);
-        setTarget(esma.abjad_value);
-      }
-    }
+    if(typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const filteredEsmalar = useMemo(() => {
+    return MOCK_ESMALAR.filter(esma =>
+      esma.transliteration.toLowerCase().includes(esmaSearch.toLowerCase()) ||
+      esma.meaning_tr.toLowerCase().includes(esmaSearch.toLowerCase()) ||
+      esma.spiritual_benefit.toLowerCase().includes(esmaSearch.toLowerCase())
+    );
+  }, [esmaSearch]);
+
+  // Görsel Hesaplamalar (Dairesel Progress)
   const radius = 120;
   const circumference = 2 * Math.PI * radius;
-  const progress = zehraMode && showSuccess ? 100 : Math.min((count / target) * 100, 100);
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
+  const safeTarget = displayInfo.target || 1;
+  const progressPercent = Math.min((currentCount / safeTarget) * 100, 100);
+  const strokeDashoffset = circumference - (progressPercent / 100) * circumference;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[85vh] animate-fade-in relative px-4 py-8">
+    <div className="flex flex-col items-center min-h-[85vh] animate-fade-in relative px-4 py-6 max-w-4xl mx-auto bg-[#0f172a] text-slate-200 font-sans">
       <Helmet>
         <title>Tesbihat & Zikir | OnikiKapı</title>
-        <meta name="description" content="Günlük özel zikirler, Tesbihat-ı Zehra ve Esma-ül Hüsna." />
       </Helmet>
 
-      {/* BİLGİ KARTI */}
-      <div className="mb-6 bg-gold/10 backdrop-blur-md px-6 py-2 rounded-full border border-gold/20 flex items-center gap-2 animate-fade-in">
-         <Calendar size={16} className="text-gold" />
-         <p className="text-sm text-sand">
-            Bugün: <span className="font-bold">{weeklyZikirs.find(z => z.id === new Date().getDay())?.day}</span> (Özel zikir seçildi)
-         </p>
-      </div>
-
-      <div className="text-center mb-6">
-        <h1 className="text-3xl md:text-5xl font-sans font-bold text-transparent bg-clip-text bg-gradient-to-r from-sand via-gold to-sand mb-2">
-          Tesbihat
-        </h1>
-        <p className="text-slate-300 font-serif text-lg">
-          Kalbinizi zikirle cilalayın.
-        </p>
-      </div>
-
-      {showSuccess && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-midnight/90 backdrop-blur-md rounded-3xl animate-fade-in">
-          <div className="text-center space-y-4 animate-bounce">
-            <Sparkles size={60} className="text-gold mx-auto" />
-            <h2 className="text-4xl font-bold text-sand font-serif">Allah Kabul Etsin</h2>
-            <button onClick={handleReset} className="bg-gold text-midnight px-6 py-2 rounded-full font-bold hover:bg-white transition">
-              Yeniden Başla
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ARAMA VE SEÇİM */}
-      <div className="mb-8 w-full max-w-sm space-y-3">
-        <div className="relative">
-          <Search className="absolute left-3 top-3 text-gold/50" size={18} />
-          <input 
-            type="text" 
-            placeholder="Esma ara... (Örn: Şifa)" 
-            className="w-full bg-midnight/50 border border-gold/20 rounded-xl py-2 pl-10 pr-4 text-sand placeholder-slate-500 focus:outline-none focus:border-gold/50 text-sm transition-all"
-            value={esmaSearch}
-            onChange={(e) => setEsmaSearch(e.target.value)}
-          />
-        </div>
-
-        <div className="relative">
-          <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gold">
-            <ChevronDown size={20} />
-          </div>
-          <select 
-            onChange={handleSelectionChange}
-            value={weeklyZikirs.find(z => z.text === label) ? label : undefined}
-            className="w-full appearance-none bg-midnight border-2 border-gold/30 text-gold py-3 px-6 rounded-2xl font-sans font-bold text-lg focus:outline-none focus:border-gold focus:shadow-[0_0_15px_rgba(197,160,89,0.3)] transition-all cursor-pointer"
-          >
-            <optgroup label="🌟 Günün Özel Zikri">
-                {weeklyZikirs.map(z => (
-                    <option key={z.id} value={z.text}>
-                        {z.day}: {z.text.substring(0, 30)}...
-                    </option>
-                ))}
-            </optgroup>
-
-            <optgroup label="Tesbihatlar">
-              {standardZikirs.map((z, i) => (
-                <option key={i} value={z.value}>{z.label}</option>
-              ))}
-            </optgroup>
-
-            <optgroup label="Esma-ül Hüsna">
-              {filteredEsmalar.map((esma) => (
-                <option key={esma.id} value={`esma_${esma.id}`}>
-                  {esma.transliteration} (Hedef: {esma.abjad_value})
-                </option>
-              ))}
-            </optgroup>
-          </select>
-        </div>
-      </div>
-
-      {/* ZİKİRMATİK GÖVDESİ */}
-      <div className="relative group mb-8">
-        <div className="absolute -inset-4 bg-gold/10 rounded-full blur-xl group-hover:bg-gold/20 transition-all duration-500"></div>
-        <div className="relative w-80 h-80 bg-[#162e45] rounded-full shadow-2xl border-4 border-gold/10 flex items-center justify-center">
-          
-          <svg className="absolute inset-0 w-full h-full -rotate-90 transform" viewBox="0 0 280 280">
-            <circle cx="140" cy="140" r={radius} fill="transparent" stroke="#0f172a" strokeWidth="12" strokeDasharray="4 8" />
-            <circle cx="140" cy="140" r={radius} fill="transparent" stroke="#FFD700" strokeWidth="12" strokeDasharray="4 8" strokeDashoffset={strokeDashoffset} strokeLinecap="round" className="transition-all duration-300 ease-out drop-shadow-[0_0_8px_rgba(255,215,0,0.6)]" />
-          </svg>
-
-          <div className="z-10 text-center space-y-2 flex flex-col items-center px-4">
-            <p className="text-turquoise-light text-xs font-bold tracking-[0.2em] uppercase">
-              {zehraMode ? `Adım ${zehraStage + 1}/3` : "Ruhun Nefesi"}
-            </p>
-            
-            <h1 className="text-7xl font-sans font-bold text-sand tabular-nums drop-shadow-lg leading-none">
-              {count}
-            </h1>
-            
-            {label !== "Serbest Mod" && (
-              <p className="text-gold/70 text-sm font-bold font-sans">/ {target}</p>
-            )}
-
-            <div className="mt-2">
-                <p className="text-gold font-serif text-lg md:text-xl max-w-[220px] mx-auto leading-tight font-bold">
-                {label}
-                </p>
-                {/* ARAPÇA METİN (BURADA GÖRÜNECEK) */}
-                {arabicText && (
-                    <p className="text-slate-400 font-serif text-xl mt-1 opacity-80" dir="rtl" lang="ar">
-                        {arabicText}
-                    </p>
+      {/* --- BÖLÜM 1: AKTİF ZİKİR KARTI --- */}
+      <div className="relative group mb-6">
+        <div className="absolute -inset-4 bg-yellow-500/5 rounded-full blur-xl group-hover:bg-yellow-500/10 transition-all duration-500"></div>
+        <div className="relative w-72 h-72 bg-[#162e45] rounded-full shadow-2xl border-4 border-yellow-500/10 flex items-center justify-center overflow-hidden">
+            <svg className="absolute inset-0 w-full h-full -rotate-90 transform" viewBox="0 0 280 280">
+                <circle cx="140" cy="140" r={radius} fill="transparent" stroke="#0f172a" strokeWidth="12" strokeDasharray="4 8" />
+                <circle cx="140" cy="140" r={radius} fill="transparent" stroke="#FFD700" strokeWidth="12" strokeDasharray="4 8" strokeDashoffset={strokeDashoffset} strokeLinecap="round" className="transition-all duration-300 ease-out drop-shadow-[0_0_8px_rgba(255,215,0,0.6)]" />
+            </svg>
+            <div className="z-10 text-center flex flex-col items-center">
+                {activeZikir.type === 'zehra' && (
+                     <span className="text-cyan-400 text-xs font-bold tracking-widest uppercase mb-2 bg-cyan-900/30 px-2 py-1 rounded">ADIM {currentStage + 1}/3</span>
                 )}
+                <h1 className="text-7xl font-bold text-[#eecda3] tabular-nums leading-none select-none">{currentCount}</h1>
+                {activeZikir.type !== 'free' && (<p className="text-yellow-500/50 text-lg font-bold mt-2 font-mono">/ {displayInfo.target}</p>)}
             </div>
-          </div>
         </div>
-        <button onClick={handleIncrement} className="absolute inset-0 w-full h-full rounded-full cursor-pointer z-20 focus:outline-none active:scale-95 transition-transform duration-100" aria-label="Zikir Çek"></button>
+        <button onClick={handleIncrement} className="absolute inset-0 w-full h-full rounded-full cursor-pointer z-20 focus:outline-none active:scale-95 transition-transform duration-100 touch-manipulation" aria-label="Zikir Çek"></button>
+        
+        {showSuccess && (
+            <div className="absolute inset-0 z-30 flex items-center justify-center bg-[#0f172a]/95 backdrop-blur-sm rounded-full animate-fade-in border-4 border-yellow-500">
+                <div className="text-center animate-bounce px-4">
+                    <Sparkles size={40} className="text-yellow-500 mx-auto mb-2" />
+                    <h3 className="text-xl font-bold text-[#eecda3] font-serif">Allah Kabul Etsin</h3>
+                    <button onClick={handleReset} className="mt-3 text-sm bg-yellow-500 text-[#0f172a] px-6 py-2 rounded-full font-bold hover:bg-white transition-colors">Tekrar</button>
+                </div>
+            </div>
+        )}
       </div>
 
-      {/* ESMA KARTI */}
-      {selectedEsma && (
-        <div className="w-full max-w-lg bg-midnight/50 border border-gold/20 rounded-2xl p-6 animate-fade-in relative overflow-hidden group hover:border-gold/40 transition-colors">
-          <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-            <BookOpen size={100} className="text-gold" />
+      <div className="flex gap-4 mb-8">
+        <button onClick={handleReset} className="p-3 rounded-full bg-[#1e293b] border border-white/10 text-slate-400 hover:text-white hover:border-red-500/50 hover:bg-red-500/10 transition-all"><RotateCcw size={20} /></button>
+        <button onClick={() => setIsSoundOn(!isSoundOn)} className={`p-3 rounded-full border transition-all ${isSoundOn ? 'bg-yellow-500/10 border-yellow-500 text-yellow-500' : 'bg-[#1e293b] border-white/10 text-slate-400'}`}>{isSoundOn ? <Volume2 size={20} /> : <VolumeX size={20} />}</button>
+      </div>
+
+      {/* --- BÖLÜM 2: SEKMELİ SEÇİM ALANI --- */}
+      <div className="w-full min-h-[300px]">
+          {/* TAB MENÜSÜ - EKSİK OLAN KISIM EKLENDİ */}
+          <div className="flex p-1 bg-[#1e293b] rounded-xl mb-4 border border-white/5">
+              {['namaz', 'gunluk', 'esma'].map((tab) => (
+                  <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all capitalize ${
+                          activeTab === tab 
+                          ? 'bg-yellow-500 text-[#0f172a] shadow-lg' 
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                  >
+                      {tab === 'gunluk' ? 'Günlük' : tab}
+                  </button>
+              ))}
           </div>
-          
-          <div className="flex items-start gap-4 relative z-10">
-            <div className="bg-turquoise/20 p-3 rounded-lg text-gold font-serif text-3xl border border-gold/20">
-              {selectedEsma.arabic}
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-xl font-bold text-sand">{selectedEsma.transliteration}</h3>
-              <p className="text-slate-300 text-sm leading-relaxed">
-                {selectedEsma.meaning_tr}
-              </p>
-              <div className="flex items-center gap-2 mt-2">
-                <Sparkles size={14} className="text-turquoise-light" />
-                <span className="text-xs font-bold text-turquoise-light uppercase tracking-wide">
-                  Manevi Sır: {selectedEsma.spiritual_benefit}
-                </span>
+
+          {/* NAMAZ TAB */}
+          {activeTab === 'namaz' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 animate-fade-in">
+                  {STANDARD_ZIKIRS.map((zikir) => (
+                      <button key={zikir.id} onClick={() => handleSelectZikir(zikir)} className={`p-4 rounded-xl border text-left transition-all flex items-center justify-between group ${activeZikir.id === zikir.id ? 'bg-yellow-500/10 border-yellow-500 shadow-[0_0_15px_rgba(197,160,89,0.2)]' : 'bg-[#1e293b] border-white/5 hover:border-yellow-500/30 hover:bg-white/5'}`}>
+                          <div><h3 className={`font-bold ${activeZikir.id === zikir.id ? 'text-yellow-500' : 'text-[#eecda3] group-hover:text-yellow-500'}`}>{zikir.label}</h3><p className="text-xs text-slate-500 mt-1">{zikir.arabic}</p></div>
+                          {progressMap[zikir.id]?.count > 0 && (<span className="text-xs bg-yellow-500/20 text-yellow-500 px-2 py-1 rounded-md font-mono font-bold">{progressMap[zikir.id].count}</span>)}
+                      </button>
+                  ))}
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {/* KONTROL BUTONLARI */}
-      <div className="mt-8 flex gap-6">
-        <button onClick={handleReset} className="p-4 rounded-full bg-midnight border border-white/10 text-slate-400 hover:text-white hover:bg-red-500/20 hover:border-red-500/50 transition-all">
-          <RotateCcw size={24} />
-        </button>
-        <button onClick={() => setIsSoundOn(!isSoundOn)} className={`p-4 rounded-full border transition-all ${isSoundOn ? 'bg-gold/10 border-gold text-gold' : 'bg-midnight border-white/10 text-slate-400 hover:text-white'}`}>
-          {isSoundOn ? <Volume2 size={24} /> : <VolumeX size={24} />}
-        </button>
+          {/* GÜNLÜK TAB */}
+          {activeTab === 'gunluk' && (
+              <div className="space-y-3 animate-fade-in">
+                  <div className="bg-blue-900/20 border border-blue-500/20 p-4 rounded-xl flex items-center gap-3 mb-4">
+                      <Calendar className="text-blue-400" size={20} />
+                      <p className="text-sm text-blue-200">Bugün <strong>{WEEKLY_ZIKIRS.find(z => z.id === `w-${new Date().getDay()}`)?.day}</strong>. Özel zikriniz listenin en başında.</p>
+                  </div>
+                  {WEEKLY_ZIKIRS.map((zikir) => {
+                      const isToday = zikir.id === `w-${new Date().getDay()}`;
+                      return (
+                        <button key={zikir.id} onClick={() => handleSelectZikir(zikir)} className={`w-full p-4 rounded-xl border text-left transition-all flex items-center gap-4 group ${activeZikir.id === zikir.id ? 'bg-yellow-500/10 border-yellow-500' : isToday ? 'bg-blue-900/10 border-blue-500/30' : 'bg-[#1e293b] border-white/5 hover:border-yellow-500/30 hover:bg-white/5'}`}>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${isToday ? 'bg-blue-500 text-white' : 'bg-slate-800 text-slate-400'}`}>{zikir.day.substring(0,3)}</div>
+                            <div className="flex-1 min-w-0"><h3 className={`font-bold truncate ${activeZikir.id === zikir.id ? 'text-yellow-500' : 'text-[#eecda3]'}`}>{zikir.text}</h3><p className="text-xs text-slate-500 mt-1 font-serif opacity-70 truncate">{zikir.arabic}</p></div>
+                            {progressMap[zikir.id]?.count > 0 && (<span className="text-xs bg-yellow-500/20 text-yellow-500 px-2 py-1 rounded-md font-mono font-bold shrink-0">{progressMap[zikir.id].count}</span>)}
+                        </button>
+                      );
+                  })}
+              </div>
+          )}
+
+          {/* ESMALAR TAB */}
+          {activeTab === 'esma' && (
+              <div className="animate-fade-in">
+                  <div className="relative mb-4">
+                    <Search className="absolute left-3 top-3 text-yellow-500/50" size={18} />
+                    <input type="text" placeholder="Esma ara..." className="w-full bg-[#1e293b] border border-yellow-500/20 rounded-xl py-2 pl-10 pr-4 text-[#eecda3] placeholder-slate-500 focus:outline-none focus:border-yellow-500/50 text-sm focus:ring-1 focus:ring-yellow-500" value={esmaSearch} onChange={(e) => setEsmaSearch(e.target.value)}/>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                      {filteredEsmalar.map((esma) => (
+                          <button key={esma.id} onClick={() => handleSelectZikir({ ...esma, type: 'esma' })} className={`p-3 rounded-lg border text-left transition-all relative overflow-hidden flex flex-col h-full ${activeZikir.id === esma.id ? 'bg-yellow-500 text-[#0f172a] border-yellow-500' : 'bg-[#1e293b] border-white/5 hover:border-yellow-500/30 hover:bg-white/5'}`}>
+                              <div className="flex justify-between items-start mb-1">
+                                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${activeZikir.id === esma.id ? 'bg-[#1e293b]/20 text-[#1e293b]' : 'bg-yellow-500/20 text-yellow-500'}`}>#{esma.id}</span>
+                                  {progressMap[esma.id]?.count > 0 && (<span className="text-[10px] font-mono font-bold bg-green-500/20 text-green-400 px-1 rounded">{progressMap[esma.id].count}</span>)}
+                              </div>
+                              <h4 className={`font-bold truncate text-sm ${activeZikir.id === esma.id ? 'text-[#0f172a]' : 'text-[#eecda3]'}`}>{esma.transliteration}</h4>
+                              <p className={`text-xs truncate font-serif mt-auto pt-1 ${activeZikir.id === esma.id ? 'text-[#0f172a]/70' : 'text-slate-500'}`}>{esma.arabic}</p>
+                          </button>
+                      ))}
+                      {filteredEsmalar.length === 0 && (<div className="col-span-full text-center py-8 text-slate-500 text-sm">Aradığınız esma bulunamadı.</div>)}
+                  </div>
+              </div>
+          )}
       </div>
-
     </div>
   );
 }
