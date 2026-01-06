@@ -3,13 +3,13 @@ import React, { createContext, useState, useContext } from 'react';
 // 1. Context Oluştur
 const AppContext = createContext();
 
-// 2. Sağlayıcı (Provider) Oluştur
+// 2. Provider Oluştur
 export const AppProvider = ({ children }) => {
-  // --- MÜZİK ÇALAR STATE'LERİ ---
+  // Müzik Çalar State'leri
   const [currentTrack, setCurrentTrack] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   
-  // --- FAVORİLER VE TOAST MESAJLARI ---
+  // Favoriler ve Toast Mesajları
   const [favorites, setFavorites] = useState([]);
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -31,11 +31,12 @@ export const AppProvider = ({ children }) => {
   const isFavorite = (id) => favorites.some(f => f.id === id);
 
   // 3. DIŞARI AKTARILACAK DEĞERLER (SORUN BURADAYDI)
+  // setCurrentTrack ve setIsPlaying EKLENDİ!
   const value = {
     currentTrack,
-    setCurrentTrack, // <--- BU EKSİKTİ, ARTIK VAR
+    setCurrentTrack, 
     isPlaying,
-    setIsPlaying,    // <--- BU EKSİKTİ, ARTIK VAR
+    setIsPlaying,
     favorites,
     toggleFavorite,
     isFavorite,
@@ -46,7 +47,7 @@ export const AppProvider = ({ children }) => {
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
 
-// 4. Kanca (Hook)
+// 4. Hook
 export const useAppContext = () => {
   const context = useContext(AppContext);
   if (context === undefined) {
