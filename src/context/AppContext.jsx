@@ -1,115 +1,56 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { musicList } from '../data/musicData';
+import React, { createContext, useState, useContext } from 'react';
 
+// 1. Context Oluştur
 const AppContext = createContext();
 
-export function AppProvider({ children }) {
-  // --- 1. STATE TANIMLAMALARI ---
+// 2. Sağlayıcı (Provider) Oluştur
+export const AppProvider = ({ children }) => {
+  // --- MÜZİK ÇALAR STATE'LERİ ---
+  const [currentTrack, setCurrentTrack] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  
+  // --- FAVORİLER VE TOAST MESAJLARI ---
   const [favorites, setFavorites] = useState([]);
   const [toastMessage, setToastMessage] = useState(null);
-  const [currentQueue, setCurrentQueue] = useState(musicList);
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
 
-  // --- 2. VERİ YÜKLEME (LOAD) ---
-  useEffect(() => {
-    try {
-      const savedData = localStorage.getItem('onikikapi_user_data');
-      if (savedData) {
-        const parsed = JSON.parse(savedData);
-        if (parsed.favorites) setFavorites(parsed.favorites);
-      }
-    } catch (error) {
-      console.error("Veri yükleme hatası:", error);
-    }
-  }, []);
-
-  // --- 3. VERİ SAKLAMA (SAVE) ---
-  const saveToDb = useCallback((newFavorites) => {
-    setFavorites(newFavorites);
-    const userSchema = {
-      updated_at: new Date().toISOString(),
-      user_type: "guest",
-      favorites: newFavorites
-    };
-    // Veriyi asenkron bir mikro-task olarak kaydet (Performans için)
-    setTimeout(() => {
-      localStorage.setItem('onikikapi_user_data', JSON.stringify(userSchema));
-    }, 0);
-  }, []);
-
-  // --- 4. FAVORİ YÖNETİMİ (HEYBE) ---
-  const toggleFavorite = (mediaItem) => {
-    const exists = favorites.find(item => item.media_id === mediaItem.id);
-    
-    if (exists) {
-      const newFavs = favorites.filter(item => item.media_id !== mediaItem.id);
-      saveToDb(newFavs);
-      showToast("Manevi heybenizden çıkarıldı.");
-    } else {
-      const newItem = {
-        media_id: mediaItem.id,
-        title: mediaItem.title || "İsimsiz Eser", 
-        author: mediaItem.author || mediaItem.artist || "Bilinmiyor",
-        thumbnail: mediaItem.thumbnail || mediaItem.cover || "/default-cover.png",
-        audioUrl: mediaItem.audioUrl || mediaItem.url || null,
-        youtubeId: mediaItem.youtubeId || null,
-        category: mediaItem.category || "Genel",
-        added_at: new Date().toISOString()
-      };
-      saveToDb([...favorites, newItem]);
-      showToast("Manevi heybenize eklendi.");
-    }
-  };
-
-  const isFavorite = (id) => favorites.some(item => item.media_id === id);
-
-  // --- 5. OYNATMA MANTIĞI (PLAYER) ---
-  const playAllFavorites = () => {
-    // Sadece ses dosyası olanları filtrele
-    const audioFavs = favorites.filter(item => item.audioUrl);
-    
-    if (audioFavs.length > 0) {
-      const formattedQueue = audioFavs.map(item => ({
-        title: item.title,
-        artist: item.author,
-        url: item.audioUrl,
-        cover: item.thumbnail
-      }));
-      
-      setCurrentQueue(formattedQueue);
-      setCurrentTrackIndex(0);
-      setIsPlaying(true);
-      showToast(`${audioFavs.length} eser sıraya eklendi.`);
-    } else {
-      showToast("Heybenizde ses dosyası bulunamadı.");
-    }
-  };
-
-  // --- 6. BİLDİRİM (TOAST) ---
   const showToast = (msg) => {
     setToastMessage(msg);
-    // Varsa önceki zamanlayıcıyı temizle (opsiyonel geliştirme yapılabilir)
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  return (
-    <AppContext.Provider value={{
-      favorites,
-      toggleFavorite,
-      isFavorite,
-      toastMessage,
-      currentQueue,
-      currentTrackIndex,
-      setCurrentTrackIndex,
-      isPlaying,
-      setIsPlaying,
-      playAllFavorites,
-      showToast
-    }}>
-      {children}
-    </AppContext.Provider>
-  );
-}
+  const toggleFavorite = (item) => {
+    if (favorites.find(f => f.id === item.id)) {
+      setFavorites(favorites.filter(f => f.id !== item.id));
+      showToast("Favorilerden çıkarıldı");
+    } else {
+      setFavorites([...favorites, item]);
+      showToast("Favorilere eklendi");
+    }
+  };
 
-export const useAppContext = () => useContext(AppContext);
+  const isFavorite = (id) => favorites.some(f => f.id === id);
+
+  // 3. DIŞARI AKTARILACAK DEĞERLER (SORUN BURADAYDI)
+  const value = {
+    currentTrack,
+    setCurrentTrack, // <--- BU EKSİKTİ, ARTIK VAR
+    isPlaying,
+    setIsPlaying,    // <--- BU EKSİKTİ, ARTIK VAR
+    favorites,
+    toggleFavorite,
+    isFavorite,
+    toastMessage,
+    showToast
+  };
+
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+};
+
+// 4. Kanca (Hook)
+export const useAppContext = () => {
+  const context = useContext(AppContext);
+  if (context === undefined) {
+    throw new Error('useAppContext must be used within an AppProvider');
+  }
+  return context;
+};
