@@ -1,9 +1,9 @@
-// src/components/digital-hawza/MasumGrid.jsx
 'use client';
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MASUM_NODES } from '@/lib/graph-data';
+// DÜZELTME: Dosya yolu '../../lib/graph-data' olarak güncellendi.
+import { MASUM_NODES } from '../../lib/graph-data';
 import GeometricSanctuary from './GeometricSanctuary';
 
 export default function MasumGrid() {
@@ -14,16 +14,15 @@ export default function MasumGrid() {
   const handleCardClick = async (node) => {
     setSelectedId(node.id);
     
-    // Vercel AI SDK Çağrısı (Burada simüle edilmiştir)
-    // Gerçek senaryoda: const response = await generateContextualUI(node.id);
-    
+    // Simüle edilmiş AI yanıtı (Animasyonlu geçiş)
     setTimeout(() => {
         setAiComponent(
-            <div className="p-6 bg-white/50 backdrop-blur rounded-lg border border-amber-900/10">
+            <div className="p-6 bg-white/50 backdrop-blur rounded-lg border border-amber-900/10 animate-fade-in">
                 <h3 className="font-serif text-lg text-amber-900">Üretken İçgörü: {node.properties.title}</h3>
                 <p className="text-sm text-gray-600 mt-2">
                     İsnad ilişkileri ve tarihsel bağlam haritası yükleniyor...
-                    (Burada Hadis Ağı Grafiği görünecek)
+                    <br/>
+                    <span className="text-amber-700 font-medium">(Burada Hadis Ağı Grafiği görünecek)</span>
                 </p>
             </div>
         );
@@ -36,8 +35,8 @@ export default function MasumGrid() {
   };
 
   return (
-    <div className="relative min-h-screen font-sans text-gray-900 overflow-hidden">
-      {/* 1. Canlı Arka Plan */}
+    <div className="relative min-h-screen font-sans text-gray-900 overflow-hidden bg-[#F5F5F0]">
+      {/* 1. Canlı Arka Plan (p5.js) */}
       <GeometricSanctuary />
 
       <main className="relative z-10 container mx-auto px-4 py-20">
@@ -68,20 +67,13 @@ export default function MasumGrid() {
                     border border-amber-900/5 rounded-xl overflow-hidden
                     cursor-pointer hover:shadow-xl hover:shadow-amber-900/5 
                     transition-all duration-300
-                    ${isSelected ? 'h-auto cursor-default' : 'h-64 flex flex-col justify-center items-center text-center'}
+                    ${isSelected ? 'h-auto cursor-default ring-2 ring-amber-500/20' : 'h-64 flex flex-col justify-center items-center text-center'}
                   `}
                 >
-                  <div className="p-6">
-                    {/* 2. Tipografi ve Ontoloji (Jali Variable Font) */}
+                  <div className="p-6 w-full">
+                    {/* 2. Tipografi ve Ontoloji */}
                     <h2 
-                        className="text-3xl mb-2 text-amber-950 transition-all duration-400 ease-out"
-                        style={{ 
-                            fontFamily: '"Jali", serif', 
-                            fontVariationSettings: "'wght' 400" 
-                        }}
-                        // CSS ile font ağırlığı animasyonu (Variable Font)
-                        onMouseEnter={(e) => e.target.style.fontVariationSettings = "'wght' 500"}
-                        onMouseLeave={(e) => e.target.style.fontVariationSettings = "'wght' 400"}
+                        className="text-3xl mb-2 text-amber-950 transition-all duration-400 ease-out font-serif"
                     >
                       {node.properties.name_ar}
                     </h2>
@@ -102,9 +94,9 @@ export default function MasumGrid() {
                                 </span>
                                 <button 
                                     onClick={(e) => { e.stopPropagation(); resetSelection(); }}
-                                    className="text-sm text-gray-400 hover:text-amber-900"
+                                    className="text-sm text-gray-500 hover:text-red-600 transition-colors bg-white px-3 py-1 rounded border border-gray-200"
                                 >
-                                    Kapat
+                                    Kapat ✕
                                 </button>
                             </div>
                             
@@ -113,9 +105,11 @@ export default function MasumGrid() {
                                 {aiComponent ? (
                                     aiComponent
                                 ) : (
-                                    <div className="flex items-center gap-2 text-amber-800 animate-pulse">
-                                        <span className="w-2 h-2 bg-amber-800 rounded-full" />
-                                        Bilgi Çizgesi Yükleniyor...
+                                    <div className="flex items-center gap-3 text-amber-800 animate-pulse p-4">
+                                        <div className="w-3 h-3 bg-amber-600 rounded-full animate-bounce" />
+                                        <div className="w-3 h-3 bg-amber-600 rounded-full animate-bounce delay-75" />
+                                        <div className="w-3 h-3 bg-amber-600 rounded-full animate-bounce delay-150" />
+                                        <span className="text-sm font-medium ml-2">Bilgi Çizgesi Yükleniyor...</span>
                                     </div>
                                 )}
                             </div>
