@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-// EKLENDİ: Globe import edildi (Hata düzeltildi)
 import { Menu, X, BookOpen, Sparkles, Search, Facebook, Twitter, Instagram, Youtube, Mail, MapPin, Phone, Globe } from 'lucide-react';
 import PrayerTimesWidget from './PrayerTimesWidget';
-// EKLENDİ: PWA Yükleme Bileşeni
 import InstallPrompt from './components/InstallPrompt'; 
+import MusicPlayer from './MusicPlayer'; // Player Import Edildi
 
 export default function Layout({ children }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -53,7 +52,7 @@ export default function Layout({ children }) {
   return (
     <div className="min-h-screen bg-sand-light flex flex-col font-sans">
       
-      {/* EKLENDİ: PWA Yükleme Butonu (Sadece yüklenebilir olduğunda görünür) */}
+      {/* PWA Yükleme Butonu */}
       <InstallPrompt />
 
       {/* --- HEADER --- */}
@@ -233,6 +232,10 @@ export default function Layout({ children }) {
           </div>
         </div>
       </footer>
+      
+      {/* GLOBAL MÜZİK ÇALAR - SABİT */}
+      <MusicPlayer />
+      
     </div>
   );
 }

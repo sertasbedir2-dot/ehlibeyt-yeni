@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, X, Maximize2, Minimize2, Loader2 } from 'lucide-react';
+import { Play, Pause, X, Maximize2, Minimize2, Loader2, SkipBack, SkipForward } from 'lucide-react'; // Skip ikonları eklendi
 import { useAppContext } from '../context/AppContext';
+import { musicList } from '../data/musicData'; // Müzik listesini çektik
 
 export default function MusicPlayer() {
   const context = useAppContext();
   
-  // --- 1. TÜM HOOK'LAR EN ÜSTTE TANIMLANMALI (ALTIN KURAL) ---
+  // --- STATE VE REF TANIMLARI ---
   const audioRef = useRef(null);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -13,23 +14,66 @@ export default function MusicPlayer() {
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Verileri güvenli çekelim (Hata vermesin diye)
+  // Context verileri
   const currentTrack = context?.currentTrack;
   const isPlaying = context?.isPlaying || false;
   const setIsPlaying = context?.setIsPlaying;
   const setCurrentTrack = context?.setCurrentTrack;
 
+  // Güvenli veri çekimi
   const audioSrc = currentTrack?.url || currentTrack?.file || currentTrack?.src || "";
   const coverImage = currentTrack?.image || currentTrack?.cover || currentTrack?.thumbnail || "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=200";
   const title = currentTrack?.title || "Bilinmeyen Eser";
   const artist = currentTrack?.artist || "OnikiKapı";
 
-  // --- 2. EFFECT'LER (RETURN'DEN ÖNCE OLMAK ZORUNDA) ---
+  // --- MANTIKSAL FONKSİYONLAR (Next/Prev) ---
   
-  // Kaynak değişince yükle
+  const handleNext = () => {
+    if (!currentTrack || !musicList) return;
+    const currentIndex = musicList.findIndex(t => t.title === currentTrack.title); // Başlığa göre buluyoruz
+    const nextIndex = (currentIndex + 1) % musicList.length; // Liste sonundaysa başa dön
+    setCurrentTrack(musicList[nextIndex]);
+    setIsPlaying(true);
+  };
+
+  const handlePrev = () => {
+    if (!currentTrack || !musicList) return;
+    const currentIndex = musicList.findIndex(t => t.title === currentTrack.title);
+    const prevIndex = (currentIndex - 1 + musicList.length) % musicList.length;
+    setCurrentTrack(musicList[prevIndex]);
+    setIsPlaying(true);
+  };
+
+  // --- MEDIA SESSION API (Kilit Ekranı & Bildirim Paneli) ---
+  useEffect(() => {
+    if ('mediaSession' in navigator && currentTrack) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: title,
+        artist: artist,
+        album: 'OnikiKapı Külliyatı',
+        artwork: [
+          { src: coverImage, sizes: '96x96', type: 'image/jpeg' },
+          { src: coverImage, sizes: '128x128', type: 'image/jpeg' },
+          { src: coverImage, sizes: '512x512', type: 'image/jpeg' },
+        ]
+      });
+
+      // Kilit ekranı aksiyonları
+      navigator.mediaSession.setActionHandler('play', () => {
+        setIsPlaying(true);
+      });
+      navigator.mediaSession.setActionHandler('pause', () => {
+        setIsPlaying(false);
+      });
+      navigator.mediaSession.setActionHandler('nexttrack', handleNext);
+      navigator.mediaSession.setActionHandler('previoustrack', handlePrev);
+    }
+  }, [currentTrack, isPlaying]); // Her şarkı değiştiğinde güncelle
+
+  // --- SES VE YÜKLEME EFFECTLERİ ---
+  
   useEffect(() => {
     if (!currentTrack || !audioSrc) return;
-
     setError(false);
     setIsLoading(true);
     setProgress(0);
@@ -40,7 +84,6 @@ export default function MusicPlayer() {
     }
   }, [currentTrack, audioSrc]);
 
-  // Oynatma kontrolü
   useEffect(() => {
     if (!audioRef.current || !currentTrack) return;
 
@@ -49,20 +92,20 @@ export default function MusicPlayer() {
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
-            // Çalıyor...
+            // Oynatma başarılı
           })
           .catch(err => {
-            console.log("Oynatma engellendi:", err);
-            // Hata olursa butonu durdur ama çökme
-            // if (setIsPlaying) setIsPlaying(false); 
+            console.warn("Otomatik oynatma tarayıcı tarafından engellendi:", err);
+            // Kullanıcı etkileşimi gerekebilir, şimdilik durdurmuyoruz
           });
       }
     } else {
       audioRef.current.pause();
     }
-  }, [isPlaying, currentTrack]); // currentTrack ekledik
+  }, [isPlaying, currentTrack]);
 
-  // --- YARDIMCI FONKSİYONLAR ---
+  // --- YARDIMCI EVENTLER ---
+  
   const handleLoadedData = () => {
     setIsLoading(false);
     if (audioRef.current) {
@@ -90,8 +133,7 @@ export default function MusicPlayer() {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  // --- 3. EĞER ŞARKI YOKSA ŞİMDİ "NULL" DÖNEBİLİRİZ ---
-  // (Çünkü tüm hook'lar yukarıda okundu, sıra bozulmadı)
+  // Eğer şarkı seçili değilse player'ı gizle
   if (!context || !currentTrack) return null;
 
   return (
@@ -101,12 +143,11 @@ export default function MusicPlayer() {
         ref={audioRef}
         onTimeUpdate={handleTimeUpdate}
         onLoadedData={handleLoadedData}
-        onEnded={() => setIsPlaying && setIsPlaying(false)}
+        onEnded={handleNext} // Şarkı bitince sonrakine geç
         onError={(e) => {
-            console.error("Audio Load Error", e);
-            setError(true);
-            setIsLoading(false);
-            if (setIsPlaying) setIsPlaying(false);
+           console.error("Audio Error", e);
+           setError(true);
+           setIsLoading(false);
         }}
       />
 
@@ -127,19 +168,28 @@ export default function MusicPlayer() {
           )}
         </div>
 
-        {/* Bilgiler */}
+        {/* Bilgiler (Sadece genişken görünür) */}
         <div className={`flex-1 min-w-0 ${!isExpanded ? 'hidden' : 'block'}`}>
           <h4 className="text-white font-bold truncate text-sm md:text-base">{title}</h4>
           <p className="text-slate-400 text-xs truncate">{artist}</p>
           {error && <p className="text-red-500 text-[10px]">Bağlantı Hatası</p>}
         </div>
 
-        {/* Butonlar */}
+        {/* Kontrol Butonları */}
         <div className="flex items-center gap-2">
+           {/* Expand/Minimize */}
           <button onClick={() => setIsExpanded(!isExpanded)} className="text-slate-400 hover:text-white p-1 md:block hidden">
               {isExpanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
           </button>
 
+           {/* Previous (Sadece genişken) */}
+           {isExpanded && (
+            <button onClick={handlePrev} className="text-slate-300 hover:text-amber-500 transition-colors">
+              <SkipBack size={20} fill="currentColor" />
+            </button>
+           )}
+
+          {/* Play/Pause */}
           <button 
             onClick={() => setIsPlaying && setIsPlaying(!isPlaying)}
             disabled={error || isLoading}
@@ -148,6 +198,14 @@ export default function MusicPlayer() {
             {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
           </button>
 
+           {/* Next (Sadece genişken) */}
+           {isExpanded && (
+            <button onClick={handleNext} className="text-slate-300 hover:text-amber-500 transition-colors">
+              <SkipForward size={20} fill="currentColor" />
+            </button>
+           )}
+
+          {/* Kapat */}
           <button 
               onClick={() => { 
                 if (setIsPlaying) setIsPlaying(false); 
