@@ -5,6 +5,7 @@
 
 const BASE_URL = "https://archive.org/download/dostum-muhammeddir/";
 
+// Senin gönderdiğin dosya listesi (Sadece MP3 olanlar)
 const rawMusicList = [
   { title: "A Hazreti Shah", file: "A_Hazreti_Shah.mp3" },
   { title: "Alınmış Abdestim", file: "Alinmis_Abdestim.mp3" },
