@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, X, Maximize2, Minimize2, Loader2, SkipBack, SkipForward } from 'lucide-react'; // Skip ikonları eklendi
+import { Play, Pause, X, Maximize2, Minimize2, Loader2, SkipBack, SkipForward, Shuffle } from 'lucide-react'; 
 import { useAppContext } from '../context/AppContext';
-import { musicList } from '../data/musicData'; // Müzik listesini çektik
+import { musicList } from '../data/musicData'; 
 
 export default function MusicPlayer() {
   const context = useAppContext();
@@ -13,6 +13,9 @@ export default function MusicPlayer() {
   const [isExpanded, setIsExpanded] = useState(true);
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // YENİ: Karışık Çalma Modu (Varsayılan: Kapalı)
+  const [isShuffle, setIsShuffle] = useState(false);
 
   // Context verileri
   const currentTrack = context?.currentTrack;
@@ -26,58 +29,79 @@ export default function MusicPlayer() {
   const title = currentTrack?.title || "Bilinmeyen Eser";
   const artist = currentTrack?.artist || "OnikiKapı";
 
-  // --- MANTIKSAL FONKSİYONLAR (Next/Prev) ---
+  // --- KATEGORİ VE LİSTE MANTIĞI ---
   
+  // Şu anki kategorideki tüm şarkıları bulur
+  const getCurrentPlaylist = () => {
+    if (!currentTrack || !musicList) return [];
+    // Eğer kategori yoksa hepsini getir, varsa sadece o kategoriyi getir
+    return musicList.filter(track => track.category === currentTrack.category);
+  };
+
   const handleNext = () => {
-    if (!currentTrack || !musicList) return;
-    const currentIndex = musicList.findIndex(t => t.title === currentTrack.title); // Başlığa göre buluyoruz
-    const nextIndex = (currentIndex + 1) % musicList.length; // Liste sonundaysa başa dön
-    setCurrentTrack(musicList[nextIndex]);
-    setIsPlaying(true);
+    const playlist = getCurrentPlaylist();
+    if (playlist.length === 0) return;
+
+    let nextTrack;
+
+    if (isShuffle) {
+      // KARIŞIK MOD: Aynı kategoriden rastgele bir şarkı seç
+      const otherTracks = playlist.length > 1 
+          ? playlist.filter(t => t.title !== currentTrack.title) 
+          : playlist;
+      
+      const randomIndex = Math.floor(Math.random() * otherTracks.length);
+      nextTrack = otherTracks[randomIndex];
+    } else {
+      // SIRALI MOD: Aynı kategoriden bir sonrakini seç
+      const currentIndex = playlist.findIndex(t => t.title === currentTrack.title);
+      const nextIndex = (currentIndex + 1) % playlist.length;
+      nextTrack = playlist[nextIndex];
+    }
+
+    if (nextTrack) {
+      setCurrentTrack(nextTrack);
+      setIsPlaying(true);
+    }
   };
 
   const handlePrev = () => {
-    if (!currentTrack || !musicList) return;
-    const currentIndex = musicList.findIndex(t => t.title === currentTrack.title);
-    const prevIndex = (currentIndex - 1 + musicList.length) % musicList.length;
-    setCurrentTrack(musicList[prevIndex]);
+    const playlist = getCurrentPlaylist();
+    if (playlist.length === 0) return;
+
+    // Öncekinde genelde sıralı gidilir
+    const currentIndex = playlist.findIndex(t => t.title === currentTrack.title);
+    const prevIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+    setCurrentTrack(playlist[prevIndex]);
     setIsPlaying(true);
   };
 
-  // --- MEDIA SESSION API (Kilit Ekranı & Bildirim Paneli) ---
+  // --- MEDIA SESSION API (Kilit Ekranı) ---
   useEffect(() => {
     if ('mediaSession' in navigator && currentTrack) {
       navigator.mediaSession.metadata = new MediaMetadata({
         title: title,
         artist: artist,
-        album: 'OnikiKapı Külliyatı',
+        album: currentTrack.category || 'Ehlibeyt Külliyatı',
         artwork: [
           { src: coverImage, sizes: '96x96', type: 'image/jpeg' },
-          { src: coverImage, sizes: '128x128', type: 'image/jpeg' },
           { src: coverImage, sizes: '512x512', type: 'image/jpeg' },
         ]
       });
 
-      // Kilit ekranı aksiyonları
-      navigator.mediaSession.setActionHandler('play', () => {
-        setIsPlaying(true);
-      });
-      navigator.mediaSession.setActionHandler('pause', () => {
-        setIsPlaying(false);
-      });
+      navigator.mediaSession.setActionHandler('play', () => setIsPlaying(true));
+      navigator.mediaSession.setActionHandler('pause', () => setIsPlaying(false));
       navigator.mediaSession.setActionHandler('nexttrack', handleNext);
       navigator.mediaSession.setActionHandler('previoustrack', handlePrev);
     }
-  }, [currentTrack, isPlaying]); // Her şarkı değiştiğinde güncelle
+  }, [currentTrack, isPlaying, isShuffle]);
 
   // --- SES VE YÜKLEME EFFECTLERİ ---
-  
   useEffect(() => {
     if (!currentTrack || !audioSrc) return;
     setError(false);
     setIsLoading(true);
     setProgress(0);
-    
     if (audioRef.current) {
       audioRef.current.src = audioSrc;
       audioRef.current.load();
@@ -86,18 +110,10 @@ export default function MusicPlayer() {
 
   useEffect(() => {
     if (!audioRef.current || !currentTrack) return;
-
     if (isPlaying) {
       const playPromise = audioRef.current.play();
       if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            // Oynatma başarılı
-          })
-          .catch(err => {
-            console.warn("Otomatik oynatma tarayıcı tarafından engellendi:", err);
-            // Kullanıcı etkileşimi gerekebilir, şimdilik durdurmuyoruz
-          });
+        playPromise.catch(err => console.warn("Otomatik oynatma engellendi:", err));
       }
     } else {
       audioRef.current.pause();
@@ -105,7 +121,6 @@ export default function MusicPlayer() {
   }, [isPlaying, currentTrack]);
 
   // --- YARDIMCI EVENTLER ---
-  
   const handleLoadedData = () => {
     setIsLoading(false);
     if (audioRef.current) {
@@ -133,7 +148,6 @@ export default function MusicPlayer() {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  // Eğer şarkı seçili değilse player'ı gizle
   if (!context || !currentTrack) return null;
 
   return (
@@ -143,12 +157,8 @@ export default function MusicPlayer() {
         ref={audioRef}
         onTimeUpdate={handleTimeUpdate}
         onLoadedData={handleLoadedData}
-        onEnded={handleNext} // Şarkı bitince sonrakine geç
-        onError={(e) => {
-           console.error("Audio Error", e);
-           setError(true);
-           setIsLoading(false);
-        }}
+        onEnded={handleNext} 
+        onError={() => { setError(true); setIsLoading(false); }}
       />
 
       {/* ARAYÜZ */}
@@ -171,25 +181,38 @@ export default function MusicPlayer() {
         {/* Bilgiler (Sadece genişken görünür) */}
         <div className={`flex-1 min-w-0 ${!isExpanded ? 'hidden' : 'block'}`}>
           <h4 className="text-white font-bold truncate text-sm md:text-base">{title}</h4>
-          <p className="text-slate-400 text-xs truncate">{artist}</p>
-          {error && <p className="text-red-500 text-[10px]">Bağlantı Hatası</p>}
+          <div className="flex items-center gap-2">
+            <span className="text-amber-500 text-[10px] border border-amber-500/30 px-1 rounded uppercase tracking-wider">
+               {currentTrack.category || 'Genel'}
+            </span>
+            <p className="text-slate-400 text-xs truncate">{artist}</p>
+          </div>
         </div>
 
         {/* Kontrol Butonları */}
         <div className="flex items-center gap-2">
-           {/* Expand/Minimize */}
+          
+          {/* YENİ: Shuffle (Karışık) Butonu */}
+          {isExpanded && (
+            <button 
+              onClick={() => setIsShuffle(!isShuffle)} 
+              className={`p-1 transition-colors ${isShuffle ? 'text-amber-500' : 'text-slate-500 hover:text-white'}`}
+              title="Kategorisinde Karışık Çal"
+            >
+              <Shuffle size={16} />
+            </button>
+          )}
+
           <button onClick={() => setIsExpanded(!isExpanded)} className="text-slate-400 hover:text-white p-1 md:block hidden">
               {isExpanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
           </button>
 
-           {/* Previous (Sadece genişken) */}
            {isExpanded && (
             <button onClick={handlePrev} className="text-slate-300 hover:text-amber-500 transition-colors">
               <SkipBack size={20} fill="currentColor" />
             </button>
            )}
 
-          {/* Play/Pause */}
           <button 
             onClick={() => setIsPlaying && setIsPlaying(!isPlaying)}
             disabled={error || isLoading}
@@ -198,14 +221,12 @@ export default function MusicPlayer() {
             {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
           </button>
 
-           {/* Next (Sadece genişken) */}
            {isExpanded && (
             <button onClick={handleNext} className="text-slate-300 hover:text-amber-500 transition-colors">
               <SkipForward size={20} fill="currentColor" />
             </button>
            )}
 
-          {/* Kapat */}
           <button 
               onClick={() => { 
                 if (setIsPlaying) setIsPlaying(false); 

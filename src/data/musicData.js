@@ -90,12 +90,38 @@ const rawMusicList = [
   { title: "Söylersen Muhammed", file: "soylersen_muhammed.mp3" }
 ];
 
-export const musicList = rawMusicList.map((track, index) => ({
-  id: `music-track-${index}`,
-  title: track.title,
-  artist: "Deyişler & Nefesler",
-  // encodeURI kullanarak Türkçe karakterlerin URL içinde bozulmamasını sağlıyoruz
-  url: BASE_URL + encodeURI(track.file),
-  cover: "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?q=80&w=400&auto=format&fit=crop",
-  category: "Deyiş"
-}));
+export const musicList = rawMusicList.map((track, index) => {
+  // --- OTOMATİK KATEGORİ ALGORİTMASI ---
+  let cat = "Deyiş"; // Varsayılan kategori
+  const lowerTitle = track.title.toLowerCase();
+
+  // 1. Mersiye / Ağıt Kontrolü (Hüzünlü parçalar)
+  if (
+      lowerTitle.includes("mersiye") || 
+      lowerTitle.includes("ağıt") || 
+      lowerTitle.includes("kerbela") ||
+      lowerTitle.includes("şah hüseyin") ||
+      lowerTitle.includes("acı") ||
+      lowerTitle.includes("medet")
+  ) {
+    cat = "Mersiye";
+  } 
+  // 2. Enstrümantal Kontrolü
+  else if (lowerTitle.includes("mey") || lowerTitle.includes("enstrümantal") || lowerTitle.includes("melodi")) {
+    cat = "Enstrümantal";
+  }
+  // 3. Belgesel / Anlatı Kontrolü
+  else if (lowerTitle.includes("belgesel") || lowerTitle.includes("hayatı") || lowerTitle.includes("biyografi")) {
+    cat = "Belgesel";
+  }
+
+  return {
+    id: `music-track-${index}`,
+    title: track.title,
+    artist: cat === "Enstrümantal" ? "Enstrümantal İcra" : "Ehlibeyt Külliyatı",
+    // encodeURI kullanarak Türkçe karakterlerin URL içinde bozulmamasını sağlıyoruz
+    url: BASE_URL + encodeURI(track.file),
+    cover: "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?q=80&w=400&auto=format&fit=crop",
+    category: cat // Otomatik atanan kategori
+  };
+});
