@@ -14,7 +14,7 @@ export default function MusicPlayer() {
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
-  // YENİ: Karışık Çalma Modu (Varsayılan: Kapalı)
+  // Karışık Çalma Modu
   const [isShuffle, setIsShuffle] = useState(false);
 
   // Context verileri
@@ -23,29 +23,47 @@ export default function MusicPlayer() {
   const setIsPlaying = context?.setIsPlaying;
   const setCurrentTrack = context?.setCurrentTrack;
 
-  // Güvenli veri çekimi
   const audioSrc = currentTrack?.url || currentTrack?.file || currentTrack?.src || "";
   const coverImage = currentTrack?.image || currentTrack?.cover || currentTrack?.thumbnail || "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=200";
   const title = currentTrack?.title || "Bilinmeyen Eser";
   const artist = currentTrack?.artist || "OnikiKapı";
 
-  // --- KATEGORİ VE LİSTE MANTIĞI ---
+  // --- KATEGORİ VE LİSTE MANTIĞI (DÜZELTİLDİ) ---
   
-  // Şu anki kategorideki tüm şarkıları bulur
+  // Bu fonksiyon artık hata yapmaz, liste boş dönmez
   const getCurrentPlaylist = () => {
     if (!currentTrack || !musicList) return [];
-    // Eğer kategori yoksa hepsini getir, varsa sadece o kategoriyi getir
-    return musicList.filter(track => track.category === currentTrack.category);
+
+    // 1. Önce çalınan şarkının kategorisini bulmaya çalışalım
+    let targetCategory = currentTrack.category;
+
+    // EĞER tarayıcı hafızasında kategori yoksa, isminden listede bulup öğrenelim
+    if (!targetCategory) {
+        const found = musicList.find(t => t.title === currentTrack.title);
+        if (found) targetCategory = found.category;
+    }
+
+    // 2. Eğer hala kategori yoksa "Deyiş" varsayalım veya hepsini getirelim
+    if (!targetCategory) {
+        return musicList; // Kategori bulunamazsa TÜM listeyi çal (Kilitlenmeyi önler)
+    }
+
+    // 3. O kategorideki şarkıları süz
+    const filteredList = musicList.filter(track => track.category === targetCategory);
+
+    // 4. Eğer filtreleme sonucu boşsa (teknik hata), yine TÜM listeyi döndür
+    return filteredList.length > 0 ? filteredList : musicList;
   };
 
   const handleNext = () => {
     const playlist = getCurrentPlaylist();
-    if (playlist.length === 0) return;
+    if (!playlist || playlist.length === 0) return;
 
     let nextTrack;
 
     if (isShuffle) {
-      // KARIŞIK MOD: Aynı kategoriden rastgele bir şarkı seç
+      // KARIŞIK MOD:
+      // Mevcut şarkı haricindekilerden rastgele seç
       const otherTracks = playlist.length > 1 
           ? playlist.filter(t => t.title !== currentTrack.title) 
           : playlist;
@@ -53,9 +71,10 @@ export default function MusicPlayer() {
       const randomIndex = Math.floor(Math.random() * otherTracks.length);
       nextTrack = otherTracks[randomIndex];
     } else {
-      // SIRALI MOD: Aynı kategoriden bir sonrakini seç
+      // SIRALI MOD:
       const currentIndex = playlist.findIndex(t => t.title === currentTrack.title);
-      const nextIndex = (currentIndex + 1) % playlist.length;
+      // Eğer mevcut şarkı listede bulunamazsa (index -1), 0. şarkıdan başla
+      const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % playlist.length;
       nextTrack = playlist[nextIndex];
     }
 
@@ -67,16 +86,16 @@ export default function MusicPlayer() {
 
   const handlePrev = () => {
     const playlist = getCurrentPlaylist();
-    if (playlist.length === 0) return;
+    if (!playlist || playlist.length === 0) return;
 
-    // Öncekinde genelde sıralı gidilir
     const currentIndex = playlist.findIndex(t => t.title === currentTrack.title);
-    const prevIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+    const prevIndex = currentIndex === -1 ? 0 : (currentIndex - 1 + playlist.length) % playlist.length;
+    
     setCurrentTrack(playlist[prevIndex]);
     setIsPlaying(true);
   };
 
-  // --- MEDIA SESSION API (Kilit Ekranı) ---
+  // --- MEDIA SESSION API ---
   useEffect(() => {
     if ('mediaSession' in navigator && currentTrack) {
       navigator.mediaSession.metadata = new MediaMetadata({
@@ -150,6 +169,11 @@ export default function MusicPlayer() {
 
   if (!context || !currentTrack) return null;
 
+  // Güvenli kategori gösterimi
+  const displayCategory = currentTrack.category || 
+                          (musicList.find(t => t.title === title)?.category) || 
+                          "Genel";
+
   return (
     <div className={`fixed bottom-4 right-4 z-[9999] transition-all duration-300 ease-in-out bg-[#0f172a] border border-amber-500/30 rounded-2xl shadow-2xl overflow-hidden ${isExpanded ? 'w-[90vw] md:w-[400px]' : 'w-auto rounded-full'}`}>
       
@@ -178,12 +202,12 @@ export default function MusicPlayer() {
           )}
         </div>
 
-        {/* Bilgiler (Sadece genişken görünür) */}
+        {/* Bilgiler */}
         <div className={`flex-1 min-w-0 ${!isExpanded ? 'hidden' : 'block'}`}>
           <h4 className="text-white font-bold truncate text-sm md:text-base">{title}</h4>
           <div className="flex items-center gap-2">
             <span className="text-amber-500 text-[10px] border border-amber-500/30 px-1 rounded uppercase tracking-wider">
-               {currentTrack.category || 'Genel'}
+               {displayCategory}
             </span>
             <p className="text-slate-400 text-xs truncate">{artist}</p>
           </div>
@@ -192,12 +216,12 @@ export default function MusicPlayer() {
         {/* Kontrol Butonları */}
         <div className="flex items-center gap-2">
           
-          {/* YENİ: Shuffle (Karışık) Butonu */}
+          {/* Shuffle Butonu */}
           {isExpanded && (
             <button 
               onClick={() => setIsShuffle(!isShuffle)} 
               className={`p-1 transition-colors ${isShuffle ? 'text-amber-500' : 'text-slate-500 hover:text-white'}`}
-              title="Kategorisinde Karışık Çal"
+              title="Karışık Çal"
             >
               <Shuffle size={16} />
             </button>
