@@ -1,39 +1,51 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, X, Maximize2 } from 'lucide-react';
+import { Play, Pause, X, Maximize2, Minimize2 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 
 export default function MusicPlayer() {
-  const { currentTrack, setCurrentTrack, isPlaying, setIsPlaying } = useAppContext();
+  // Context bağlantısı güvenli mi kontrol et
+  const context = useAppContext();
+  if (!context) return null; // Context yoksa hiç render etme (Çökmesini önler)
+  
+  const { currentTrack, setCurrentTrack, isPlaying, setIsPlaying } = context;
   const audioRef = useRef(null);
   
   // State Tanımları
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [isExpanded, setIsExpanded] = useState(true); // Mobilde küçültüp büyütmek için
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [error, setError] = useState(false);
 
-  // EĞER ŞARKI YOKSA GİZLE
+  // EĞER ŞARKI SEÇİLMEMİŞSE HİÇ GÖSTERME
   if (!currentTrack) return null;
 
-  // --- YARDIMCI FONKSİYON: SÜRE FORMATLAMA ---
-  // (Kod içinde kullanılıyor ancak tanımı eksikti, eklendi)
-  const formatTime = (time) => {
-    if (!time) return "0:00";
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-  };
+  // GÜVENLİ VERİ ÇIKARTMA (Çökme Önleyici)
+  // Gelen verinin içinde url, file, src ne varsa onu yakala
+  const audioSrc = currentTrack.url || currentTrack.file || currentTrack.src || "";
+  
+  // Resim yoksa varsayılan resim koy
+  const coverImage = currentTrack.image || currentTrack.cover || currentTrack.thumbnail || "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=200";
+  const title = currentTrack.title || "Bilinmeyen Eser";
+  const artist = currentTrack.artist || "OnikiKapı";
 
-  // --- MOTOR: ŞARKI DEĞİŞİNCE VEYA PLAY/PAUSE BASILINCA ---
+  // --- MOTOR: ŞARKI DEĞİŞİNCE ÇAL ---
   useEffect(() => {
+    // Şarkı değişince hatayı sıfırla
+    setError(false);
+    
     if (audioRef.current) {
       if (isPlaying) {
-        // Tarayıcı bazen otomatik oynatmayı engeller, bunu yakalayalım
         const playPromise = audioRef.current.play();
         if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.error("Otomatik oynatma hatası:", error);
-            setIsPlaying(false); // Hata varsa butonu pause yap
-          });
+          playPromise
+            .then(() => {
+              // Oynatma başarılı
+            })
+            .catch(err => {
+              console.error("Oynatma Hatası:", err);
+              // Otomatik oynatma engellendiyse veya hata varsa durdur
+              setIsPlaying(false);
+            });
         }
       } else {
         audioRef.current.pause();
@@ -41,21 +53,17 @@ export default function MusicPlayer() {
     }
   }, [currentTrack, isPlaying, setIsPlaying]);
 
-  // --- ŞARKI BİTİNCE ---
-  const handleEnded = () => {
-    setIsPlaying(false);
-    setProgress(0);
-  };
-
   // --- SÜRE TAKİBİ ---
   const handleTimeUpdate = () => {
     if (audioRef.current) {
-      setProgress(audioRef.current.currentTime);
-      setDuration(audioRef.current.duration || 0);
+      // Sayı değilse (NaN) 0 yap ki çökmesin
+      const curr = isNaN(audioRef.current.currentTime) ? 0 : audioRef.current.currentTime;
+      const dur = isNaN(audioRef.current.duration) ? 0 : audioRef.current.duration;
+      setProgress(curr);
+      setDuration(dur);
     }
   };
 
-  // --- İLERLETME ÇUBUĞU ---
   const handleSeek = (e) => {
     const newTime = parseFloat(e.target.value);
     if (audioRef.current) {
@@ -64,69 +72,80 @@ export default function MusicPlayer() {
     }
   };
 
-  // --- URL ÇÖZÜCÜ ---
-  // Gelen verinin içinde hangisi varsa onu kullan (url, file, src)
-  const audioSrc = currentTrack.url || currentTrack.file || currentTrack.src;
+  const formatTime = (seconds) => {
+    if (!seconds || isNaN(seconds)) return "00:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
 
   return (
     <div className={`fixed bottom-4 right-4 z-[1000] transition-all duration-300 ease-in-out bg-slate-900/95 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl overflow-hidden ${isExpanded ? 'w-[90vw] md:w-[400px]' : 'w-auto rounded-full'}`}>
-      
-      {/* GİZLİ SES MOTORU (HTML5 AUDIO) */}
+      {/* HTML5 AUDIO ELEMENTİ
+          key={audioSrc} -> Bu çok önemli! URL değişince player'ı tamamen yeniler.
+      */}
       <audio
+        key={audioSrc}
         ref={audioRef}
         src={audioSrc}
+        preload="auto"
         onTimeUpdate={handleTimeUpdate}
-        onEnded={handleEnded}
         onLoadedMetadata={handleTimeUpdate}
-        onError={(e) => console.error("Ses dosyası yüklenemedi:", e)}
+        onEnded={() => setIsPlaying(false)}
+        onError={(e) => {
+          console.error("Audio Load Error", e);
+          setError(true);
+          setIsPlaying(false);
+        }}
       />
 
-      {/* PLAYER ARAYÜZÜ */}
-      
-      {/* ÜST KISIM (KAPAK VE BİLGİ) */}
+      {/* ÜST KISIM */}
       <div className={`flex items-center gap-4 ${isExpanded ? 'p-4' : 'p-2'}`}>
-        
-        {/* Kapak Resmi (Dönme Efekti) */}
+        {/* Kapak Resmi */}
         <div className={`relative rounded-full overflow-hidden border-2 border-amber-500/50 flex-shrink-0 transition-all ${isExpanded ? 'w-16 h-16' : 'w-12 h-12'}`}>
           <img 
-            src={currentTrack.image || currentTrack.cover || "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=200"} 
+            src={coverImage} 
             alt="Cover" 
             className={`w-full h-full object-cover ${isPlaying ? 'animate-spin-slow' : ''}`} 
           />
-          {/* Ortadaki delik (Plak görünümü) */}
           <div className="absolute inset-0 m-auto w-3 h-3 bg-[#0f172a] rounded-full border border-amber-500/30"></div>
         </div>
 
-        {/* Şarkı Bilgileri */}
+        {/* Bilgiler */}
         <div className={`flex-1 min-w-0 ${!isExpanded ? 'hidden' : 'block'}`}>
-          <h4 className="text-white font-bold truncate text-sm md:text-base">{currentTrack.title || "Bilinmeyen Eser"}</h4>
-          <p className="text-slate-400 text-xs truncate">{currentTrack.artist || "Sanatçı"}</p>
+          <h4 className="text-white font-bold truncate text-sm md:text-base">{title}</h4>
+          <p className="text-slate-400 text-xs truncate">{artist}</p>
+          {error && <p className="text-red-500 text-[10px]">Dosya yüklenemedi!</p>}
         </div>
 
-        {/* KONTROLLER */}
+        {/* Kontroller */}
         <div className="flex items-center gap-2 md:gap-3">
-          {/* Genişlet/Küçült (Mobilde yer kaplamasın diye) */}
+          {/* Genişlet/Küçült */}
           <button onClick={() => setIsExpanded(!isExpanded)} className="text-slate-400 hover:text-white p-1">
-              <Maximize2 size={16} />
+              {isExpanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
           </button>
 
           {/* Play/Pause */}
           <button 
             onClick={() => setIsPlaying(!isPlaying)}
-            className="w-10 h-10 bg-amber-500 hover:bg-amber-400 rounded-full flex items-center justify-center text-slate-900 shadow-lg transition-transform active:scale-95"
+            disabled={error}
+            className={`w-10 h-10 rounded-full flex items-center justify-center text-slate-900 shadow-lg transition-transform active:scale-95 ${error ? 'bg-gray-600 cursor-not-allowed' : 'bg-amber-500 hover:bg-amber-400'}`}
           >
             {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
           </button>
 
           {/* Kapat */}
-          <button onClick={() => { setIsPlaying(false); setCurrentTrack(null); }} className="text-slate-400 hover:text-red-500 transition-colors p-1">
+          <button 
+              onClick={() => { setIsPlaying(false); setCurrentTrack(null); }} 
+              className="text-slate-400 hover:text-red-500 transition-colors p-1"
+          >
             <X size={20} />
           </button>
         </div>
       </div>
 
-      {/* ALT KISIM (PROGRESS BAR - Sadece Geniş Modda) */}
-      {isExpanded && (
+      {/* PROGRESS BAR (Sadece Geniş Modda ve Hata Yoksa) */}
+      {isExpanded && !error && (
         <div className="px-4 pb-4">
           <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono mb-1">
             <span>{formatTime(progress)}</span>
