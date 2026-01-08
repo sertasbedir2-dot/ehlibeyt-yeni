@@ -1,0 +1,38 @@
+# Logs (Hatalar ve Kayıtlar)
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Bağımlılıklar ve Derleme Çıktıları
+node_modules
+dist
+dist-ssr
+*.local
+
+# Ortam Değişkenleri (KRİTİK GÜVENLİK)
+.env
+.env.local
+.env.*.local
+
+# Editor Klasörleri (Kişisel Ayarlar)
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# TypeScript ve Vite Özel
+*.tsbuildinfo
+.vite
+.next
+
+# PWA ve Cache Dosyaları (Geçici)
+.pwa

@@ -1,0 +1,64 @@
+/* ONİKİKAPI - YAPISAL STİLLER (STRUCTURE) */
+
+/* 1. SAYFA GEÇİŞ ANİMASYONU */
+.page-transition {
+  animation: pageEnter 0.5s ease-out;
+}
+
+@keyframes pageEnter {
+  from { opacity: 0; filter: blur(5px); }
+  to { opacity: 1; filter: blur(0); }
+}
+
+/* 2. ÖZEL KART TASARIMI (MODERN İSLAMİ ESTETİK) */
+.h-card {
+  @apply bg-turquoise-dark/50 border border-gold/20 rounded-[2rem] p-6 
+         transition-all duration-300 hover:border-gold/50 hover:shadow-[0_10px_40px_rgba(0,0,0,0.3)];
+}
+
+/* 3. PARLAKLIK EFEKTİ (SHINE) */
+.shine-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine-effect::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(45deg);
+  transition: all 0.7s;
+  pointer-events: none;
+}
+
+.shine-effect:hover::after {
+  left: 100%;
+  top: 100%;
+}
+
+/* 4. TİPOGRAFİ DÜZENLEMELERİ */
+h1, h2, h3 {
+  @apply font-serif tracking-tight text-gold;
+}
+
+p {
+  @apply leading-relaxed text-sand/80;
+}
+
+/* 5. GİZLİ SCROLLBAR (AMA KAYDIRMA AKTİF) */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
