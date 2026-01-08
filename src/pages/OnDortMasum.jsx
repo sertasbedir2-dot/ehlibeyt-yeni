@@ -4,7 +4,8 @@ import { Helmet } from 'react-helmet-async';
 import { Crown, Star, Network, X, Search, ChevronDown, Info, Tag, Layers, Bot, Sparkles, Loader2 } from 'lucide-react';
 import ForceGraph2D from 'react-force-graph-2d';
 
-// Dinamik Bilgi Kutucuğu
+// --- BU DOSYADA ARTIK "neo4j-driver" İMPORTU YOK! --- 
+
 const InfoBox = ({ icon: Icon, title, content }) => {
   const [isOpen, setIsOpen] = useState(true);
   if (!content || typeof content === 'object') return null; 
@@ -29,7 +30,6 @@ const InfoBox = ({ icon: Icon, title, content }) => {
   );
 };
 
-// Yapay Zeka Cevap Kutusu
 const AIBox = ({ content }) => (
   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-gradient-to-br from-purple-900/80 to-blue-900/80 border border-purple-500/50 rounded-xl p-4 mb-4 shadow-[0_0_15px_rgba(168,85,247,0.3)]">
     <div className="flex items-center gap-2 text-purple-200 mb-2 font-bold text-sm border-b border-purple-500/30 pb-2">
@@ -60,7 +60,7 @@ export default function OnDortMasum() {
   const API_URL = "https://thaqalayn-api-9632.onrender.com";
 
   useEffect(() => {
-    // Verileri internetteki motordan çek
+    // ARTIK DOĞRUDAN NEO4J YOK, FETCH VAR:
     fetch(`${API_URL}/api/kisiler`)
       .then(res => res.json())
       .then(data => {
@@ -78,7 +78,6 @@ export default function OnDortMasum() {
     return () => clearTimeout(zamanlayici);
   }, [aramaMetni]);
 
-  // EKSİK ARAMALARI RAPORLA
   const filteredNodes = useMemo(() => {
     if (!filtrelenmisMetin) return tumVeriler;
     const kucukHarfArama = filtrelenmisMetin.toLocaleLowerCase('tr');
@@ -95,7 +94,7 @@ export default function OnDortMasum() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ terim: filtrelenmisMetin })
       })
-      .then(() => console.log("Eksik arama raporlandı:", filtrelenmisMetin))
+      .then(() => console.log("Eksik arama raporlandı"))
       .catch(err => console.error("Raporlama hatası:", err));
     }
   }, [filtrelenmisMetin, filteredNodes, loading]);
@@ -117,7 +116,6 @@ export default function OnDortMasum() {
     if (!selectedNode) return;
     setAiLoading(true);
     try {
-      // AI isteğini internetteki motora gönder
       const response = await fetch(`${API_URL}/api/ai-analiz`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -181,7 +179,6 @@ export default function OnDortMasum() {
           <div className="h-full w-full relative">
             
             {viewMode === 'grid' ? (
-              // --- GRID (LİSTE) GÖRÜNÜMÜ ---
               <div className="absolute inset-0 overflow-y-auto p-6 ozel-scroll">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4 pb-40">
                   {filteredNodes.map(m => (
@@ -202,13 +199,11 @@ export default function OnDortMasum() {
                 </div>
               </div>
             ) : (
-              // --- HARİTA GÖRÜNÜMÜ ---
               <div className="absolute inset-0">
                  <ForceGraph2D ref={fgRef} graphData={graphData} nodeColor={n => n.color} nodeLabel="isim" nodeRelSize={6} onNodeClick={handleNodeClick} linkColor={() => 'rgba(255,255,255,0.1)'} />
               </div>
             )}
 
-            {/* --- SAĞ PANEL --- */}
             <AnimatePresence>
               {selectedNode && (
                 <motion.div 
@@ -255,14 +250,6 @@ export default function OnDortMasum() {
                         if (!value) return null;
                         return <InfoBox key={key} icon={key.includes('role') ? Layers : Tag} title={key} content={value} />;
                       })}
-                      
-                      {(!selectedNode.properties || Object.keys(selectedNode.properties).length <= 3) && !aiResponse && (
-                        <div className="p-4 rounded-xl border border-dashed border-slate-600 text-center text-slate-500 text-sm mt-4">
-                           <Bot className="mx-auto mb-2 text-slate-600"/>
-                           Bu kayıt için detaylı metin yok. 
-                           <br/>Yapay zeka butonunu kullanabilirsiniz.
-                        </div>
-                      )}
                     </div>
                   </div>
                 </motion.div>
