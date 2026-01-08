@@ -89,7 +89,7 @@ function AppContent() {
     const shareData = {
       title: 'OnikiKapı',
       text: 'İlim şehri OnikiKapı uygulamasını keşfetmeni tavsiye ederim:',
-      url: 'https://onikikapi.vercel.app'
+      url: 'https://www.onikikapi.com'
     };
     try {
       if (navigator.share) {

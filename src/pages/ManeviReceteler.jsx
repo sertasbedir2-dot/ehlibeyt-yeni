@@ -39,7 +39,7 @@ ${selectedRecipe.cure.arabic}
 📜 *Kaynak:* ${selectedRecipe.cure.source}
 
 📲 *OnikiKapı - İlim ve Hikmet Şehri uygulamasından keşfedin:*
-https://onikikapi.vercel.app/manevi-receteler
+https://www.onikikapi.com/manevi-receteler
     `.trim();
 
     // Mobil paylaşım API'sini kullan
@@ -48,7 +48,7 @@ https://onikikapi.vercel.app/manevi-receteler
         await navigator.share({
           title: `OnikiKapı: ${selectedRecipe.title}`,
           text: shareText,
-          url: 'https://onikikapi.vercel.app/manevi-receteler'
+          url: 'https://www.onikikapi.com/manevi-receteler'
         });
       } catch (err) {
         console.log('Paylaşım iptal edildi');
