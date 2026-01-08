@@ -56,8 +56,12 @@ export default function OnDortMasum() {
 
   const fgRef = useRef();
 
+  // 🌍 API ADRESİ (Render'daki Yeni Linkiniz)
+  const API_URL = "https://thaqalayn-api-9632.onrender.com";
+
   useEffect(() => {
-    fetch('http://localhost:3001/api/kisiler')
+    // Verileri internetteki motordan çek
+    fetch(`${API_URL}/api/kisiler`)
       .then(res => res.json())
       .then(data => {
         setTumVeriler(data.nodes);
@@ -67,7 +71,6 @@ export default function OnDortMasum() {
       .catch(err => { console.error("Hata:", err); setLoading(false); });
   }, []);
 
-  // 1. PERFORMANS AYARI (DEBOUNCE)
   useEffect(() => {
     const zamanlayici = setTimeout(() => {
       setFiltrelenmisMetin(aramaMetni);
@@ -75,7 +78,7 @@ export default function OnDortMasum() {
     return () => clearTimeout(zamanlayici);
   }, [aramaMetni]);
 
-  // 2. YENİ: EKSİK ARAMALARI RAPORLA (Sessiz Casus)
+  // EKSİK ARAMALARI RAPORLA
   const filteredNodes = useMemo(() => {
     if (!filtrelenmisMetin) return tumVeriler;
     const kucukHarfArama = filtrelenmisMetin.toLocaleLowerCase('tr');
@@ -86,9 +89,8 @@ export default function OnDortMasum() {
   }, [tumVeriler, filtrelenmisMetin]);
 
   useEffect(() => {
-    // 3 harften uzun bir şey arandıysa ve sonuç 0 ise
     if (!loading && filtrelenmisMetin.length >= 3 && filteredNodes.length === 0) {
-      fetch('http://localhost:3001/api/log-eksik-arama', {
+      fetch(`${API_URL}/api/log-eksik-arama`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ terim: filtrelenmisMetin })
@@ -97,7 +99,6 @@ export default function OnDortMasum() {
       .catch(err => console.error("Raporlama hatası:", err));
     }
   }, [filtrelenmisMetin, filteredNodes, loading]);
-
 
   useEffect(() => {
     setAiResponse(null);
@@ -116,7 +117,8 @@ export default function OnDortMasum() {
     if (!selectedNode) return;
     setAiLoading(true);
     try {
-      const response = await fetch('http://localhost:3001/api/ai-analiz', {
+      // AI isteğini internetteki motora gönder
+      const response = await fetch(`${API_URL}/api/ai-analiz`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isim: selectedNode.isim, unvan: selectedNode.unvan })
@@ -186,7 +188,6 @@ export default function OnDortMasum() {
                     <div 
                       key={m.id} 
                       onClick={() => handleNodeClick(m)} 
-                      // 'motion.div' yerine düz 'div' kullanarak performans artırıldı
                       className="p-4 bg-[#164e50]/40 border border-white/5 rounded-xl text-center cursor-pointer hover:bg-white/10 hover:border-gold/30 transition-all group relative overflow-hidden h-32 flex flex-col items-center justify-center"
                     >
                       <div className="absolute top-0 left-0 w-full h-1" style={{backgroundColor: m.color}}></div>
