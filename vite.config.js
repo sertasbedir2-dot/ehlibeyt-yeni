@@ -13,14 +13,18 @@ export default defineConfig({
         cleanupOutdatedCaches: true, // Eski sürümleri temizler
         clientsClaim: true, // Yeni sürümü hemen devreye alır
         skipWaiting: true, // Bekleme yapmaz
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        
+        // 🚀 YENİ EKLENEN KISIM: Facebook ve reklam parametrelerini görmezden gelir
+        ignoreURLParametersMatching: [/^utm_/, /^fbclid$/],
+        navigateFallback: '/index.html' // Her durumda ana sayfaya yönlendirir
       },
 
       devOptions: {
         enabled: true
       },
       
-      // Sizin mevcut manifest bilgileriniz (Burası çok önemli, silinmemeli)
+      // Sizin mevcut manifest bilgileriniz
       manifest: {
         name: 'OnikiKapı',
         short_name: 'OnikiKapı',
