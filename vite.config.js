@@ -6,16 +6,21 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'autoUpdate', // Otomatik güncelleme modu
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       
       workbox: {
-        cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        skipWaiting: true,
+        cleanupOutdatedCaches: true, // Eski sürümleri temizler
+        clientsClaim: true, // Yeni sürümü hemen devreye alır
+        skipWaiting: true, // Bekleme yapmaz
         globPatterns: ['**/*.{js,css,html,ico,png,svg}']
       },
+
+      devOptions: {
+        enabled: true
+      },
       
+      // Sizin mevcut manifest bilgileriniz (Burası çok önemli, silinmemeli)
       manifest: {
         name: 'OnikiKapı',
         short_name: 'OnikiKapı',
@@ -41,4 +46,3 @@ export default defineConfig({
     })
   ]
 })
-
