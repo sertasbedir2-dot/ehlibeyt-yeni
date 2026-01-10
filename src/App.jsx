@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Search, X, ArrowRight, Book, Star, HelpCircle, FileText, Heart, Trophy, BookOpen, Sparkles, Share2 } from 'lucide-react';
@@ -10,7 +10,7 @@ import { globalSearchData } from './data/siteData';
 import MusicPlayer from './components/MusicPlayer'; 
 import Footer from './components/Footer'; 
 import ScrollToTop from './components/ScrollToTop';
-import InstallPrompt from './components/InstallPrompt'; // <-- GERİ GELDİ
+import InstallPrompt from './components/InstallPrompt';
 
 // --- CONTEXT ---
 import { AppProvider, useAppContext } from './context/AppContext';
@@ -84,6 +84,18 @@ function AppContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // --- FACEBOOK URL TEMİZLEYİCİ BAŞLANGIÇ ---
+  useEffect(() => {
+    // Eğer adres çubuğunda Facebook'un izleme kodu varsa
+    if (window.location.href.includes('fbclid')) {
+      // Linki '?' işaretinden böl ve temiz kısmını al
+      const cleanUrl = window.location.href.split('?')[0];
+      // Sayfayı yenilemeden adresi sessizce değiştir
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+  }, []);
+  // --- FACEBOOK URL TEMİZLEYİCİ BİTİŞ ---
 
   const handleShare = async () => {
     const shareData = {
@@ -215,7 +227,6 @@ function AppContent() {
          <MusicPlayer />
        </div>
        
-       {/* Geri Geldi: Sadece Yükle butonu görünür, hata vermez */}
        <InstallPrompt />
 
        <Footer />
