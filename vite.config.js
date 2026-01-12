@@ -6,25 +6,24 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate', // Otomatik güncelleme modu
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      registerType: 'autoUpdate',
+      // Düzeltme: Olmayan 'mask-icon.svg' kaldırıldı, varlığı kesin olanlar eklendi.
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'favicon.svg'], 
       
       workbox: {
-        cleanupOutdatedCaches: true, // Eski sürümleri temizler
-        clientsClaim: true, // Yeni sürümü hemen devreye alır
-        skipWaiting: true, // Bekleme yapmaz
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        
-        // 🚀 YENİ EKLENEN KISIM: Facebook ve reklam parametrelerini görmezden gelir
+        // UTM ve FBCLID parametrelerini yoksayarak önbellek şişmesini önler
         ignoreURLParametersMatching: [/^utm_/, /^fbclid$/],
-        navigateFallback: '/index.html' // Her durumda ana sayfaya yönlendirir
+        navigateFallback: '/index.html'
       },
 
       devOptions: {
         enabled: true
       },
       
-      // Sizin mevcut manifest bilgileriniz
       manifest: {
         name: 'OnikiKapı',
         short_name: 'OnikiKapı',
