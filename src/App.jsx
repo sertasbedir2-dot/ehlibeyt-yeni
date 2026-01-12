@@ -85,17 +85,18 @@ function AppContent() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // --- FACEBOOK URL TEMİZLEYİCİ BAŞLANGIÇ ---
+  // --- GÜÇLENDİRİLMİŞ URL TEMİZLEYİCİ (Facebook/Instagram Fix) ---
   useEffect(() => {
-    // Eğer adres çubuğunda Facebook'un izleme kodu varsa
-    if (window.location.href.includes('fbclid')) {
-      // Linki '?' işaretinden böl ve temiz kısmını al
-      const cleanUrl = window.location.href.split('?')[0];
-      // Sayfayı yenilemeden adresi sessizce değiştir
-      window.history.replaceState({}, document.title, cleanUrl);
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('fbclid')) {
+      // fbclid parametresini sil
+      params.delete('fbclid');
+      // Adresi temizlenmiş haliyle sessizce değiştir
+      const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+      window.history.replaceState({}, document.title, newUrl);
     }
   }, []);
-  // --- FACEBOOK URL TEMİZLEYİCİ BİTİŞ ---
+  // --- TEMİZLEYİCİ SONU ---
 
   const handleShare = async () => {
     const shareData = {
