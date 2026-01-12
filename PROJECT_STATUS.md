@@ -1,24 +1,33 @@
-# 🏛️ THAQALAYN VERİTABANI VE WEB ENTEGRASYON PROJESİ
-**Durum Raporu Kodu:** THQ_INTEGRATION_PHASE_01
-**Tarih:** Güncel Tarih
+# 🏛️ THAQALAYN & ONİKİKAPI PROJE DURUM RAPORU
+**Rapor Kodu:** THQ_MASTER_LOG_v1.0.7
+**Son Güncelleme:** 12.01.2026
+**Yayın Durumu:** ✅ Aktif (Vercel - Ready)
+**Aktif Branch:** `main`
 
-## 🎯 PROJE AMACI
+## 🎯 1. BÜYÜK VİZYON (HEDEF)
 14 Masum'un hayatını, stratejilerini ve ilişkilerini; Neo4j (Grafik Veritabanı) tabanlı, interaktif ve yaşayan bir web arayüzünde sunmak. "Statik tarih" değil, "Dinamik Bağlantılar" (Knowledge Graph) göstermek.
 
-## 🛠️ TEKNİK ALTYAPI (TECH STACK)
-1.  **Veritabanı (BEYİN):** Neo4j (14 Masum verisi, ilişkiler, metaforlar ve stratejilerle tamamen dolduruldu).
-2.  **Backend (KÖPRÜ):** Node.js + Express (Neo4j ile konuşacak API sunucusu).
-3.  **Frontend (VİTRİN):** React.js (Mevcut site yapısı üzerine entegre edilecek görsel arayüz).
-4.  **Görselleştirme:** Neovis.js veya React-Force-Graph (Ağ haritasını çizdirmek için).
+## 🛠️ 2. TEKNİK ALTYAPI (TECH STACK)
+- **Frontend (VİTRİN - Aktif):** React.js + Vite + PWA + TailwindCSS (Şu an üzerinde çalışılan katman).
+- **Backend (KÖPRÜ - Beklemede):** Node.js + Express (Neo4j ile konuşacak API sunucusu).
+- **Veritabanı (BEYİN - Hazır):** Neo4j (14 Masum verisi işlendi).
+- **Sunucu:** Vercel (Frontend Hosting) + Render (Planlanan Backend Hosting).
 
-## ✅ TAMAMLANAN AŞAMALAR (DONE)
-* [x] **Veri Mimarisi:** 14 Masum'un tümü (Hz. Muhammed'den İmam Mehdi'ye) Neo4j'e işlendi.
-* [x] **İlişki Ağları:** Aile bağları, stratejik atamalar, teolojik kavramlar (Gadir, Kerbela, Gaybet vb.) kodlandı.
-* [x] **Sistem Kapanışı:** Veritabanı "Sonsuzluk Modu"na (Aktif İntizar) alındı ve sorgulamaya hazır hale getirildi.
+## ✅ 3. TAMAMLANAN KRİTİK BAKIMLAR (Frontend - v1.0.7)
+Son yapılan teknik müdahalelerle site stabilize edilmiştir:
+1.  **Facebook Link Temizleyici:** URL sonuna eklenen `fbclid` parametresini temizleyen kod `App.jsx` içine eklendi.
+2.  **Build Hataları Giderildi:**
+    - `vite.config.js` içinden olmayan `mask-icon.svg` dosyası çıkarıldı.
+    - `package-lock.json` silinip temiz kurulum yapıldı (Windows/Linux uyumsuzluğu giderildi).
+    - Eksik `react-fast-compare` kütüphanesi manuel olarak eklendi.
+3.  **Yazım Denetimi (Lint):** ESLint kuralları `package.json` üzerinden devre dışı bırakılarak gereksiz derleme hataları engellendi.
 
-## 🔄 ŞU ANKİ AŞAMA (IN PROGRESS)
-* [Devam Ediyor] **Backend Entegrasyonu:** Mevcut web sitesi projesinin içine, Neo4j ile konuşacak "Server" (API) katmanının kurulması.
-* [Bekliyor] Frontend Bağlantısı: React arayüzünden verilerin çekilip ekrana basılması.
+## 🔄 4. ŞU ANKİ AŞAMA (ROADMAP)
+* [TAMAMLANDI] **Frontend Stabilizasyonu:** Site hataları giderildi, Vercel'de yeşil ışık yandı.
+* [YAPILACAK] **GitHub Düzeni:** Varsayılan dal (default branch) `master`'dan `main`'e çekilecek.
+* [YAPILACAK] **UX İyileştirmesi:** Backend uyanana kadar kullanıcıyı bekletmemek için "Skeleton UI" (Yükleniyor ekranı) yapılacak.
+* [BEKLEMEDE] **Backend Bağlantısı:** Node.js sunucusu (server.js) mevcut proje klasöründe ayağa kaldırılacak.
 
-## 🔜 SONRAKİ ADIM (NEXT STEP)
-* Node.js sunucusunu (server.js) mevcut proje klasöründe ayağa kaldırmak ve ilk veriyi (14 Masum Listesi) tarayıcıda görmek.
+## 📝 NOTLAR VE İPUÇLARI
+- Projeye tekrar başlandığında `git pull` yaparak güncel kodun çekildiğinden emin olunmalı.
+- Vercel'de "Build Failed" hatası alınırsa önce `vite.config.js` dosyasındaki dosya yolları kontrol edilmeli.
