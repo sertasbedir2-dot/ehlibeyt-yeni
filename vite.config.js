@@ -7,7 +7,8 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      // Düzeltme: Olmayan 'mask-icon.svg' kaldırıldı, varlığı kesin olanlar eklendi.
+      // DİKKAT: 'mask-icon.svg' buradan silindi, çünkü dosyanız yok.
+      // Sadece var olan dosyalar kaldı.
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'favicon.svg'], 
       
       workbox: {
@@ -15,7 +16,6 @@ export default defineConfig({
         clientsClaim: true,
         skipWaiting: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        // UTM ve FBCLID parametrelerini yoksayarak önbellek şişmesini önler
         ignoreURLParametersMatching: [/^utm_/, /^fbclid$/],
         navigateFallback: '/index.html'
       },
