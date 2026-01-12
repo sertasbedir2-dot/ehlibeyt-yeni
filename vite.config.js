@@ -7,8 +7,8 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      // DİKKAT: 'mask-icon.svg' buradan silindi, çünkü dosyanız yok.
-      // Sadece var olan dosyalar kaldı.
+      // DİKKAT: 'mask-icon.svg' kaldırıldı çünkü klasörde yok.
+      // Klasördeki 'favicon.svg' ve diğerleri buraya eklendi.
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'favicon.svg'], 
       
       workbox: {
@@ -35,11 +35,13 @@ export default defineConfig({
         
         icons: [
           {
+            // Klasördeki isimle birebir aynı:
             src: 'web-app-manifest-192x192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
+            // Klasördeki isimle birebir aynı:
             src: 'web-app-manifest-512x512.png',
             sizes: '512x512',
             type: 'image/png'
