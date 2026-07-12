@@ -20,8 +20,74 @@
     <meta property="og:image" content="https://www.onikikapi.com/logo.png" />
 
     <title>OnikiKapı</title>
+
+    <!-- EHLİBEYT PDF KÜTÜPHANESİ CSS (SİSTEM MİMARİSİ) -->
+    <style>
+      .pdf-kapan-container {
+        background-color: #0b3d2c;
+        border: 1px solid #d4af37;
+        border-radius: 12px;
+        padding: 35px;
+        max-width: 650px;
+        margin: 30px auto;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        font-family: inherit;
+        position: relative;
+        z-index: 9999; /* React altyapısında üstte kalmasını sağlar */
+      }
+      .pdf-kapan-title {
+        color: #f7d547;
+        font-size: 26px;
+        font-weight: 800;
+        margin-bottom: 15px;
+        letter-spacing: 1.5px;
+      }
+      .pdf-kapan-desc {
+        color: #e2e8f0;
+        font-size: 16px;
+        line-height: 1.7;
+        margin-bottom: 30px;
+      }
+      .pdf-kapan-btn {
+        background: transparent;
+        color: #f7d547;
+        padding: 15px 35px;
+        text-decoration: none;
+        font-weight: bold;
+        border: 2px solid #f7d547;
+        border-radius: 8px;
+        display: inline-block;
+        transition: all 0.3s ease;
+        font-size: 17px;
+      }
+      .pdf-kapan-btn:hover {
+        background: #f7d547;
+        color: #0b3d2c;
+        box-shadow: 0 0 20px rgba(247, 213, 71, 0.4);
+      }
+      .pdf-kapan-warning {
+        color: #8fa39b;
+        font-size: 13px;
+        margin-top: 20px;
+        font-style: italic;
+      }
+    </style>
   </head>
   <body>
+    
+    <!-- EHLİBEYT PDF KÜTÜPHANESİ VİTRİNİ -->
+    <div class="pdf-kapan-container">
+      <div class="pdf-kapan-title">📜 STRATEJİK EHLİBEYT ARŞİVİ</div>
+      <div class="pdf-kapan-desc">
+        Tarihin arka odalarında gizlenen ve ana akım medyanın dışında bırakılan <strong>sansürsüz analizleri ve PDF kitapları</strong> inceleyin. Bu arşiv sadece vizyon sahibi araştırmacılara açıktır.
+      </div>
+      <!-- BUTON DOĞRUDAN TELEGRAM'A ÇEKER -->
+      <a href="https://t.me/+U6M8Sl6jHbViZjQ8" target="_blank" class="pdf-kapan-btn">KÜTÜPHANEYE ERİŞ VE İNDİR ➡️</a>
+      <div class="pdf-kapan-warning">🛡️ Güvenlik ve filtreleme protokolleri gereği; dijital arşivimiz doğrudan Özel Telegram Karargahımız üzerinden sunulmaktadır.</div>
+    </div>
+    <!-- VİTRİN BİTİŞİ -->
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
