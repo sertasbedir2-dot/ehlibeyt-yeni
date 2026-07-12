@@ -11,6 +11,7 @@ import MusicPlayer from './components/MusicPlayer';
 import Footer from './components/Footer'; 
 import ScrollToTop from './components/ScrollToTop';
 import InstallPrompt from './components/InstallPrompt';
+import VisionTest from './components/VisionTest'; // VİZYON TESTİ IMPORT EDİLDİ
 
 // --- CONTEXT ---
 import { AppProvider, useAppContext } from './context/AppContext';
@@ -209,6 +210,10 @@ function AppContent() {
        </nav>
 
        <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mb-24 animate-fade-in"> 
+         
+         {/* VİRAL BÜYÜME MOTORU (Ziyaretçiyi Tutan Kanca) */}
+         <VisionTest />
+
          <Routes>
            <Route path="/" element={<Home />} />
            <Route path="/zikir" element={<Zikir />} />
