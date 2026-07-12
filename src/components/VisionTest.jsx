@@ -48,15 +48,87 @@ export default function VisionTest() {
     return { title: "Kurucu İrade / Vizyoner", desc: "%1'lik dilimdesin. Krizleri fırsata çeviren asimetrik zekaya sahipsin. Senin yerin Özel Karargahımız." };
   };
 
-  const shareToTwitter = () => {
+  const shareResult = async () => {
     const result = getResult();
     const text = `OnikiKapı Strateji Testi'ni çözdüm. Sonucum: [${result.title}]. Senin vizyon seviyen ne? Kendini test et:`;
     const url = "https://www.onikikapi.com";
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, "_blank");
+
+    // Mobil cihazlar için evrensel paylaşım menüsü (WhatsApp, Insta, Telegram vs.)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'OnikiKapı Vizyon Testi',
+          text: text,
+          url: url
+        });
+      } catch (error) {
+        console.log('Paylaşım iptal edildi.');
+      }
+    } else {
+      // Bilgisayardan girenler için yedek WhatsApp yönlendirmesi
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + url)}`, "_blank");
+    }
   };
 
   return (
     <div style={{ backgroundColor: '#0b3d2c', border: '1px solid #d4af37', borderRadius: '12px', padding: '30px', maxWidth: '600px', margin: '40px auto', fontFamily: 'Arial, sans-serif', color: '#e2e8f0', textAlign: 'center', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}>
+      
+      {/* SİSTEM MİMARİSİ: MOBİL UYUMLU CSS STİLLERİ */}
+      <style>
+        {`
+          .quiz-btn {
+            background-color: transparent;
+            border: 1px solid #f7d547;
+            color: #f7d547;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 16px;
+            text-align: left;
+            width: 100%;
+          }
+          @media (hover: hover) {
+            .quiz-btn:hover {
+              background-color: #f7d547;
+              color: #0b3d2c;
+            }
+          }
+          .quiz-btn:active {
+            background-color: #f7d547;
+            color: #0b3d2c;
+          }
+          .share-btn {
+            background: linear-gradient(45deg, #f7d547, #d4af37);
+            color: #0b3d2c;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            width: 100%;
+            transition: 0.3s;
+          }
+          .telegram-btn {
+            display: block;
+            background-color: transparent;
+            color: #f7d547;
+            border: 2px solid #f7d547;
+            padding: 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            transition: 0.3s;
+          }
+          .telegram-btn:hover {
+            background-color: #f7d547;
+            color: #0b3d2c;
+          }
+        `}
+      </style>
+
       {!showResult ? (
         <>
           <h2 style={{ color: '#f7d547', fontSize: '22px', fontWeight: 'bold', marginBottom: '20px' }}>STRATEJİK ZEKÂ TESTİ: VİZYON KODUN NE?</h2>
@@ -65,11 +137,9 @@ export default function VisionTest() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             {questions[currentQuestion].options.map((option, index) => (
               <button 
-                key={index} 
+                key={`q-${currentQuestion}-opt-${index}`} // HATA ÇÖZÜMÜ: React'in butonları sıfırlaması için benzersiz anahtar.
                 onClick={() => handleAnswer(option.points)}
-                style={{ backgroundColor: 'transparent', border: '1px solid #f7d547', color: '#f7d547', padding: '15px', borderRadius: '8px', cursor: 'pointer', transition: '0.3s', fontSize: '16px', textAlign: 'left' }}
-                onMouseOver={(e) => { e.target.style.backgroundColor = '#f7d547'; e.target.style.color = '#0b3d2c'; }}
-                onMouseOut={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#f7d547'; }}
+                className="quiz-btn"
               >
                 {option.text}
               </button>
@@ -84,18 +154,16 @@ export default function VisionTest() {
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <button 
-              onClick={shareToTwitter}
-              style={{ backgroundColor: '#1DA1F2', color: '#fff', border: 'none', padding: '15px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px' }}
+              onClick={shareResult}
+              className="share-btn"
             >
-              🐦 SONUCUNU X'TE (TWITTER) PAYLAŞ
+              📲 SONUCUNU PAYLAŞ (WhatsApp, Telegram vb.)
             </button>
             <a 
               href="https://t.me/+U6M8Sl6jHbViZjQ8" 
               target="_blank" 
               rel="noreferrer"
-              style={{ display: 'inline-block', backgroundColor: 'transparent', color: '#f7d547', border: '2px solid #f7d547', padding: '15px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', transition: '0.3s' }}
-              onMouseOver={(e) => { e.target.style.backgroundColor = '#f7d547'; e.target.style.color = '#0b3d2c'; }}
-              onMouseOut={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#f7d547'; }}
+              className="telegram-btn"
             >
               🛡️ KARARGAHA KATIL VE PDF'İ İNDİR
             </a>
