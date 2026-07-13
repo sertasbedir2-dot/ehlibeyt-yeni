@@ -11,7 +11,7 @@ import MusicPlayer from './components/MusicPlayer';
 import Footer from './components/Footer'; 
 import ScrollToTop from './components/ScrollToTop';
 import InstallPrompt from './components/InstallPrompt';
-import VisionTest from './components/VisionTest'; // VİZYON TESTİ IMPORT EDİLDİ
+import VisionTest from './components/VisionTest'; 
 
 // --- CONTEXT ---
 import { AppProvider, useAppContext } from './context/AppContext';
@@ -85,19 +85,22 @@ function AppContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // SİSTEM MİMARİSİ: HUNİ (FUNNEL) KİLİDİ EKLENDİ
+  const [inFunnel, setInFunnel] = useState(true);
 
-  // --- GÜÇLENDİRİLMİŞ URL TEMİZLEYİCİ (Facebook/Instagram Fix) ---
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.has('fbclid')) {
-      // fbclid parametresini sil
-      params.delete('fbclid');
-      // Adresi temizlenmiş haliyle sessizce değiştir
-      const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
-      window.history.replaceState({}, document.title, newUrl);
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('fbclid')) {
+        params.delete('fbclid');
+        const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+        window.history.replaceState({}, document.title, newUrl);
+      }
+    } catch (error) {
+      console.log('Facebook tarayıcı kısıtlaması güvenli şekilde aşıldı.');
     }
   }, []);
-  // --- TEMİZLEYİCİ SONU ---
 
   const handleShare = async () => {
     const shareData = {
@@ -117,15 +120,35 @@ function AppContent() {
     }
   };
 
+  // 1. AŞAMA: SADECE HUNİ EKRANI (Facebook Çökmesini Engeller)
+  if (inFunnel) {
+    return (
+      <div className="min-h-screen w-full bg-[#0b3d2c] flex flex-col items-center justify-center p-4 relative font-serif">
+         <Helmet>
+           <title>OnikiKapı | Stratejik Vizyon Testi</title>
+         </Helmet>
+         
+         <VisionTest />
+
+         <button
+           onClick={() => setInFunnel(false)}
+           className="mt-8 text-[#8fa39b] hover:text-[#f7d547] text-sm md:text-base border-b border-[#8fa39b] hover:border-[#f7d547] pb-1 transition-all duration-300"
+         >
+           Testi Atla ve Ana Siteye (Dijital Külliyeye) Giriş Yap ➡️
+         </button>
+      </div>
+    );
+  }
+
+  // 2. AŞAMA: KULLANICI ONAY VERDİKTEN SONRA YÜKLENEN AĞIR ANA SİTE
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-turquoise-dark to-turquoise text-sand flex flex-col font-serif relative">
+    <div className="min-h-screen w-full bg-gradient-to-b from-turquoise-dark to-turquoise text-sand flex flex-col font-serif relative animate-fade-in">
        <Helmet>
          <title>OnikiKapı | Adalet, İlim ve Hikmet Kapısı</title>
-         <meta name="description" content="Ehlibeyt mektebinin evrensel mesajını, ilim, hikmet ve adalet ekseninde sunan dijital külliye." />
+         <meta name="description" content="Ehlibeyt mektebinin evrensel mesajını, ilim, hikmet and adalet ekseninde sunan dijital külliye." />
        </Helmet>
        <Toast />
 
-       {/* HEADER / NAVBAR */}
        <nav className="bg-turquoise-dark border-b border-gold/20 sticky top-0 z-50 shadow-xl backdrop-blur-md bg-opacity-95 transition-all">
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
            <div className="flex items-center justify-between h-20">
@@ -210,10 +233,6 @@ function AppContent() {
        </nav>
 
        <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mb-24 animate-fade-in"> 
-         
-         {/* VİRAL BÜYÜME MOTORU (Ziyaretçiyi Tutan Kanca) */}
-         <VisionTest />
-
          <Routes>
            <Route path="/" element={<Home />} />
            <Route path="/zikir" element={<Zikir />} />
