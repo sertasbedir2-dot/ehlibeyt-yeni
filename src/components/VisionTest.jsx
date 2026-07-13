@@ -31,6 +31,7 @@ export default function VisionTest() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
+  const [copyStatus, setCopyStatus] = useState("📝 Paylaşım Metnini Kopyala");
 
   const handleAnswer = (points) => {
     setScore(score + points);
@@ -48,19 +49,27 @@ export default function VisionTest() {
     return { title: "Kurucu İrade / Vizyoner", desc: "%1'lik elit dilimdesin. Krizleri fırsata çeviren asimetrik zekaya sahipsin." };
   };
 
+  // NATIVE PAYLAŞIM (X, WhatsApp)
   const universalShare = async () => {
     const text = `OnikiKapı Vizyon Testi'ni çözdüm. Çıkan Arketipim: [${getResult().title}]. Sen de kendini test et:`;
     const url = "https://www.onikikapi.com";
     
-    // NATIVE MOBIL PAYLASIM (X, WhatsApp vb. yüklü uygulamayı zorla açar)
     if (navigator.share) {
       try {
         await navigator.share({ title: 'OnikiKapı Strateji Testi', text: text, url: url });
       } catch (err) { console.log('Paylaşım iptal'); }
     } else {
-      // PC İÇİN YEDEK (X/Twitter Web Fallback)
       window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, "_blank");
     }
+  };
+
+  // INSTA/TIKTOK İÇİN PROFESYONEL METİN KOPYALAMA
+  const copyStoryText = () => {
+    const storyText = `⏳ STRATEJİK VİZYON TESTİ'Nİ ÇÖZDÜM!\n\nÇıkan Arketipim: 🛡️ [${getResult().title}]\n\nSenin vizyon kodun ne? %1'lik elit dilimde misin, yoksa sıradan bir asker mi?\n\nHemen Kendini Test Et 👇\n🌐 www.onikikapi.com\n\n#OnikiKapı #Strateji #Ehlibeyt`;
+    
+    navigator.clipboard.writeText(storyText);
+    setCopyStatus("✅ Metin Kopyalandı! (Hikayene Yapıştır)");
+    setTimeout(() => setCopyStatus("📝 Paylaşım Metnini Kopyala"), 3000);
   };
 
   return (
@@ -72,6 +81,9 @@ export default function VisionTest() {
           .quiz-btn:active { background-color: #f7d547; color: #0b3d2c; }
           .btn-universal { background-color: #f7d547; color: #0b3d2c; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; width: 100%; margin-top: 10px; }
           .btn-hq { display: block; background: transparent; color: #f7d547; border: 2px solid #f7d547; padding: 15px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; margin-top: 15px; }
+          .support-box { background-color: rgba(247,213,71,0.05); border: 1px dashed #f7d547; padding: 20px; border-radius: 10px; margin: 20px 0; }
+          .action-btn { display: block; background-color: #052218; color: #f7d547; border: 1px solid #f7d547; padding: 12px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px; margin-bottom: 10px; cursor: pointer; width: 100%; transition: 0.3s; }
+          .action-btn:hover { background-color: #f7d547; color: #0b3d2c; }
         `}
       </style>
 
@@ -91,17 +103,26 @@ export default function VisionTest() {
         <>
           <h2 style={{ color: '#f7d547', fontSize: '24px', fontWeight: 'bold' }}>ANALİZ RAPORU</h2>
           
-          {/* SPOTIFY WRAPPED MODELİ (GÖRSEL KİMLİK KARTI) */}
           <div style={{ backgroundColor: '#052218', padding: '25px 20px', borderRadius: '10px', border: '2px solid #f7d547', margin: '20px 0', position: 'relative' }}>
              <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', backgroundColor: '#f7d547', color: '#0b3d2c', padding: '2px 10px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold' }}>VİZYON KODUN</div>
              <h3 style={{ color: '#fff', fontSize: '24px', margin: '15px 0' }}>{getResult().title}</h3>
              <p style={{ fontSize: '15px', lineHeight: '1.6', color: '#cbd5e1', fontStyle: 'italic' }}>"{getResult().desc}"</p>
-             <div style={{ marginTop: '20px', color: '#8fa39b', fontSize: '11px', letterSpacing: '1px' }}>WWW.ONIKIKAPI.COM</div>
           </div>
           
-          {/* VİRAL EMİR KİPİ */}
-          <div style={{ backgroundColor: 'rgba(247,213,71,0.1)', padding: '10px', borderRadius: '8px', marginBottom: '15px', border: '1px dashed #f7d547' }}>
-            <p style={{ margin: 0, fontSize: '13px', color: '#f7d547', fontWeight: 'bold' }}>📸 YUKARIDAKİ KARTIN EKRAN GÖRÜNTÜSÜNÜ AL (SCREENSHOT) VE INSTAGRAM/TIKTOK HİKAYENDE PAYLAŞ!</p>
+          {/* PROFESYONEL DESTEK VE VİRAL YAYILIM KUTUSU */}
+          <div className="support-box">
+            <h4 style={{ color: '#f7d547', margin: '0 0 10px 0', fontSize: '16px' }}>✊ BİZE DESTEK OL: DİRENİŞİ YAY!</h4>
+            <p style={{ margin: '0 0 15px 0', fontSize: '13px', color: '#e2e8f0', lineHeight: '1.5' }}>
+              Ehlibeyt davasını daha fazla kişiye ulaştırmak için aşağıdaki butondan kampanya görselimizi cihazınıza indirin. Instagram Hikaye (Story) veya Reels'te, kopyaladığınız metinle birlikte paylaşarak bu uyanışa destek olun.
+            </p>
+            
+            <a href="/og-image.png" download="OnikiKapi-Vizyon.png" className="action-btn">
+              ⬇️ Kampanya Görselini Telefonuna İndir
+            </a>
+            
+            <button onClick={copyStoryText} className="action-btn">
+              {copyStatus}
+            </button>
           </div>
 
           <button onClick={universalShare} className="btn-universal">📲 Linki X (Twitter) veya WhatsApp'ta Paylaş</button>
