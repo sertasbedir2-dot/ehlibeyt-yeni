@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Search, X, ArrowRight, Book, Star, HelpCircle, FileText, Heart, Trophy, BookOpen, Sparkles, Share2 } from 'lucide-react';
@@ -16,20 +16,19 @@ import VisionTest from './components/VisionTest';
 // --- CONTEXT ---
 import { AppProvider, useAppContext } from './context/AppContext';
 
-// --- PAGES ---
-import Home from './pages/Home';
-import Zikir from './pages/Zikir';
-import ManeviReceteler from './pages/ManeviReceteler';
-import OnDortMasum from './pages/OnDortMasum';
-import SoruCevap from './pages/SoruCevap';
-import Science from './pages/Science';
-import Quiz from './pages/Quiz';
-import MediaCenter from './pages/MediaCenter';
-import Library from './pages/Library';
-import KitapOku from './pages/KitapOku';
-import Favorites from './pages/Favorites'; 
+// --- PAGES (LAZY LOADING ENTEGRASYONU - FACEBOOK ÇÖKMESİNİ ENGELLER) ---
+const Home = React.lazy(() => import('./pages/Home'));
+const Zikir = React.lazy(() => import('./pages/Zikir'));
+const ManeviReceteler = React.lazy(() => import('./pages/ManeviReceteler'));
+const OnDortMasum = React.lazy(() => import('./pages/OnDortMasum'));
+const SoruCevap = React.lazy(() => import('./pages/SoruCevap'));
+const Science = React.lazy(() => import('./pages/Science'));
+const Quiz = React.lazy(() => import('./pages/Quiz'));
+const MediaCenter = React.lazy(() => import('./pages/MediaCenter'));
+const Library = React.lazy(() => import('./pages/Library'));
+const KitapOku = React.lazy(() => import('./pages/KitapOku'));
+const Favorites = React.lazy(() => import('./pages/Favorites')); 
 
-// Toast Component
 function Toast() {
   const { toastMessage } = useAppContext();
   if (!toastMessage) return null;
@@ -85,8 +84,6 @@ function AppContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  
-  // SİSTEM MİMARİSİ: HUNİ (FUNNEL) KİLİDİ EKLENDİ
   const [inFunnel, setInFunnel] = useState(true);
 
   useEffect(() => {
@@ -98,7 +95,7 @@ function AppContent() {
         window.history.replaceState({}, document.title, newUrl);
       }
     } catch (error) {
-      console.log('Facebook tarayıcı kısıtlaması güvenli şekilde aşıldı.');
+      console.log('Facebook yönlendirmesi güvenli geçildi.');
     }
   }, []);
 
@@ -113,14 +110,13 @@ function AppContent() {
         await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(shareData.url);
-        alert('Bağlantı kopyalandı! Arkadaşına gönderebilirsin.');
+        alert('Bağlantı kopyalandı!');
       }
     } catch (err) {
       console.log('Paylaşım iptal');
     }
   };
 
-  // 1. AŞAMA: SADECE HUNİ EKRANI (Facebook Çökmesini Engeller)
   if (inFunnel) {
     return (
       <div className="min-h-screen w-full bg-[#0b3d2c] flex flex-col items-center justify-center p-4 relative font-serif">
@@ -132,37 +128,33 @@ function AppContent() {
 
          <button
            onClick={() => setInFunnel(false)}
-           className="mt-8 text-[#8fa39b] hover:text-[#f7d547] text-sm md:text-base border-b border-[#8fa39b] hover:border-[#f7d547] pb-1 transition-all duration-300"
+           className="mt-8 text-[#8fa39b] hover:text-[#f7d547] text-sm md:text-base border-b border-[#8fa39b] hover:border-[#f7d547] pb-1 transition-all duration-300 font-sans"
          >
-           Testi Atla ve Ana Siteye (Dijital Külliyeye) Giriş Yap ➡️
+           Testi Atla ve Ana Siteye Giriş Yap ➡️
          </button>
       </div>
     );
   }
 
-  // 2. AŞAMA: KULLANICI ONAY VERDİKTEN SONRA YÜKLENEN AĞIR ANA SİTE
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-turquoise-dark to-turquoise text-sand flex flex-col font-serif relative animate-fade-in">
        <Helmet>
          <title>OnikiKapı | Adalet, İlim ve Hikmet Kapısı</title>
-         <meta name="description" content="Ehlibeyt mektebinin evrensel mesajını, ilim, hikmet and adalet ekseninde sunan dijital külliye." />
+         <meta name="description" content="Ehlibeyt mektebinin evrensel mesajını sunan dijital külliye." />
        </Helmet>
        <Toast />
 
        <nav className="bg-turquoise-dark border-b border-gold/20 sticky top-0 z-50 shadow-xl backdrop-blur-md bg-opacity-95 transition-all">
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
            <div className="flex items-center justify-between h-20">
-             
              <div className="flex-shrink-0 flex items-center gap-2 group cursor-pointer">
                <Link to="/" className="flex items-center gap-3 relative">
-                 <div className="absolute inset-0 bg-gold/30 blur-xl rounded-full animate-pulse-slow group-hover:bg-gold/50 transition-all"></div>
-                 <div className="relative p-2 border border-gold/50 rounded-lg bg-turquoise-dark group-hover:bg-turquoise transition-colors overflow-hidden">
-                    <Sparkles size={24} className="text-gold absolute top-0 right-0 opacity-50 animate-spin-slow" />
-                    <BookOpen size={28} className="text-gold relative z-10" />
+                 <div className="absolute inset-0 bg-gold/30 blur-xl rounded-full animate-pulse-slow"></div>
+                 <div className="relative p-2 border border-gold/50 rounded-lg bg-turquoise-dark">
+                    <BookOpen size={28} className="text-gold" />
                  </div>
                  <div className="flex flex-col">
-                   <span className="text-2xl font-sans font-bold text-gold tracking-wide drop-shadow-md leading-none">OnikiKapı</span>
-                   <span className="text-[10px] text-turquoise-light tracking-[0.3em] uppercase font-bold">İlim Şehri</span>
+                   <span className="text-2xl font-sans font-bold text-gold tracking-wide">OnikiKapı</span>
                  </div>
                </Link>
              </div>
@@ -180,94 +172,50 @@ function AppContent() {
                  <NavLink to="/quiz" label="Yarışma" />
                  <NavLink to="/heybem" label="Heybem" /> 
                </div>
-               
-               <button onClick={handleShare} className="flex items-center gap-2 mr-2 bg-gold/10 hover:bg-gold hover:text-turquoise-dark text-gold border border-gold/30 px-3 py-2 rounded-lg transition-all font-bold text-sm">
-                 <Share2 size={18} />
-                 <span>Tavsiye Et</span>
-               </button>
-
-               <button onClick={() => setIsSearchOpen(!isSearchOpen)} className={`p-2 rounded-full transition-all border ${isSearchOpen ? 'bg-gold text-turquoise-dark border-gold' : 'text-gold hover:bg-gold/10 border-transparent hover:border-gold/30'}`}>
-                 {isSearchOpen ? <X size={20} /> : <Search size={20} />}
-               </button>
-             </div>
-
-             <div className="-mr-2 flex items-center md:hidden gap-2">
-               <button onClick={handleShare} className="bg-gold/10 p-2 rounded-full text-gold hover:bg-gold hover:text-turquoise-dark border border-gold/30 transition-colors">
-                 <Share2 size={20} />
-               </button>
-               <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="bg-turquoise p-2 rounded-md text-sand hover:text-white border border-gold/20">
-                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
-                 </svg>
+               <button onClick={handleShare} className="flex items-center gap-2 bg-gold/10 text-gold border border-gold/30 px-3 py-2 rounded-lg font-bold text-sm">
+                 <Share2 size={18} /> Tavsiye Et
                </button>
              </div>
            </div>
          </div>
-
-         {isSearchOpen && (
-           <div className="absolute top-full left-0 w-full bg-turquoise-dark border-b border-gold/20 p-6 shadow-2xl animate-fade-in z-40">
-             <div className="max-w-3xl mx-auto flex items-center gap-4 border-b-2 border-gold/30 pb-2">
-               <Search className="text-gold" size={28} />
-               <input type="text" autoFocus placeholder="İlim şehrinde ara..." className="w-full bg-transparent text-2xl text-sand placeholder-slate-300 border-none outline-none font-sans" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-             </div>
-             <SearchResults query={searchQuery} closeSearch={() => setIsSearchOpen(false)} />
-           </div>
-         )}
-
-         {isMenuOpen && (
-           <div className="md:hidden bg-turquoise-dark border-t border-gold/20">
-             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-               <MobileNavLink to="/" label="Ana Sayfa" onClick={() => setIsMenuOpen(false)} />
-               <MobileNavLink to="/zikir" label="Tesbihat" onClick={() => setIsMenuOpen(false)} />
-               <MobileNavLink to="/manevi-receteler" label="Şifa Kapısı" onClick={() => setIsMenuOpen(false)} />
-               <MobileNavLink to="/library" label="Kütüphane" onClick={() => setIsMenuOpen(false)} />
-               <MobileNavLink to="/14-masum" label="14 Masum" onClick={() => setIsMenuOpen(false)} />
-               <MobileNavLink to="/soru-cevap" label="Soru/Cevap" onClick={() => setIsMenuOpen(false)} />
-               <MobileNavLink to="/ilim" label="İlim" onClick={() => setIsMenuOpen(false)} />
-               <MobileNavLink to="/medya" label="Medya" onClick={() => setIsMenuOpen(false)} />
-               <MobileNavLink to="/quiz" label="Yarışma" onClick={() => setIsMenuOpen(false)} />
-               <MobileNavLink to="/heybem" label="Heybem (Favoriler)" onClick={() => setIsMenuOpen(false)} />
-             </div>
-           </div>
-         )}
        </nav>
 
-       <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mb-24 animate-fade-in"> 
-         <Routes>
-           <Route path="/" element={<Home />} />
-           <Route path="/zikir" element={<Zikir />} />
-           <Route path="/manevi-receteler" element={<ManeviReceteler />} />
-           <Route path="/library" element={<Library />} />
-           <Route path="/kitap-oku" element={<KitapOku />} />
-           <Route path="/14-masum" element={<OnDortMasum />} />
-           <Route path="/soru-cevap" element={<SoruCevap />} />
-           <Route path="/ilim" element={<Science />} />
-           <Route path="/quiz" element={<Quiz />} />
-           <Route path="/medya" element={<MediaCenter />} />
-           <Route path="/heybem" element={<Favorites />} /> 
-         </Routes>
+       <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mb-24"> 
+         {/* SAYFALAR ARASI GEÇİŞTE BEKLEME EKRANI (FACEBOOK KİLİT ÇÖZÜCÜ) */}
+         <Suspense fallback={<div className="text-gold text-center p-20 font-sans font-bold">Yükleniyor...</div>}>
+           <Routes>
+             <Route path="/" element={<Home />} />
+             <Route path="/zikir" element={<Zikir />} />
+             <Route path="/manevi-receteler" element={<ManeviReceteler />} />
+             <Route path="/library" element={<Library />} />
+             <Route path="/kitap-oku" element={<KitapOku />} />
+             <Route path="/14-masum" element={<OnDortMasum />} />
+             <Route path="/soru-cevap" element={<SoruCevap />} />
+             <Route path="/ilim" element={<Science />} />
+             <Route path="/quiz" element={<Quiz />} />
+             <Route path="/medya" element={<MediaCenter />} />
+             <Route path="/heybem" element={<Favorites />} /> 
+           </Routes>
+         </Suspense>
        </main>
 
-       <div className="fixed bottom-6 right-6 z-[100] scale-90 md:scale-100 origin-bottom-right">
+       <div className="fixed bottom-6 right-6 z-[100]">
          <MusicPlayer />
        </div>
-       
        <InstallPrompt />
-
        <Footer />
-
     </div>
   );
 }
 
 const NavLink = ({ to, label }) => (
-  <Link to={to} className="text-slate-200 hover:text-gold hover:bg-gold/10 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 font-sans tracking-wide whitespace-nowrap">
+  <Link to={to} className="text-slate-200 hover:text-gold hover:bg-gold/10 px-3 py-2 rounded-lg text-sm font-medium transition-all font-sans">
     {label}
   </Link>
 );
 
 const MobileNavLink = ({ to, label, onClick }) => (
-  <Link to={to} onClick={onClick} className="text-slate-200 hover:text-gold hover:bg-gold/10 block px-3 py-2 rounded-lg text-base font-medium font-sans">
+  <Link to={to} onClick={onClick} className="text-slate-200 block px-3 py-2 rounded-lg text-base font-medium font-sans">
     {label}
   </Link>
 );
