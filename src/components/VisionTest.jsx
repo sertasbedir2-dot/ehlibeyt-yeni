@@ -31,7 +31,6 @@ export default function VisionTest() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
-  const [copyStatus, setCopyStatus] = useState("Instagram için Metni Kopyala 📋");
 
   const handleAnswer = (points) => {
     setScore(score + points);
@@ -44,25 +43,24 @@ export default function VisionTest() {
   };
 
   const getResult = () => {
-    if (score <= 4) return { title: "Sıradan Asker", desc: "Sığ sularda yüzüyorsun. Stratejiden çok duyguyla hareket ediyorsun." };
-    if (score <= 7) return { title: "Taktiksel Direnişçi", desc: "Sahayı okuyabiliyorsun ama yüzyıllık büyük resmi kaçırıyorsun." };
+    if (score <= 4) return { title: "Sıradan Asker", desc: "Stratejiden çok duyguyla hareket ediyorsun." };
+    if (score <= 7) return { title: "Taktiksel Direnişçi", desc: "Sahayı okuyabiliyorsun ama büyük resmi kaçırıyorsun." };
     return { title: "Kurucu İrade / Vizyoner", desc: "%1'lik elit dilimdesin. Krizleri fırsata çeviren asimetrik zekaya sahipsin." };
   };
 
-  const shareText = `OnikiKapı Stratejik Zekâ Testi'ni çözdüm. Sonucum: [${getResult().title}]. Senin vizyon kodun ne? Kendini test et: https://www.onikikapi.com`;
-
-  const shareWhatsApp = () => {
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, "_blank");
-  };
-
-  const shareTwitter = () => {
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`, "_blank");
-  };
-
-  const copyForInstagram = () => {
-    navigator.clipboard.writeText(`OnikiKapı test sonucum: [${getResult().title}]. Link profilimde, sen de vizyonunu test et! #OnikiKapı #Ehlibeyt`);
-    setCopyStatus("Metin Kopyalandı! 🌟 (Hikayene Yapıştır)");
-    setTimeout(() => setCopyStatus("Instagram için Metni Kopyala 📋"), 3000);
+  const universalShare = async () => {
+    const text = `OnikiKapı Vizyon Testi'ni çözdüm. Çıkan Arketipim: [${getResult().title}]. Sen de kendini test et:`;
+    const url = "https://www.onikikapi.com";
+    
+    // NATIVE MOBIL PAYLASIM (X, WhatsApp vb. yüklü uygulamayı zorla açar)
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'OnikiKapı Strateji Testi', text: text, url: url });
+      } catch (err) { console.log('Paylaşım iptal'); }
+    } else {
+      // PC İÇİN YEDEK (X/Twitter Web Fallback)
+      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, "_blank");
+    }
   };
 
   return (
@@ -72,23 +70,18 @@ export default function VisionTest() {
         {`
           .quiz-btn { background-color: transparent; border: 1px solid #f7d547; color: #f7d547; padding: 14px; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 15px; text-align: left; width: 100%; }
           .quiz-btn:active { background-color: #f7d547; color: #0b3d2c; }
-          .share-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-          .btn-wa { background-color: #25D366; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
-          .btn-x { background-color: #000000; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
-          .btn-insta { grid-column: span 2; background-color: #E1306C; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
-          .btn-hq { display: block; background: linear-gradient(45deg, #f7d547, #d4af37); color: #0b3d2c; padding: 15px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; margin-top: 15px; box-shadow: 0 4px 15px rgba(247,213,71,0.3); }
-          .reward-box { background-color: rgba(247,213,71,0.1); border: 1px dashed #f7d547; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: left; }
+          .btn-universal { background-color: #f7d547; color: #0b3d2c; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; width: 100%; margin-top: 10px; }
+          .btn-hq { display: block; background: transparent; color: #f7d547; border: 2px solid #f7d547; padding: 15px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; margin-top: 15px; }
         `}
       </style>
 
       {!showResult ? (
         <>
           <h2 style={{ color: '#f7d547', fontSize: '22px', fontWeight: 'bold', marginBottom: '20px' }}>STRATEJİK ZEKÂ TESTİ</h2>
-          <p style={{ fontSize: '13px', marginBottom: '15px', color: '#8fa39b' }}>Soru {currentQuestion + 1} / {questions.length}</p>
           <h3 style={{ fontSize: '17px', marginBottom: '25px', lineHeight: '1.5' }}>{questions[currentQuestion].question}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {questions[currentQuestion].options.map((option, index) => (
-              <button key={`opt-${currentQuestion}-${index}`} onClick={() => handleAnswer(option.points)} className="quiz-btn">
+              <button key={`opt-${index}`} onClick={() => handleAnswer(option.points)} className="quiz-btn">
                 {option.text}
               </button>
             ))}
@@ -97,23 +90,24 @@ export default function VisionTest() {
       ) : (
         <>
           <h2 style={{ color: '#f7d547', fontSize: '24px', fontWeight: 'bold' }}>ANALİZ RAPORU</h2>
-          <h3 style={{ color: '#fff', fontSize: '20px', margin: '10px 0' }}>Mevcut Kodun: <span style={{ color: '#f7d547' }}>{getResult().title}</span></h3>
-          <p style={{ fontSize: '15px', lineHeight: '1.6', color: '#cbd5e1' }}>{getResult().desc}</p>
           
-          {/* TEŞVİK VE VİRAL DÖNGÜ KİLİDİ (REWARD LOOP) */}
-          <div className="reward-box">
-            <div style={{ color: '#f7d547', fontWeight: 'bold', fontSize: '14px', marginBottom: '5px' }}>🔒 KİLİTLİ İÇERİK: DETAYLI RAPOR VE SANSÜRSÜZ PDF</div>
-            <p style={{ fontSize: '12px', color: '#e2e8f0', margin: 0 }}>Arketipinize özel hazırlanmış 10 sayfalık <strong>"Ehlibeyt Küresel Direniş Doktrini"</strong> PDF dosyasının indirme şifresi Telegram Özel Karargahında sabitlenmiştir.</p>
+          {/* SPOTIFY WRAPPED MODELİ (GÖRSEL KİMLİK KARTI) */}
+          <div style={{ backgroundColor: '#052218', padding: '25px 20px', borderRadius: '10px', border: '2px solid #f7d547', margin: '20px 0', position: 'relative' }}>
+             <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', backgroundColor: '#f7d547', color: '#0b3d2c', padding: '2px 10px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold' }}>VİZYON KODUN</div>
+             <h3 style={{ color: '#fff', fontSize: '24px', margin: '15px 0' }}>{getResult().title}</h3>
+             <p style={{ fontSize: '15px', lineHeight: '1.6', color: '#cbd5e1', fontStyle: 'italic' }}>"{getResult().desc}"</p>
+             <div style={{ marginTop: '20px', color: '#8fa39b', fontSize: '11px', letterSpacing: '1px' }}>WWW.ONIKIKAPI.COM</div>
+          </div>
+          
+          {/* VİRAL EMİR KİPİ */}
+          <div style={{ backgroundColor: 'rgba(247,213,71,0.1)', padding: '10px', borderRadius: '8px', marginBottom: '15px', border: '1px dashed #f7d547' }}>
+            <p style={{ margin: 0, fontSize: '13px', color: '#f7d547', fontWeight: 'bold' }}>📸 YUKARIDAKİ KARTIN EKRAN GÖRÜNTÜSÜNÜ AL (SCREENSHOT) VE INSTAGRAM/TIKTOK HİKAYENDE PAYLAŞ!</p>
           </div>
 
-          <div className="share-grid">
-            <button onClick={shareWhatsApp} className="btn-wa">🟢 WhatsApp'ta Paylaş</button>
-            <button onClick={shareTwitter} className="btn-x">⚫ X / Twitter'da Paylaş</button>
-            <button onClick={copyForInstagram} className="btn-insta">{copyStatus}</button>
-          </div>
+          <button onClick={universalShare} className="btn-universal">📲 Linki X (Twitter) veya WhatsApp'ta Paylaş</button>
 
           <a href="https://t.me/+U6M8Sl6jHbViZjQ8" target="_blank" rel="noreferrer" className="btn-hq">
-            🛡️ GİZLİ ŞİFREYİ ALMAK İÇİN KARARGAHA KATIL ➡️
+            🛡️ DETAYLI PDF RAPORU İÇİN KARARGAHA KATIL
           </a>
         </>
       )}
