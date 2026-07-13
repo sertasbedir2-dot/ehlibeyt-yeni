@@ -31,6 +31,7 @@ export default function VisionTest() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
+  const [copyStatus, setCopyStatus] = useState("Instagram için Metni Kopyala 📋");
 
   const handleAnswer = (points) => {
     setScore(score + points);
@@ -43,104 +44,51 @@ export default function VisionTest() {
   };
 
   const getResult = () => {
-    if (score <= 4) return { title: "Sıradan Asker", desc: "Sığ sularda yüzüyorsun. Stratejiden çok duyguyla hareket ediyorsun. Vizyonunu geliştirmek için arşivimizi okumalısın." };
-    if (score <= 7) return { title: "Taktiksel Direnişçi", desc: "Sahayı okuyabiliyorsun ama büyük resmi kaçırıyorsun. Doğru yoldasın, stratejini Karargahta keskinleştir." };
-    return { title: "Kurucu İrade / Vizyoner", desc: "%1'lik dilimdesin. Krizleri fırsata çeviren asimetrik zekaya sahipsin. Senin yerin Özel Karargahımız." };
+    if (score <= 4) return { title: "Sıradan Asker", desc: "Sığ sularda yüzüyorsun. Stratejiden çok duyguyla hareket ediyorsun." };
+    if (score <= 7) return { title: "Taktiksel Direnişçi", desc: "Sahayı okuyabiliyorsun ama yüzyıllık büyük resmi kaçırıyorsun." };
+    return { title: "Kurucu İrade / Vizyoner", desc: "%1'lik elit dilimdesin. Krizleri fırsata çeviren asimetrik zekaya sahipsin." };
   };
 
-  const shareResult = async () => {
-    const result = getResult();
-    const text = `OnikiKapı Strateji Testi'ni çözdüm. Sonucum: [${result.title}]. Senin vizyon seviyen ne? Kendini test et:`;
-    const url = "https://www.onikikapi.com";
+  const shareText = `OnikiKapı Stratejik Zekâ Testi'ni çözdüm. Sonucum: [${getResult().title}]. Senin vizyon kodun ne? Kendini test et: https://www.onikikapi.com`;
 
-    // Mobil cihazlar için evrensel paylaşım menüsü (WhatsApp, Insta, Telegram vs.)
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'OnikiKapı Vizyon Testi',
-          text: text,
-          url: url
-        });
-      } catch (error) {
-        console.log('Paylaşım iptal edildi.');
-      }
-    } else {
-      // Bilgisayardan girenler için yedek WhatsApp yönlendirmesi
-      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + url)}`, "_blank");
-    }
+  const shareWhatsApp = () => {
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, "_blank");
+  };
+
+  const shareTwitter = () => {
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`, "_blank");
+  };
+
+  const copyForInstagram = () => {
+    navigator.clipboard.writeText(`OnikiKapı test sonucum: [${getResult().title}]. Link profilimde, sen de vizyonunu test et! #OnikiKapı #Ehlibeyt`);
+    setCopyStatus("Metin Kopyalandı! 🌟 (Hikayene Yapıştır)");
+    setTimeout(() => setCopyStatus("Instagram için Metni Kopyala 📋"), 3000);
   };
 
   return (
-    <div style={{ backgroundColor: '#0b3d2c', border: '1px solid #d4af37', borderRadius: '12px', padding: '30px', maxWidth: '600px', margin: '40px auto', fontFamily: 'Arial, sans-serif', color: '#e2e8f0', textAlign: 'center', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}>
+    <div style={{ backgroundColor: '#0b3d2c', border: '1px solid #d4af37', borderRadius: '12px', padding: '30px', maxWidth: '600px', margin: '20px auto', fontFamily: 'Arial, sans-serif', color: '#e2e8f0', textAlign: 'center', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}>
       
-      {/* SİSTEM MİMARİSİ: MOBİL UYUMLU CSS STİLLERİ */}
       <style>
         {`
-          .quiz-btn {
-            background-color: transparent;
-            border: 1px solid #f7d547;
-            color: #f7d547;
-            padding: 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 16px;
-            text-align: left;
-            width: 100%;
-          }
-          @media (hover: hover) {
-            .quiz-btn:hover {
-              background-color: #f7d547;
-              color: #0b3d2c;
-            }
-          }
-          .quiz-btn:active {
-            background-color: #f7d547;
-            color: #0b3d2c;
-          }
-          .share-btn {
-            background: linear-gradient(45deg, #f7d547, #d4af37);
-            color: #0b3d2c;
-            border: none;
-            padding: 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-            width: 100%;
-            transition: 0.3s;
-          }
-          .telegram-btn {
-            display: block;
-            background-color: transparent;
-            color: #f7d547;
-            border: 2px solid #f7d547;
-            padding: 15px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 16px;
-            transition: 0.3s;
-          }
-          .telegram-btn:hover {
-            background-color: #f7d547;
-            color: #0b3d2c;
-          }
+          .quiz-btn { background-color: transparent; border: 1px solid #f7d547; color: #f7d547; padding: 14px; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 15px; text-align: left; width: 100%; }
+          .quiz-btn:active { background-color: #f7d547; color: #0b3d2c; }
+          .share-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+          .btn-wa { background-color: #25D366; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+          .btn-x { background-color: #000000; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+          .btn-insta { grid-column: span 2; background-color: #E1306C; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+          .btn-hq { display: block; background: linear-gradient(45deg, #f7d547, #d4af37); color: #0b3d2c; padding: 15px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; margin-top: 15px; box-shadow: 0 4px 15px rgba(247,213,71,0.3); }
+          .reward-box { background-color: rgba(247,213,71,0.1); border: 1px dashed #f7d547; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: left; }
         `}
       </style>
 
       {!showResult ? (
         <>
-          <h2 style={{ color: '#f7d547', fontSize: '22px', fontWeight: 'bold', marginBottom: '20px' }}>STRATEJİK ZEKÂ TESTİ: VİZYON KODUN NE?</h2>
-          <p style={{ fontSize: '14px', marginBottom: '20px', color: '#8fa39b' }}>Soru {currentQuestion + 1} / {questions.length}</p>
-          <h3 style={{ fontSize: '18px', marginBottom: '25px', lineHeight: '1.5' }}>{questions[currentQuestion].question}</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          <h2 style={{ color: '#f7d547', fontSize: '22px', fontWeight: 'bold', marginBottom: '20px' }}>STRATEJİK ZEKÂ TESTİ</h2>
+          <p style={{ fontSize: '13px', marginBottom: '15px', color: '#8fa39b' }}>Soru {currentQuestion + 1} / {questions.length}</p>
+          <h3 style={{ fontSize: '17px', marginBottom: '25px', lineHeight: '1.5' }}>{questions[currentQuestion].question}</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {questions[currentQuestion].options.map((option, index) => (
-              <button 
-                key={`q-${currentQuestion}-opt-${index}`} // HATA ÇÖZÜMÜ: React'in butonları sıfırlaması için benzersiz anahtar.
-                onClick={() => handleAnswer(option.points)}
-                className="quiz-btn"
-              >
+              <button key={`opt-${currentQuestion}-${index}`} onClick={() => handleAnswer(option.points)} className="quiz-btn">
                 {option.text}
               </button>
             ))}
@@ -148,26 +96,25 @@ export default function VisionTest() {
         </>
       ) : (
         <>
-          <h2 style={{ color: '#f7d547', fontSize: '26px', fontWeight: 'bold', marginBottom: '10px' }}>SONUÇ ANALİZİ</h2>
-          <h3 style={{ color: '#fff', fontSize: '22px', margin: '15px 0' }}>Arketipin: <span style={{ color: '#f7d547' }}>{getResult().title}</span></h3>
-          <p style={{ fontSize: '16px', lineHeight: '1.6', marginBottom: '30px' }}>{getResult().desc}</p>
+          <h2 style={{ color: '#f7d547', fontSize: '24px', fontWeight: 'bold' }}>ANALİZ RAPORU</h2>
+          <h3 style={{ color: '#fff', fontSize: '20px', margin: '10px 0' }}>Mevcut Kodun: <span style={{ color: '#f7d547' }}>{getResult().title}</span></h3>
+          <p style={{ fontSize: '15px', lineHeight: '1.6', color: '#cbd5e1' }}>{getResult().desc}</p>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            <button 
-              onClick={shareResult}
-              className="share-btn"
-            >
-              📲 SONUCUNU PAYLAŞ (WhatsApp, Telegram vb.)
-            </button>
-            <a 
-              href="https://t.me/+U6M8Sl6jHbViZjQ8" 
-              target="_blank" 
-              rel="noreferrer"
-              className="telegram-btn"
-            >
-              🛡️ KARARGAHA KATIL VE PDF'İ İNDİR
-            </a>
+          {/* TEŞVİK VE VİRAL DÖNGÜ KİLİDİ (REWARD LOOP) */}
+          <div className="reward-box">
+            <div style={{ color: '#f7d547', fontWeight: 'bold', fontSize: '14px', marginBottom: '5px' }}>🔒 KİLİTLİ İÇERİK: DETAYLI RAPOR VE SANSÜRSÜZ PDF</div>
+            <p style={{ fontSize: '12px', color: '#e2e8f0', margin: 0 }}>Arketipinize özel hazırlanmış 10 sayfalık <strong>"Ehlibeyt Küresel Direniş Doktrini"</strong> PDF dosyasının indirme şifresi Telegram Özel Karargahında sabitlenmiştir.</p>
           </div>
+
+          <div className="share-grid">
+            <button onClick={shareWhatsApp} className="btn-wa">🟢 WhatsApp'ta Paylaş</button>
+            <button onClick={shareTwitter} className="btn-x">⚫ X / Twitter'da Paylaş</button>
+            <button onClick={copyForInstagram} className="btn-insta">{copyStatus}</button>
+          </div>
+
+          <a href="https://t.me/+U6M8Sl6jHbViZjQ8" target="_blank" rel="noreferrer" className="btn-hq">
+            🛡️ GİZLİ ŞİFREYİ ALMAK İÇİN KARARGAHA KATIL ➡️
+          </a>
         </>
       )}
     </div>
