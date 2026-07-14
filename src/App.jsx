@@ -39,8 +39,6 @@ function Toast() {
   );
 }
 
-// ... (SearchResults componenti App.jsx'in orijinalindeki ile aynı, kod uzamasın diye işlevsel ana bloğa geçiyorum. Eski SearchResults fonksiyonunun olduğu yere bunu koyabilirsin veya tamamen alttaki AppContent'e odaklanabilirsin. Uygulama hatasız çalışması için tam kod veriyorum:)
-
 function SearchResults({ query, closeSearch }) {
   const navigate = useNavigate();
   if (!query) return null;
@@ -130,15 +128,12 @@ function AppContent() {
     );
   }
 
-  // 2. AŞAMA: NORMAL VİZYON TESTİ EKRANI
+  // 2. AŞAMA: EŞİK BEKÇİSİ (GÜVENLİK DUVARI) EKRANI
   if (inFunnel) {
     return (
       <div className="min-h-screen w-full bg-[#0b3d2c] flex flex-col items-center justify-center p-4 relative font-serif">
-         <Helmet><title>OnikiKapı | Stratejik Vizyon Testi</title></Helmet>
-         <VisionTest />
-         <button onClick={() => setInFunnel(false)} className="mt-8 text-[#8fa39b] hover:text-[#f7d547] text-sm md:text-base border-b border-[#8fa39b] pb-1 font-sans">
-           Testi Atla ve Dijital Külliyeye Giriş Yap ➡️
-         </button>
+         <Helmet><title>OnikiKapı | Güvenlik Duvarı</title></Helmet>
+         <VisionTest onComplete={() => setInFunnel(false)} />
       </div>
     );
   }
@@ -146,7 +141,7 @@ function AppContent() {
   // 3. AŞAMA: ANA SİTE
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-turquoise-dark to-turquoise text-sand flex flex-col font-serif relative animate-fade-in">
-       {/* NAVBAR VE MAIN BURADA (Kısalttım, öncekiyle tamamen aynı mantık) */}
+       
        <nav className="bg-turquoise-dark border-b border-gold/20 sticky top-0 z-50 shadow-xl backdrop-blur-md p-4">
          <div className="max-w-7xl mx-auto flex justify-between items-center">
             <Link to="/" className="text-2xl font-sans font-bold text-gold tracking-wide">OnikiKapı</Link>
