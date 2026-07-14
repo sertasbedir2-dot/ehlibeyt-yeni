@@ -1,11 +1,9 @@
 // Dosya: src/components/VisionTest.jsx
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 
 export default function VisionTest({ onComplete }) {
   const [gatePassed, setGatePassed] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef(null);
 
   // Eşik Bekçisi Mantığı
   const handleAnswer = (isCorrect) => {
@@ -14,19 +12,8 @@ export default function VisionTest({ onComplete }) {
       setErrorMsg("");
     } else {
       setErrorMsg("SİSTEM KÖLESİ TESPİT EDİLDİ. ZİHNİN İŞGAL ALTINDA. TEKRAR DENE.");
-      // 3 saniye sonra hata mesajını sil
       setTimeout(() => setErrorMsg(""), 3000);
     }
-  };
-
-  // Ses Brifingi Kontrolü
-  const toggleAudio = () => {
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play();
-    }
-    setIsPlaying(!isPlaying);
   };
 
   // --- 1. EKRAN: GÜVENLİK DUVARI (SORU) ---
@@ -57,16 +44,18 @@ export default function VisionTest({ onComplete }) {
       <h2 style={{ color: '#f7d547', fontSize: '24px', fontWeight: 'bold', marginBottom: '10px' }}>🛡️ KARARGAHA HOŞ GELDİN</h2>
       <p style={{ color: '#cbd5e1', marginBottom: '20px', fontSize: '14px' }}>Seviye 1 Kilidi Açıldı. Artık sıradan bir asker değilsin.</p>
 
-      {/* SESLİ BRİFİNG MODÜLÜ */}
+      {/* VİDEO BRİFİNG MODÜLÜ */}
       <div style={{ backgroundColor: '#052218', padding: '20px', borderRadius: '10px', border: '1px dashed #f7d547', marginBottom: '25px' }}>
-        <h3 style={{ color: '#f7d547', margin: '0 0 15px 0', fontSize: '16px' }}>🎙️ KOMUTANIN SESLİ BRİFİNGİ</h3>
+        <h3 style={{ color: '#f7d547', margin: '0 0 15px 0', fontSize: '16px' }}>👁️ KOMUTANIN GİZLİ VİDEO BRİFİNGİ</h3>
         
-        {/* PUBLIC KLASÖRÜNDEKİ MP3 DOSYASINI ÇEKER */}
-        <audio ref={audioRef} src="/brifing.mp3" onEnded={() => setIsPlaying(false)} />
-        
-        <button onClick={toggleAudio} style={{ backgroundColor: isPlaying ? '#8b0000' : '#f7d547', color: isPlaying ? 'white' : '#0b3d2c', border: 'none', padding: '12px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', width: '100%', fontSize: '16px', transition: '0.3s' }}>
-          {isPlaying ? '⏸️ Brifingi Durdur' : '▶️ Gizli Ses Kaydını Dinle'}
-        </button>
+        {/* PUBLIC KLASÖRÜNDEKİ MP4 DOSYASINI ÇEKER */}
+        <video 
+          src="/brifing.mp4" 
+          controls 
+          style={{ width: '100%', borderRadius: '8px', border: '1px solid #d4af37', backgroundColor: '#000' }}
+        >
+          Tarayıcınız video oynatmayı desteklemiyor.
+        </video>
       </div>
 
       {/* SOSYAL MEDYA WIDGET MODÜLÜ */}
