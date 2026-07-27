@@ -1,7 +1,7 @@
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Search, X, Share2, Smartphone, Book, Star, Sparkles } from 'lucide-react';
+import { Search, X, Share2, Book, Star, Sparkles } from 'lucide-react';
 
 // --- DATA ---
 import { globalSearchData } from './data/siteData'; 
@@ -45,6 +45,7 @@ function SearchResults({ query, closeSearch }) {
   // ZIRHLANMIŞ ARAMA ALGORİTMASI
   const queryLower = query.toLowerCase();
   const results = globalSearchData.filter(item => {
+    if(!item) return false;
     const tMatch = item.title ? String(item.title).toLowerCase().includes(queryLower) : false;
     const cMatch = item.category ? String(item.category).toLowerCase().includes(queryLower) : false;
     const kMatch = item.keywords ? String(item.keywords).toLowerCase().includes(queryLower) : false;
@@ -78,24 +79,10 @@ function SearchResults({ query, closeSearch }) {
     </div>
   );
 }
+
 function AppContent() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [inFunnel, setInFunnel] = useState(true); // Artık sadece Facebook kontrolü için kullanılıyor
-  
-  const isFacebookBrowser = /FBAN|FBAV|Instagram/i.test(navigator.userAgent);
-
-  useEffect(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      if (params.has('fbclid') || params.has('igshid')) {
-        params.delete('fbclid');
-        params.delete('igshid');
-        const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
-        window.history.replaceState({}, document.title, newUrl);
-      }
-    } catch (error) {}
-  }, []);
 
   const handleShare = async () => {
     try {
@@ -108,24 +95,7 @@ function AppContent() {
     } catch (err) {}
   };
 
-  // 1. AŞAMA: SADECE KISITLI TARAYICI KONTROLÜ (Güvenlik duvarı silindi)
-  if (isFacebookBrowser && inFunnel) {
-    return (
-      <div className="min-h-screen w-full bg-[#0b3d2c] flex flex-col items-center justify-center p-6 font-sans text-center">
-        <Smartphone size={64} className="text-[#f7d547] mb-6 animate-bounce" />
-        <h1 className="text-2xl font-bold text-[#f7d547] mb-4">Sistem Sınırlaması Tespit Edildi</h1>
-        <p className="text-[#e2e8f0] mb-8 max-w-md">Sosyal medya uygulamalarının dahili tarayıcıları platformu engellemektedir.</p>
-        
-        <div className="bg-[#052218] border border-[#f7d547] p-6 rounded-xl max-w-md w-full shadow-2xl">
-          <h3 className="text-[#f7d547] font-bold mb-3 text-lg">Çözüm:</h3>
-          <p className="text-[#cbd5e1] mb-6 text-sm">Sağ üst/alt köşedeki <strong>üç noktaya (...)</strong> tıklayın ve <br/><strong className="text-white bg-blue-600 px-2 py-1 rounded mt-2 inline-block">Sistem Tarayıcısında Aç (Chrome/Safari)</strong> seçin.</p>
-          <hr className="border-[#f7d547]/30 mb-6" />
-          <button onClick={() => setInFunnel(false)} className="text-[#8fa39b] text-sm hover:text-white underline">Yine de devam et</button>
-        </div>
-      </div>
-    );
-  }
-
+  // HER TÜRLÜ GÜVENLİK DUVARI VE FACEBOOK KONTROLÜ TAMAMEN SİLİNDİ
   // DOĞRUDAN ANA SİTEYE GEÇİŞ
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-turquoise-dark to-turquoise text-sand flex flex-col font-serif relative animate-fade-in">
