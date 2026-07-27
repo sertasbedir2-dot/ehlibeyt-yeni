@@ -1,16 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
-import legacy from '@vitejs/plugin-legacy' // 👈 YENİ EKLENTİ
 
 export default defineConfig({
   plugins: [
     react(),
-    // 👇 AĞIR SİLAH BURASI: Facebook/Instagram ve eski Android'ler için özel paket
-    legacy({
-      targets: ['defaults', 'not IE 11', 'Android >= 5'],
-      additionalLegacyPolyfills: ['regenerator-runtime/runtime']
-    }),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'favicon.svg'],
@@ -40,7 +34,7 @@ export default defineConfig({
     })
   ],
   build: {
-    // Legacy plugin kullandığımız için manuel target ayarını kaldırdık, plugin hallediyor.
+    target: 'esnext',
     outDir: 'dist',
     sourcemap: false,
     chunkSizeWarningLimit: 1600,
