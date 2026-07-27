@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Search, X, ArrowRight, Book, Star, HelpCircle, FileText, Heart, Trophy, BookOpen, Sparkles, Share2, Smartphone } from 'lucide-react';
+import { Search, X, Share2, Smartphone, Book, Star, Sparkles } from 'lucide-react';
 
 // --- DATA ---
 import { globalSearchData } from './data/siteData'; 
@@ -42,6 +42,7 @@ function Toast() {
 function SearchResults({ query, closeSearch }) {
   const navigate = useNavigate();
   if (!query) return null;
+  
   const results = globalSearchData.filter(item => 
     item.title.toLowerCase().includes(query.toLowerCase()) || 
     item.category.toLowerCase().includes(query.toLowerCase())
@@ -53,7 +54,7 @@ function SearchResults({ query, closeSearch }) {
   };
 
   return (
-    <div className="max-w-3xl mx-auto mt-4 bg-turquoise-dark border border-gold/20 rounded-xl overflow-hidden shadow-2xl max-h-96 overflow-y-auto custom-scrollbar">
+    <div className="absolute top-16 left-0 w-full max-w-3xl mx-auto bg-turquoise-dark border border-gold/20 rounded-xl overflow-hidden shadow-2xl max-h-96 overflow-y-auto z-[150] custom-scrollbar">
       {results.length > 0 ? (
         results.map((result, index) => (
           <div key={index} onClick={() => handleNavigate(result.url)} className="p-4 border-b border-white/5 hover:bg-gold/10 cursor-pointer flex items-center gap-4 transition-colors group">
@@ -68,19 +69,18 @@ function SearchResults({ query, closeSearch }) {
           </div>
         ))
       ) : (
-        <div className="p-8 text-center text-slate-300 italic">"{query}" ile ilgili bir sonuç bulunamadı.</div>
+        <div className="p-8 text-center text-slate-300 italic">"{query}" ile ilgili sonuç bulunamadı.</div>
       )}
     </div>
   );
 }
 
 function AppContent() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [inFunnel, setInFunnel] = useState(true);
   
-  // FACEBOOK KİLİDİ (JAILBREAK DETECTOR)
+  // FACEBOOK KİLİDİ
   const isFacebookBrowser = /FBAN|FBAV|Instagram/i.test(navigator.userAgent);
 
   useEffect(() => {
@@ -106,29 +106,25 @@ function AppContent() {
     } catch (err) {}
   };
 
-  // 1. AŞAMA: FACEBOOK/INSTA TARAYICISI ZORUNLU ÇIKIŞ VE İNDİRME EKRANI
+  // 1. AŞAMA: TARAYICI KONTROLÜ
   if (isFacebookBrowser && inFunnel) {
     return (
       <div className="min-h-screen w-full bg-[#0b3d2c] flex flex-col items-center justify-center p-6 font-sans text-center">
         <Smartphone size={64} className="text-[#f7d547] mb-6 animate-bounce" />
         <h1 className="text-2xl font-bold text-[#f7d547] mb-4">Sistem Sınırlaması Tespit Edildi</h1>
-        <p className="text-[#e2e8f0] mb-8 max-w-md">Sosyal medya uygulamalarının dahili tarayıcıları, OnikiKapı dijital külliyesini ve Vizyon Testini çalıştırmayı engellemektedir.</p>
+        <p className="text-[#e2e8f0] mb-8 max-w-md">Sosyal medya uygulamalarının dahili tarayıcıları platformu engellemektedir.</p>
         
         <div className="bg-[#052218] border border-[#f7d547] p-6 rounded-xl max-w-md w-full shadow-2xl">
-          <h3 className="text-[#f7d547] font-bold mb-3 text-lg">Hemen Çözmek İçin:</h3>
-          <p className="text-[#cbd5e1] mb-6 text-sm">Sağ üst (veya sağ alt) köşedeki <strong>üç noktaya (...)</strong> tıklayın ve <br/><strong className="text-white bg-blue-600 px-2 py-1 rounded mt-2 inline-block">Sistem Tarayıcısında Aç (Chrome/Safari)</strong> <br/>seçeneğini seçin.</p>
-          
+          <h3 className="text-[#f7d547] font-bold mb-3 text-lg">Çözüm:</h3>
+          <p className="text-[#cbd5e1] mb-6 text-sm">Sağ üst/alt köşedeki <strong>üç noktaya (...)</strong> tıklayın ve <br/><strong className="text-white bg-blue-600 px-2 py-1 rounded mt-2 inline-block">Sistem Tarayıcısında Aç (Chrome/Safari)</strong> seçin.</p>
           <hr className="border-[#f7d547]/30 mb-6" />
-          
-          <button onClick={() => setInFunnel(false)} className="text-[#8fa39b] text-sm hover:text-white underline">
-            Yine de bu kısıtlı tarayıcıda Testi açmayı dene
-          </button>
+          <button onClick={() => setInFunnel(false)} className="text-[#8fa39b] text-sm hover:text-white underline">Yine de devam et</button>
         </div>
       </div>
     );
   }
 
-  // 2. AŞAMA: EŞİK BEKÇİSİ (GÜVENLİK DUVARI) EKRANI
+  // 2. AŞAMA: EŞİK BEKÇİSİ
   if (inFunnel) {
     return (
       <div className="min-h-screen w-full bg-[#0b3d2c] flex flex-col items-center justify-center p-4 relative font-serif">
@@ -143,9 +139,31 @@ function AppContent() {
     <div className="min-h-screen w-full bg-gradient-to-b from-turquoise-dark to-turquoise text-sand flex flex-col font-serif relative animate-fade-in">
        
        <nav className="bg-turquoise-dark border-b border-gold/20 sticky top-0 z-50 shadow-xl backdrop-blur-md p-4">
-         <div className="max-w-7xl mx-auto flex justify-between items-center">
+         <div className="max-w-7xl mx-auto flex justify-between items-center relative">
             <Link to="/" className="text-2xl font-sans font-bold text-gold tracking-wide">OnikiKapı</Link>
-            <button onClick={handleShare} className="flex items-center gap-2 bg-gold/10 text-gold border border-gold/30 px-3 py-2 rounded-lg font-bold text-sm"><Share2 size={18}/> Paylaş</button>
+            
+            <div className="flex items-center gap-4">
+              {isSearchOpen ? (
+                <div className="flex items-center bg-white/10 rounded-lg px-2">
+                  <input 
+                    type="text" 
+                    placeholder="Ara..." 
+                    className="bg-transparent text-white focus:outline-none p-2 w-32 md:w-64"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    autoFocus
+                  />
+                  <X size={18} className="text-gold cursor-pointer" onClick={() => { setIsSearchOpen(false); setSearchQuery(""); }} />
+                </div>
+              ) : (
+                <button onClick={() => setIsSearchOpen(true)} className="text-gold p-2 hover:bg-gold/10 rounded-lg">
+                  <Search size={20} />
+                </button>
+              )}
+              <button onClick={handleShare} className="flex items-center gap-2 bg-gold/10 text-gold border border-gold/30 px-3 py-2 rounded-lg font-bold text-sm"><Share2 size={18}/> Paylaş</button>
+            </div>
+            
+            {isSearchOpen && searchQuery && <SearchResults query={searchQuery} closeSearch={() => { setIsSearchOpen(false); setSearchQuery(""); }} />}
          </div>
        </nav>
 
@@ -166,8 +184,10 @@ function AppContent() {
            </Routes>
          </Suspense>
        </main>
+       <Footer />
        <div className="fixed bottom-6 right-6 z-[100]"><MusicPlayer /></div>
        <InstallPrompt />
+       <Toast />
     </div>
   );
 }
