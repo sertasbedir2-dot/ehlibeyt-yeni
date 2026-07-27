@@ -11,7 +11,6 @@ import MusicPlayer from './components/MusicPlayer';
 import Footer from './components/Footer'; 
 import ScrollToTop from './components/ScrollToTop';
 import InstallPrompt from './components/InstallPrompt';
-import VisionTest from './components/VisionTest'; 
 
 // --- CONTEXT ---
 import { AppProvider, useAppContext } from './context/AppContext';
@@ -45,7 +44,8 @@ function SearchResults({ query, closeSearch }) {
   
   const results = globalSearchData.filter(item => 
     item.title.toLowerCase().includes(query.toLowerCase()) || 
-    item.category.toLowerCase().includes(query.toLowerCase())
+    item.category.toLowerCase().includes(query.toLowerCase()) ||
+    (item.keywords && item.keywords.toLowerCase().includes(query.toLowerCase()))
   );
 
   const handleNavigate = (url) => {
@@ -61,6 +61,7 @@ function SearchResults({ query, closeSearch }) {
             <div className="p-2 bg-turquoise rounded-lg text-gold group-hover:scale-110 transition-transform">
                {result.type === "Kitap" && <Book size={20} />}
                {result.type === "14 Masum" && <Star size={20} />}
+               {result.type !== "Kitap" && result.type !== "14 Masum" && <Search size={20} />}
             </div>
             <div>
               <h4 className="text-sand font-bold text-lg group-hover:text-gold">{result.title}</h4>
@@ -78,9 +79,8 @@ function SearchResults({ query, closeSearch }) {
 function AppContent() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [inFunnel, setInFunnel] = useState(true);
+  const [inFunnel, setInFunnel] = useState(true); // Artık sadece Facebook kontrolü için kullanılıyor
   
-  // FACEBOOK KİLİDİ
   const isFacebookBrowser = /FBAN|FBAV|Instagram/i.test(navigator.userAgent);
 
   useEffect(() => {
@@ -106,7 +106,7 @@ function AppContent() {
     } catch (err) {}
   };
 
-  // 1. AŞAMA: TARAYICI KONTROLÜ
+  // 1. AŞAMA: SADECE KISITLI TARAYICI KONTROLÜ (Güvenlik duvarı silindi)
   if (isFacebookBrowser && inFunnel) {
     return (
       <div className="min-h-screen w-full bg-[#0b3d2c] flex flex-col items-center justify-center p-6 font-sans text-center">
@@ -124,17 +124,7 @@ function AppContent() {
     );
   }
 
-  // 2. AŞAMA: EŞİK BEKÇİSİ
-  if (inFunnel) {
-    return (
-      <div className="min-h-screen w-full bg-[#0b3d2c] flex flex-col items-center justify-center p-4 relative font-serif">
-         <Helmet><title>OnikiKapı | Güvenlik Duvarı</title></Helmet>
-         <VisionTest onComplete={() => setInFunnel(false)} />
-      </div>
-    );
-  }
-
-  // 3. AŞAMA: ANA SİTE
+  // DOĞRUDAN ANA SİTEYE GEÇİŞ
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-turquoise-dark to-turquoise text-sand flex flex-col font-serif relative animate-fade-in">
        
@@ -168,7 +158,7 @@ function AppContent() {
        </nav>
 
        <main className="flex-grow w-full max-w-7xl mx-auto px-4 py-8 mb-24"> 
-         <Suspense fallback={<div className="text-gold text-center p-20 font-sans font-bold">Arşiv Yükleniyor...</div>}>
+         <Suspense fallback={<div className="text-gold text-center p-20 font-sans font-bold">Yükleniyor...</div>}>
            <Routes>
              <Route path="/" element={<Home />} />
              <Route path="/zikir" element={<Zikir />} />
