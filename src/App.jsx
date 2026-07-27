@@ -42,11 +42,14 @@ function SearchResults({ query, closeSearch }) {
   const navigate = useNavigate();
   if (!query) return null;
   
-  const results = globalSearchData.filter(item => 
-    item.title.toLowerCase().includes(query.toLowerCase()) || 
-    item.category.toLowerCase().includes(query.toLowerCase()) ||
-    (item.keywords && item.keywords.toLowerCase().includes(query.toLowerCase()))
-  );
+  // ZIRHLANMIŞ ARAMA ALGORİTMASI
+  const queryLower = query.toLowerCase();
+  const results = globalSearchData.filter(item => {
+    const tMatch = item.title ? String(item.title).toLowerCase().includes(queryLower) : false;
+    const cMatch = item.category ? String(item.category).toLowerCase().includes(queryLower) : false;
+    const kMatch = item.keywords ? String(item.keywords).toLowerCase().includes(queryLower) : false;
+    return tMatch || cMatch || kMatch;
+  });
 
   const handleNavigate = (url) => {
     navigate(url);
@@ -75,7 +78,6 @@ function SearchResults({ query, closeSearch }) {
     </div>
   );
 }
-
 function AppContent() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
