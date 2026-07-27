@@ -1,8 +1,9 @@
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { PenTool, Scale, Flower, BookOpen, Sparkles, Search, Heart, HelpCircle, Sun, RefreshCw, Volume2, Share2, Flame, Bell, X, Download, HandHeart, CheckCircle2 } from 'lucide-react';
+import { PenTool, Scale, Flower, BookOpen, Sparkles, Search, Heart, HelpCircle, Sun, RefreshCw, Volume2, Share2, Flame, Bell, X, Download, HandHeart, CheckCircle2, Star } from 'lucide-react';
 import { wisdomData } from '../data/wisdomData';
+import { globalSearchData } from '../data/siteData'; // Arama için eklendi
 import { toPng } from 'html-to-image';
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -12,46 +13,49 @@ const GOREVLER = [
   { text: "Bugün karşılaştığın bir çocuğun başını okşa veya ona küçük bir çikolata ikram et.", type: "Merhamet" },
   { text: "Bugün bir sokak hayvanına (kedi/köpek/kuş) su veya mama ver.", type: "Şefkat" },
   { text: "Bugün öfkelendiğin bir an olursa, hiçbir şey söyleme ve hemen oturup üç kez derin nefes al.", type: "Sabır (Hilim)" },
-  { text: "Bugün yediğin yemeğin ardından, o yemeği hazırlayan kişiye (anne, eş veya aşçı) içtenlikle teşekkür et ve dua et.", type: "Vefa & Şükür" },
-  { text: "Bugün dilini gıybetten tamamen koru; biri yanında gıybet yaparsa konuyu nazikçe değiştir.", type: "Dilin Afeti" },
-  { text: "Bugün evden çıkarken veya işe başlarken 100 defa Salavat getir.", type: "Zikir" },
-  { text: "Bugün tanıdığın veya tanımadığın birine içtenlikle tebessüm et ve selam ver.", type: "Sünnet" },
-  { text: "Bugün vefat etmiş yakınların için bir Fatiha ve üç İhlas suresi oku.", type: "Vefa" },
-  { text: "Bugün yolda yürürken gördüğün rahatsız edici bir şeyi (taş, çöp vb.) kenara çek.", type: "Sadaka" },
-  { text: "Bugün kimse görmeden küçük bir miktar sadaka ver (sadaka kutusuna at veya bir ihtiyaç sahibine ver).", type: "İnfak" },
-  { text: "Bugün aynaya bak ve 'Allah'ım yaratılışımı güzel kıldın, ahlakımı da güzelleştir' diye dua et.", type: "Dua" },
-  { text: "Bugün bir arkadaşının veya ailenden birinin güzel bir huyunu ona söyle ve onu takdir et.", type: "Güzel Söz" },
-  { text: "Bugün namazdan sonra 'Şükür Secdesi' yap ve sahip olduğun üç nimet için Allah'a teşekkür et.", type: "Şükür" },
-  { text: "Bugün sana haksızlık yapmış veya kırmış birini Allah rızası için içinden affet.", type: "Af & Bağışlama" },
-  { text: "Bugün Kur'an-ı Kerim'den (Türkçe mealinden) rastgele bir sayfa aç ve üzerinde düşünerek oku.", type: "İlim & Tefekkür" },
-  { text: "Bugün evde veya iş yerinde başkasının yapması gereken bir işi, ona yardım olsun diye sen yap.", type: "Yardımlaşma" },
-  { text: "Bugün yatmadan önce gününü kısaca düşün ve 'Bugün Allah için ne yaptım?' sorusunu kendine sor.", type: "Nefs Muhasebesi" },
-  { text: "Bugün susuzluğunu giderirken İmam Hüseyin'i (a.s) hatırla ve ona selam gönder.", type: "Ehlibeyt Sevgisi" },
-  { text: "Bugün israftan kaçın; tabağındaki yemeği tamamen bitir ve suyu boşa akıtma.", type: "İktisat" },
-  { text: "Bugün bir dostuna veya ailene 'Seni Allah için seviyorum' de.", type: "Uhuvvet" },
-  { text: "Bugün çok konuşmak yerine daha çok dinlemeyi tercih et.", type: "Edep" },
-  { text: "Bugün bir hasta tanıdığını ara veya mümkünse kısa bir ziyarette bulun.", type: "Ziyaret" },
-  { text: "Bugün yapacağın bir iyiliği (ibadet veya yardım) hiç kimseye anlatma, sadece Allah bilsin.", type: "İhlas" },
-  { text: "Bugün komşunla karşılaşırsan halini sor, karşılaşmazsan onun huzuru için dua et.", type: "Komşuluk" },
-  { text: "Bugün 'Zamanım yok' deme; ertelediğin hayırlı bir işi hemen yap.", type: "Gayret" },
-  { text: "Bugün bulunduğun ortamı (oda, masa, ev) temizle ve düzenle. Temizlik imandandır.", type: "Temizlik" },
-  { text: "Bugün İmam Mehdi (a.f) için 'Allahumme kün li-veliyyike...' duasını (Ferec Duası) oku.", type: "İntizar" },
-  { text: "Bugün konuştuğun sözlerde 'Yemin etmekten' (Vallahi, Billahi demekten) kaçın.", type: "Dil Terbiyesi" },
-  { text: "Bugün anne ve babanı (hayattalarsa) ara veya sarıl; vefat etmişlerse onlar adına bir hayır işle.", type: "Birr (İyilik)" }
+  { text: "Bugün yediğin yemeğin ardından, o yemeği hazırlayan kişiye (anne, eş veya aşçı) içtenlikle teşekkür et ve dua et.", type: "Vefa & Şükür" }
 ];
 
 export default function Home() {
   const [heroSearch, setHeroSearch] = useState("");
+  const [searchResults, setSearchResults] = useState([]); // Arama sonuçları için state
   const navigate = useNavigate();
   const [streak, setStreak] = useState(0);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [showSharePreview, setShowSharePreview] = useState(false);
   const wisdomSectionRef = useRef(null);
 
+  // ARAMA FONKSİYONUNUN YENİ HALİ
   const handleSearch = (e) => {
     e.preventDefault();
-    if (heroSearch.trim()) alert("Detaylı arama sonuçları için üst menüdeki büyüteci kullanabilirsiniz.");
+    if (!heroSearch.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    
+    // globalSearchData içindeki verilerde arama yapıyoruz
+    const results = globalSearchData.filter(item => 
+      item.title.toLowerCase().includes(heroSearch.toLowerCase()) || 
+      item.category.toLowerCase().includes(heroSearch.toLowerCase()) ||
+      (item.keywords && item.keywords.toLowerCase().includes(heroSearch.toLowerCase()))
+    );
+    
+    setSearchResults(results);
   };
+
+  // Dinamik arama (kullanıcı yazarken sonuçlar gelsin istersek)
+  useEffect(() => {
+    if (heroSearch.trim()) {
+      const results = globalSearchData.filter(item => 
+        item.title.toLowerCase().includes(heroSearch.toLowerCase()) || 
+        item.category.toLowerCase().includes(heroSearch.toLowerCase()) ||
+        (item.keywords && item.keywords.toLowerCase().includes(heroSearch.toLowerCase()))
+      );
+      setSearchResults(results);
+    } else {
+      setSearchResults([]);
+    }
+  }, [heroSearch]);
 
   const dailyWisdom = useMemo(() => {
     const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
@@ -139,7 +143,7 @@ export default function Home() {
       <div className="relative py-20 px-6 rounded-3xl overflow-hidden text-center border border-gold/20 shadow-2xl group min-h-[600px] flex flex-col justify-center">
         <div className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1518837695005-2083093ee35b?q=80&w=2000&auto=format&fit=crop')` }}></div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-turquoise-dark mix-blend-multiply"></div>
-        <div className="relative z-10 max-w-4xl mx-auto space-y-8 flex flex-col items-center">
+        <div className="relative z-10 max-w-4xl mx-auto space-y-8 flex flex-col items-center w-full">
           <div className="mb-4 animate-fade-in w-full max-w-xs mx-auto transform hover:scale-105 transition-transform duration-300 z-20"><PrayerTimesWidget /></div>
           <div className="relative w-20 h-20 mx-auto flex items-center justify-center mb-2">
             <div className="absolute inset-0 bg-gold/40 blur-2xl rounded-full animate-pulse-slow"></div>
@@ -148,12 +152,42 @@ export default function Home() {
           </div>
           <h1 className="text-5xl md:text-7xl font-sans font-bold text-transparent bg-clip-text bg-gradient-to-r from-sand via-gold to-sand drop-shadow-sm leading-tight">OnikiKapı</h1>
           <p className="text-xl md:text-2xl text-slate-200 font-serif leading-relaxed max-w-2xl">"İlim bir noktadır, onu cahiller çoğaltmıştır."</p>
-          <form onSubmit={handleSearch} className="w-full max-w-2xl relative mt-4 group/search">
-            <div className="relative flex items-center">
-              <input type="text" placeholder="Bir kavram, hadis veya soru arayın..." className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-sand placeholder-slate-300 rounded-full py-4 pl-8 pr-16 text-lg focus:outline-none focus:bg-white/20 focus:border-gold/50 transition-all shadow-lg" value={heroSearch} onChange={(e) => setHeroSearch(e.target.value)} />
+          
+          {/* YENİLENMİŞ ARAMA ÇUBUĞU VE SONUÇ ALANI */}
+          <div className="w-full max-w-2xl relative mt-4">
+            <form onSubmit={handleSearch} className="relative flex items-center w-full z-30">
+              <input 
+                type="text" 
+                placeholder="Bir kavram, hadis veya soru arayın..." 
+                className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-sand placeholder-slate-300 rounded-full py-4 pl-8 pr-16 text-lg focus:outline-none focus:bg-white/20 focus:border-gold/50 transition-all shadow-lg" 
+                value={heroSearch} 
+                onChange={(e) => setHeroSearch(e.target.value)} 
+              />
               <button type="submit" className="absolute right-2 p-2 bg-gold/90 hover:bg-gold text-turquoise-dark rounded-full transition-colors shadow-md"><Search size={24} /></button>
-            </div>
-          </form>
+            </form>
+            
+            {/* ARAMA SONUÇLARI DROPDOWN */}
+            {heroSearch.trim() && (
+              <div className="absolute top-16 left-0 w-full bg-turquoise-dark/95 backdrop-blur-xl border border-gold/30 rounded-xl overflow-hidden shadow-2xl z-40 max-h-80 overflow-y-auto text-left animate-fade-in">
+                {searchResults.length > 0 ? (
+                  searchResults.map((result, index) => (
+                    <Link to={result.url} key={index} className="flex items-center gap-4 p-4 border-b border-white/5 hover:bg-white/10 transition-colors">
+                      <div className="p-2 bg-turquoise rounded-lg text-gold">
+                        {result.type === "Kitap" ? <Book size={20} /> : <Star size={20} />}
+                      </div>
+                      <div>
+                        <h4 className="text-sand font-bold text-lg">{result.title}</h4>
+                        <span className="text-xs text-turquoise-light uppercase tracking-wider">{result.type} • {result.category}</span>
+                      </div>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="p-6 text-center text-slate-300 italic">"{heroSearch}" ile ilgili sonuç bulunamadı. Lütfen "Ali" veya "Zikir" gibi anahtar kelimeler deneyin.</div>
+                )}
+              </div>
+            )}
+          </div>
+
           <div className="w-full max-w-3xl mt-6">
             <p className="text-sm text-turquoise-light uppercase tracking-widest font-bold mb-4">Bugün nasılsın?</p>
             <div className="flex flex-wrap justify-center gap-3">
