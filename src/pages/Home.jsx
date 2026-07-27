@@ -30,7 +30,6 @@ export default function Home() {
     const queryLower = query.toLowerCase();
     
     return globalSearchData.filter(item => {
-      // Eğer veri yoksa false dön, asla çökme!
       const tMatch = item.title ? String(item.title).toLowerCase().includes(queryLower) : false;
       const cMatch = item.category ? String(item.category).toLowerCase().includes(queryLower) : false;
       const kMatch = item.keywords ? String(item.keywords).toLowerCase().includes(queryLower) : false;
@@ -38,11 +37,13 @@ export default function Home() {
     });
   };
 
+  // Eski uyarı mesajı (alert) tamamen silindi!
   const handleSearch = (e) => {
     e.preventDefault();
     setSearchResults(safeSearch(heroSearch));
   };
 
+  // Kullanıcı yazdıkça sonuçları anında getirir
   useEffect(() => {
     setSearchResults(safeSearch(heroSearch));
   }, [heroSearch]);
@@ -144,7 +145,7 @@ export default function Home() {
           <h1 className="text-5xl md:text-7xl font-sans font-bold text-transparent bg-clip-text bg-gradient-to-r from-sand via-gold to-sand drop-shadow-sm leading-tight">OnikiKapı</h1>
           <p className="text-xl md:text-2xl text-slate-200 font-serif leading-relaxed max-w-2xl">"İlim bir noktadır, onu cahiller çoğaltmıştır."</p>
           
-          {/* ARAMA ÇUBUĞU */}
+          {/* ÇALIŞAN ARAMA ÇUBUĞU */}
           <div className="w-full max-w-2xl relative mt-4">
             <form onSubmit={handleSearch} className="relative flex items-center w-full z-30">
               <input 
@@ -157,9 +158,9 @@ export default function Home() {
               <button type="submit" className="absolute right-2 p-2 bg-gold/90 hover:bg-gold text-turquoise-dark rounded-full transition-colors shadow-md"><Search size={24} /></button>
             </form>
             
-            {/* ARAMA SONUÇLARI */}
+            {/* ARAMA SONUÇLARI DROPDOWN */}
             {heroSearch.trim() && (
-              <div className="absolute top-16 left-0 w-full bg-turquoise-dark/95 backdrop-blur-xl border border-gold/30 rounded-xl overflow-hidden shadow-2xl z-40 max-h-80 overflow-y-auto text-left animate-fade-in custom-scrollbar">
+              <div className="absolute top-20 left-0 w-full bg-turquoise-dark/95 backdrop-blur-xl border border-gold/30 rounded-xl overflow-hidden shadow-2xl z-40 max-h-80 overflow-y-auto text-left animate-fade-in custom-scrollbar">
                 {searchResults.length > 0 ? (
                   searchResults.map((result, index) => (
                     <Link to={result.url} key={index} className="flex items-center gap-4 p-4 border-b border-white/5 hover:bg-white/10 transition-colors">
@@ -173,13 +174,13 @@ export default function Home() {
                     </Link>
                   ))
                 ) : (
-                  <div className="p-6 text-center text-slate-300 italic">"{heroSearch}" ile ilgili sonuç bulunamadı. Lütfen "Ali" veya "Zikir" gibi anahtar kelimeler deneyin.</div>
+                  <div className="p-6 text-center text-slate-300 italic">"{heroSearch}" ile ilgili sonuç bulunamadı. Lütfen farklı bir kelime deneyin.</div>
                 )}
               </div>
             )}
           </div>
 
-          <div className="w-full max-w-3xl mt-6">
+          <div className="w-full max-w-3xl mt-6 z-20">
             <p className="text-sm text-turquoise-light uppercase tracking-widest font-bold mb-4">Bugün nasılsın?</p>
             <div className="flex flex-wrap justify-center gap-3">
               <MoodChip label="Hüzünlü" icon={<Heart size={16} />} link="/manevi-receteler" color="hover:bg-rose-500/20 hover:border-rose-400 hover:text-rose-200" />
