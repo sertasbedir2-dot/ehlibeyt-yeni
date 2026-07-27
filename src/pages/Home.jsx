@@ -3,11 +3,10 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PenTool, Scale, Flower, BookOpen, Sparkles, Search, Heart, HelpCircle, Sun, RefreshCw, Volume2, Share2, Flame, Bell, X, Download, HandHeart, CheckCircle2, Star } from 'lucide-react';
 import { wisdomData } from '../data/wisdomData';
-import { globalSearchData } from '../data/siteData'; // Arama için eklendi
+import { globalSearchData } from '../data/siteData'; 
 import { toPng } from 'html-to-image';
 import { QRCodeSVG } from 'qrcode.react';
 
-// --- GÖREV LİSTESİ ---
 const GOREVLER = [
   { text: "Bugün telefon rehberinden uzun süredir konuşmadığın bir akrabanı ara ve halini hatırını sor.", type: "Sıla-i Rahim" },
   { text: "Bugün karşılaştığın bir çocuğun başını okşa veya ona küçük bir çikolata ikram et.", type: "Merhamet" },
@@ -18,44 +17,36 @@ const GOREVLER = [
 
 export default function Home() {
   const [heroSearch, setHeroSearch] = useState("");
-  const [searchResults, setSearchResults] = useState([]); // Arama sonuçları için state
+  const [searchResults, setSearchResults] = useState([]); 
   const navigate = useNavigate();
   const [streak, setStreak] = useState(0);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [showSharePreview, setShowSharePreview] = useState(false);
   const wisdomSectionRef = useRef(null);
 
-  // ARAMA FONKSİYONUNUN YENİ HALİ
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (!heroSearch.trim()) {
-      setSearchResults([]);
-      return;
-    }
+  // --- ZIRHLANMIŞ GÜVENLİ ARAMA MOTORU ---
+  const safeSearch = (query) => {
+    if (!query.trim()) return [];
+    const queryLower = query.toLowerCase();
     
-    // globalSearchData içindeki verilerde arama yapıyoruz
-    const results = globalSearchData.filter(item => 
-      item.title.toLowerCase().includes(heroSearch.toLowerCase()) || 
-      item.category.toLowerCase().includes(heroSearch.toLowerCase()) ||
-      (item.keywords && item.keywords.toLowerCase().includes(heroSearch.toLowerCase()))
-    );
-    
-    setSearchResults(results);
+    return globalSearchData.filter(item => {
+      // Eğer veri yoksa false dön, asla çökme!
+      const tMatch = item.title ? String(item.title).toLowerCase().includes(queryLower) : false;
+      const cMatch = item.category ? String(item.category).toLowerCase().includes(queryLower) : false;
+      const kMatch = item.keywords ? String(item.keywords).toLowerCase().includes(queryLower) : false;
+      return tMatch || cMatch || kMatch;
+    });
   };
 
-  // Dinamik arama (kullanıcı yazarken sonuçlar gelsin istersek)
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setSearchResults(safeSearch(heroSearch));
+  };
+
   useEffect(() => {
-    if (heroSearch.trim()) {
-      const results = globalSearchData.filter(item => 
-        item.title.toLowerCase().includes(heroSearch.toLowerCase()) || 
-        item.category.toLowerCase().includes(heroSearch.toLowerCase()) ||
-        (item.keywords && item.keywords.toLowerCase().includes(heroSearch.toLowerCase()))
-      );
-      setSearchResults(results);
-    } else {
-      setSearchResults([]);
-    }
+    setSearchResults(safeSearch(heroSearch));
   }, [heroSearch]);
+  // ----------------------------------------
 
   const dailyWisdom = useMemo(() => {
     const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
@@ -153,7 +144,7 @@ export default function Home() {
           <h1 className="text-5xl md:text-7xl font-sans font-bold text-transparent bg-clip-text bg-gradient-to-r from-sand via-gold to-sand drop-shadow-sm leading-tight">OnikiKapı</h1>
           <p className="text-xl md:text-2xl text-slate-200 font-serif leading-relaxed max-w-2xl">"İlim bir noktadır, onu cahiller çoğaltmıştır."</p>
           
-          {/* YENİLENMİŞ ARAMA ÇUBUĞU VE SONUÇ ALANI */}
+          {/* ARAMA ÇUBUĞU */}
           <div className="w-full max-w-2xl relative mt-4">
             <form onSubmit={handleSearch} className="relative flex items-center w-full z-30">
               <input 
@@ -166,9 +157,9 @@ export default function Home() {
               <button type="submit" className="absolute right-2 p-2 bg-gold/90 hover:bg-gold text-turquoise-dark rounded-full transition-colors shadow-md"><Search size={24} /></button>
             </form>
             
-            {/* ARAMA SONUÇLARI DROPDOWN */}
+            {/* ARAMA SONUÇLARI */}
             {heroSearch.trim() && (
-              <div className="absolute top-16 left-0 w-full bg-turquoise-dark/95 backdrop-blur-xl border border-gold/30 rounded-xl overflow-hidden shadow-2xl z-40 max-h-80 overflow-y-auto text-left animate-fade-in">
+              <div className="absolute top-16 left-0 w-full bg-turquoise-dark/95 backdrop-blur-xl border border-gold/30 rounded-xl overflow-hidden shadow-2xl z-40 max-h-80 overflow-y-auto text-left animate-fade-in custom-scrollbar">
                 {searchResults.length > 0 ? (
                   searchResults.map((result, index) => (
                     <Link to={result.url} key={index} className="flex items-center gap-4 p-4 border-b border-white/5 hover:bg-white/10 transition-colors">
