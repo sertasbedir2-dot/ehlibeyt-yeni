@@ -12,7 +12,8 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        // DİKKAT: .jpg ve .jpeg uzantıları eklendi (og-image.jpg önbelleğe alınabilsin diye)
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg}'],
         // Facebook'un eklediği takip parametrelerini görmezden gel
         ignoreURLParametersMatching: [/^utm_/, /^fbclid$/],
         navigateFallback: '/index.html'
@@ -22,8 +23,9 @@ export default defineConfig({
         name: 'OnikiKapı',
         short_name: 'OnikiKapı',
         description: 'Ehlibeyt mektebinin dijital külliyesi.',
-        theme_color: '#008080',
-        background_color: '#0f172a',
+        // DİKKAT: PWA yükleme (splash) ekranı renkleri yeni Zümrüt temaya uyarlandı
+        theme_color: '#04151a',
+        background_color: '#04151a',
         display: 'standalone',
         orientation: 'any',
         icons: [
