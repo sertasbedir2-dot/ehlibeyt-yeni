@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Youtube, BookOpen, MapPin, Mail, Phone, Globe } from 'lucide-react';
+// İŞTE ÇÖKÜŞÜN SEBEBİ BUYDU. "Sparkles" EKLENDİ!
+import { Facebook, Instagram, Youtube, BookOpen, MapPin, Mail, Phone, Globe, Sparkles } from 'lucide-react';
 
-// Özel TikTok İkonu (Lucide'de standart olmadığı için SVG olarak ekliyoruz)
+// Özel TikTok İkonu
 const TikTokIcon = ({ size = 24, className = "" }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
@@ -37,7 +38,6 @@ export default function Footer() {
             Ehlibeyt mektebinin ilim ve hikmet pınarlarından süzülen hakikatleri, modern çağın idrakine sunan dijital bir külliye.
           </p>
           
-          {/* YENİ SOSYAL MEDYA İKONLARI (MONOKROM ZIRHI) */}
           <div className="flex gap-4">
             <a href="#" className="p-2.5 rounded-lg border border-[#C5A059]/30 text-[#C5A059] hover:bg-[#C5A059] hover:text-[#09303a] hover:border-[#C5A059] transition-all transform hover:-translate-y-1">
               <Facebook size={20} />
@@ -66,7 +66,7 @@ export default function Footer() {
               { name: 'Kütüphane', path: '/library' },
               { name: 'Soru/Cevap', path: '/soru-cevap' },
               { name: '14 Masum', path: '/14-masum' },
-              { name: 'Medya Merkezi', path: '/medya' }
+              { name: 'Medya', path: '/medya' }
             ].map((link, idx) => (
               <li key={idx}>
                 <Link to={link.path} className="hover:text-[#C5A059] transition-colors flex items-center gap-2 before:content-['•'] before:text-[#C5A059]">
