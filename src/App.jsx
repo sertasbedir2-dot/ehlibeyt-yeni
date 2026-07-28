@@ -255,11 +255,21 @@ function AppContent() {
             <TopNavigation />
             
             <div className="flex items-center gap-2 md:gap-4 ml-auto lg:ml-0">
-              <div className="hidden sm:flex items-center gap-1.5 bg-black/30 border border-[#C5A059]/30 px-3 py-1.5 rounded-full text-[#C5A059] text-xs font-bold shadow-inner">
+              
+              {/* ZİNCİR (STREAK) WIDGET'I - ARTIK MOBİLDE DE GÖRÜNÜR */}
+              <div className="flex items-center gap-1.5 bg-black/30 border border-[#C5A059]/30 px-2 sm:px-3 py-1.5 rounded-full text-[#C5A059] text-xs font-bold shadow-inner" title="Aralıksız ziyaret serisi">
                 <Flame size={14} className={`${streak > 0 ? 'fill-[#C5A059] animate-pulse' : 'text-slate-500'}`} />
-                <span>{streak} Gün</span>
+                <span className="hidden sm:inline">{streak} Gün</span>
+                <span className="sm:hidden">{streak}</span>
               </div>
 
+              {/* PAYLAŞ BUTONU - MOBİLDE SADECE İKON, MASAÜSTÜNDE YAZILI */}
+              <button onClick={handleShare} className="flex items-center gap-2 bg-[#C5A059]/10 text-[#C5A059] border border-[#C5A059]/30 p-2 sm:px-3 sm:py-2 rounded-lg font-bold text-sm hover:bg-[#C5A059] hover:text-[#09303a] transition-colors">
+                <Share2 size={18} className="sm:w-4 sm:h-4"/> 
+                <span className="hidden sm:inline">Paylaş</span>
+              </button>
+
+              {/* ARAMA WIDGET'I */}
               {isSearchOpen ? (
                 <div className="flex items-center bg-white/10 rounded-lg px-2 relative z-50">
                   <input type="text" placeholder="Ara..." className="bg-transparent text-white focus:outline-none p-2 w-32 md:w-64 font-sans text-sm" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} autoFocus />
@@ -271,10 +281,6 @@ function AppContent() {
                   <Search size={20} />
                 </button>
               )}
-              
-              <button onClick={handleShare} className="hidden md:flex items-center gap-2 bg-[#C5A059]/10 text-[#C5A059] border border-[#C5A059]/30 px-3 py-2 rounded-lg font-bold text-sm hover:bg-[#C5A059] hover:text-[#09303a] transition-colors">
-                <Share2 size={16}/> Paylaş
-              </button>
             </div>
          </div>
        </nav>
