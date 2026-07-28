@@ -1,7 +1,7 @@
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, Component } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Search, X, Share2, Book, Star, Sparkles, Menu, Flame } from 'lucide-react';
+import { Search, X, Share2, Book, Star, Sparkles, Menu, Flame, BookOpen } from 'lucide-react'; // Eksik BookOpen ikonu eklendi
 
 // --- DATA ---
 import { globalSearchData } from './data/siteData'; 
@@ -28,7 +28,37 @@ const Library = React.lazy(() => import('./pages/Library'));
 const KitapOku = React.lazy(() => import('./pages/KitapOku'));
 const Favorites = React.lazy(() => import('./pages/Favorites')); 
 
-// --- BİLEŞEN: KÜÇÜK BİLDİRİM (TOAST) ---
+// --- ÇÖKME ÖNLEYİCİ (ERROR BOUNDARY) ---
+// Bu kod, sayfanın lacivert ekrana düşmesini engeller.
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, errorInfo: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error("Yakaladı:", error, errorInfo);
+    this.setState({ errorInfo: error.toString() });
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-10 text-white bg-red-900 min-h-screen">
+          <h1 className="text-3xl font-bold mb-4">Bir Hata Oluştu!</h1>
+          <p>Lütfen ekran görüntüsü alın veya hatayı kopyalayın:</p>
+          <pre className="bg-black p-4 mt-4 text-sm overflow-auto text-red-300">
+            {this.state.errorInfo}
+          </pre>
+          <button onClick={() => window.location.reload()} className="mt-6 px-4 py-2 bg-white text-black font-bold rounded">Sayfayı Yenile</button>
+        </div>
+      );
+    }
+    return this.props.children; 
+  }
+}
+
 function Toast() {
   const { toastMessage } = useAppContext();
   if (!toastMessage) return null;
@@ -39,21 +69,21 @@ function Toast() {
   );
 }
 
-// --- BİLEŞEN: KARŞILAMA EKRANI (WELCOME MODAL) ---
 function WelcomeModal() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    const hasSeenWelcome = localStorage.getItem('hasSeenWelcome_v1');
-    if (!hasSeenWelcome) {
-      // Sayfa yüklendikten 1.5 saniye sonra çıksın, hemen yüze çarpmasın.
-      const timer = setTimeout(() => setIsOpen(true), 1500);
-      return () => clearTimeout(timer);
-    }
+    try {
+      const hasSeenWelcome = localStorage.getItem('hasSeenWelcome_v1');
+      if (!hasSeenWelcome) {
+        const timer = setTimeout(() => setIsOpen(true), 1500);
+        return () => clearTimeout(timer);
+      }
+    } catch (e) { console.error(e); }
   }, []);
 
   const handleClose = () => {
-    localStorage.setItem('hasSeenWelcome_v1', 'true');
+    try { localStorage.setItem('hasSeenWelcome_v1', 'true'); } catch (e) {}
     setIsOpen(false);
   };
 
@@ -62,7 +92,6 @@ function WelcomeModal() {
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in">
       <div className="relative bg-[#0b1b24] border border-[#C5A059]/40 rounded-2xl p-8 md:p-10 max-w-lg text-center shadow-[0_0_40px_rgba(197,160,89,0.15)] overflow-hidden">
-        {/* Dekoratif Arka Plan Işığı */}
         <div className="absolute -top-20 -left-20 w-40 h-40 bg-[#C5A059]/10 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-[#C5A059]/10 rounded-full blur-3xl"></div>
         
@@ -101,7 +130,6 @@ function WelcomeModal() {
   );
 }
 
-// --- BİLEŞEN: ARAMA SONUÇLARI ---
 function SearchResults({ query, closeSearch }) {
   const navigate = useNavigate();
   if (!query) return null;
@@ -118,7 +146,7 @@ function SearchResults({ query, closeSearch }) {
   });
 
   const handleNavigate = (url) => {
-    navigate(url);
+    navigate(url || "/");
     closeSearch();
   };
 
@@ -145,7 +173,6 @@ function SearchResults({ query, closeSearch }) {
   );
 }
 
-// --- BİLEŞEN: ÜST MENÜ (HEADER) ---
 function TopNavigation() {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -199,26 +226,26 @@ function TopNavigation() {
   );
 }
 
-// --- ANA UYGULAMA İÇERİĞİ ---
 function AppContent() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [streak, setStreak] = useState(0);
 
-  // Zincir (Streak) Hesaplama
   useEffect(() => {
-    const today = new Date().toDateString();
-    const lastVisit = localStorage.getItem('lastVisit');
-    let currentStreak = parseInt(localStorage.getItem('streak') || '0');
+    try {
+      const today = new Date().toDateString();
+      const lastVisit = localStorage.getItem('lastVisit');
+      let currentStreak = parseInt(localStorage.getItem('streak') || '0');
 
-    if (lastVisit !== today) {
-      const yesterday = new Date(); 
-      yesterday.setDate(yesterday.getDate() - 1);
-      currentStreak = lastVisit === yesterday.toDateString() ? currentStreak + 1 : 1;
-      localStorage.setItem('lastVisit', today);
-      localStorage.setItem('streak', currentStreak.toString());
-    }
-    setStreak(currentStreak);
+      if (lastVisit !== today) {
+        const yesterday = new Date(); 
+        yesterday.setDate(yesterday.getDate() - 1);
+        currentStreak = lastVisit === yesterday.toDateString() ? currentStreak + 1 : 1;
+        localStorage.setItem('lastVisit', today);
+        localStorage.setItem('streak', currentStreak.toString());
+      }
+      setStreak(currentStreak);
+    } catch (e) { console.error("Storage Hatası", e); }
   }, []);
 
   const handleShare = async () => {
@@ -236,7 +263,6 @@ function AppContent() {
     <div className="min-h-screen w-full bg-[#04151a] text-[#FDF6E3] flex flex-col font-serif relative animate-fade-in">
        <WelcomeModal />
        
-       {/* ANA NAVİGASYON BAR (ZÜMRÜT YEŞİLİ TEMASI) */}
        <nav className="bg-[#09303a] border-b border-[#C5A059]/20 sticky top-0 z-50 shadow-xl backdrop-blur-md px-4 py-3">
          <div className="max-w-7xl mx-auto flex items-center relative">
             <Link to="/" className="text-2xl font-sans font-black text-[#C5A059] tracking-widest uppercase drop-shadow-md hover:scale-105 transition-transform">
@@ -246,14 +272,11 @@ function AppContent() {
             <TopNavigation />
             
             <div className="flex items-center gap-2 md:gap-4 ml-auto lg:ml-0">
-              
-              {/* ZİNCİR (STREAK) WIDGET'I - ARTIK HEP GÖZ ÖNÜNDE */}
-              <div className="hidden sm:flex items-center gap-1.5 bg-black/30 border border-[#C5A059]/30 px-3 py-1.5 rounded-full text-[#C5A059] text-xs font-bold shadow-inner" title="Aralıksız ziyaret serisi">
+              <div className="hidden sm:flex items-center gap-1.5 bg-black/30 border border-[#C5A059]/30 px-3 py-1.5 rounded-full text-[#C5A059] text-xs font-bold shadow-inner">
                 <Flame size={14} className={`${streak > 0 ? 'fill-[#C5A059] animate-pulse' : 'text-slate-500'}`} />
                 <span>{streak} Gün</span>
               </div>
 
-              {/* ARAMA VE PAYLAŞ BUTONLARI */}
               {isSearchOpen ? (
                 <div className="flex items-center bg-white/10 rounded-lg px-2 relative z-50">
                   <input 
@@ -265,7 +288,6 @@ function AppContent() {
                     autoFocus
                   />
                   <X size={18} className="text-[#C5A059] cursor-pointer" onClick={() => { setIsSearchOpen(false); setSearchQuery(""); }} />
-                  {/* Arama Sonuçları Popup'ı */}
                   {searchQuery && <SearchResults query={searchQuery} closeSearch={() => { setIsSearchOpen(false); setSearchQuery(""); }} />}
                 </div>
               ) : (
@@ -282,21 +304,24 @@ function AppContent() {
        </nav>
 
        <main className="flex-grow w-full max-w-7xl mx-auto px-4 py-8 mb-24"> 
-         <Suspense fallback={<div className="text-[#C5A059] flex flex-col items-center justify-center p-20 font-sans font-bold"><Flame className="animate-bounce mb-4" size={40}/>Yükleniyor...</div>}>
-           <Routes>
-             <Route path="/" element={<Home />} />
-             <Route path="/zikir" element={<Zikir />} />
-             <Route path="/manevi-receteler" element={<ManeviReceteler />} />
-             <Route path="/library" element={<Library />} />
-             <Route path="/kitap-oku" element={<KitapOku />} />
-             <Route path="/14-masum" element={<OnDortMasum />} />
-             <Route path="/soru-cevap" element={<SoruCevap />} />
-             <Route path="/ilim" element={<Science />} />
-             <Route path="/quiz" element={<Quiz />} />
-             <Route path="/medya" element={<MediaCenter />} />
-             <Route path="/heybem" element={<Favorites />} /> 
-           </Routes>
-         </Suspense>
+         {/* EĞER BİR BİLEŞEN ÇÖKERSE, LACİVERT EKRAN YERİNE KIRMIZI HATA EKRANI ÇIKACAK */}
+         <ErrorBoundary>
+           <Suspense fallback={<div className="text-[#C5A059] flex flex-col items-center justify-center p-20 font-sans font-bold"><Flame className="animate-bounce mb-4" size={40}/>Yükleniyor...</div>}>
+             <Routes>
+               <Route path="/" element={<Home />} />
+               <Route path="/zikir" element={<Zikir />} />
+               <Route path="/manevi-receteler" element={<ManeviReceteler />} />
+               <Route path="/library" element={<Library />} />
+               <Route path="/kitap-oku" element={<KitapOku />} />
+               <Route path="/14-masum" element={<OnDortMasum />} />
+               <Route path="/soru-cevap" element={<SoruCevap />} />
+               <Route path="/ilim" element={<Science />} />
+               <Route path="/quiz" element={<Quiz />} />
+               <Route path="/medya" element={<MediaCenter />} />
+               <Route path="/heybem" element={<Favorites />} /> 
+             </Routes>
+           </Suspense>
+         </ErrorBoundary>
        </main>
        <Footer />
        <div className="fixed bottom-6 right-6 z-[100]"><MusicPlayer /></div>
