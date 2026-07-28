@@ -5,7 +5,7 @@ import {
   LayoutGrid, List, BarChart3
 } from 'lucide-react';
 import { musicList } from '../data/musicData'; 
-import { mediaContent } from '../data/mediaData'; 
+// mediaContent'i tamamen saf dışı bıraktık
 import { useAppContext } from '../context/AppContext'; 
 
 export default function MediaCenter() {
@@ -16,32 +16,27 @@ export default function MediaCenter() {
   // Context Bağlantısı
   const { currentTrack, isPlaying, setCurrentTrack, setIsPlaying } = useAppContext();
 
-  // Veri Birleştirme
+  // YALNIZCA GERÇEK VERİLER (musicData.js)
   const allMedia = useMemo(() => {
-    // Eski müzik listesi
-    const archiveDeys = musicList ? musicList.map((item, index) => ({
+    return musicList ? musicList.map((item, index) => ({
       ...item,
       id: item.id || `archive_${index}`, 
       title: item.title || "İsimsiz Eser",
-      artist: item.artist || "Deyişler & Nefesler",
-      type: "Deyiş & Nefes",
-      category: "deyis", 
+      artist: item.artist || "Ehlibeyt Külliyatı",
+      type: item.category || "Deyişler",
+      // Kategorileri, arayüzdeki sekmelerle tam eşleştiriyoruz
+      category: item.category === "Deyişler" ? "deyis" : 
+                item.category === "Mersiyeler" ? "mersiye" :
+                item.category === "Sohbetler" ? "sohbet" :
+                item.category === "Belgeseller" ? "belgesel" : "deyis", 
       duration: "Ses Dosyası",
-      image: item.cover || "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=1000&auto=format&fit=crop",
+      image: item.cover || "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?q=80&w=400&auto=format&fit=crop",
       url: item.url, 
       plays: Math.floor(Math.random() * 20000) + 500 
     })) : [];
-
-    // Yeni medya içerikleri
-    const visualContent = mediaContent.map(item => ({
-        ...item,
-        plays: Math.floor(Math.random() * 50000) + 1000
-    }));
-
-    return [...visualContent, ...archiveDeys];
   }, []);
 
-  // En Popüler Eser
+  // En Popüler Eser (Gerçek dosyalar arasından seçiliyor)
   const mostPopularItem = useMemo(() => {
     const playableItems = allMedia.filter(i => i.url);
     if (playableItems.length === 0) return null;
@@ -168,7 +163,7 @@ export default function MediaCenter() {
                                 className={`group flex items-center px-3 py-2 rounded-lg hover:bg-white/5 transition-colors border border-transparent hover:border-white/5 cursor-pointer ${currentTrack?.url === item.url ? 'bg-white/5 border-amber-500/20' : ''}`}
                             >
                                 <div className="w-8 md:w-12 text-center text-sm text-slate-500 group-hover:hidden">
-                                    {currentTrack?.url === item.url && isPlaying ? <div className="w-3 h-3 bg-green-500 rounded-full mx-auto animate-pulse"></div> : index + 1}
+                                    {currentTrack?.url === item.url && isPlaying ? <div className="w-3 h-3 bg-amber-500 rounded-full mx-auto animate-pulse"></div> : index + 1}
                                 </div>
                                 <div className="w-8 md:w-12 text-center hidden group-hover:flex justify-center">
                                     <button onClick={() => handlePlay(item)} className="text-white">
