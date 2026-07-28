@@ -45,6 +45,7 @@ export default function Home() {
   useEffect(() => {
     setSearchResults(safeSearch(heroSearch));
   }, [heroSearch]);
+  // ----------------------------------------
 
   const dailyWisdom = useMemo(() => {
     const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
@@ -143,7 +144,7 @@ export default function Home() {
           <h1 className="text-5xl md:text-7xl font-sans font-bold text-transparent bg-clip-text bg-gradient-to-r from-sand via-gold to-sand drop-shadow-sm leading-tight">OnikiKapı</h1>
           <p className="text-xl md:text-2xl text-slate-200 font-serif leading-relaxed max-w-2xl">"İlim bir noktadır, onu cahiller çoğaltmıştır."</p>
           
-          {/* ÇALIŞAN BÜYÜK ARAMA ÇUBUĞU */}
+          {/* ÇALIŞAN VE ÇÖKMEYEN BÜYÜK ARAMA ÇUBUĞU */}
           <div className="w-full max-w-2xl relative mt-4">
             <form onSubmit={handleSearch} className="relative flex items-center w-full z-30">
               <input 
@@ -156,23 +157,29 @@ export default function Home() {
               <button type="submit" className="absolute right-2 p-2 bg-gold/90 hover:bg-gold text-turquoise-dark rounded-full transition-colors shadow-md"><Search size={24} /></button>
             </form>
             
-            {/* ARAMA SONUÇLARI DROPDOWN */}
+            {/* ARAMA SONUÇLARI DROPDOWN (Link Hatası Giderildi!) */}
             {heroSearch.trim() && (
               <div className="absolute top-20 left-0 w-full bg-turquoise-dark/95 backdrop-blur-xl border border-gold/30 rounded-xl overflow-hidden shadow-2xl z-40 max-h-80 overflow-y-auto text-left animate-fade-in custom-scrollbar">
                 {searchResults.length > 0 ? (
                   searchResults.map((result, index) => (
-                    <Link to={result.url} key={index} className="flex items-center gap-4 p-4 border-b border-white/5 hover:bg-white/10 transition-colors">
+                    <div 
+                      key={index} 
+                      onClick={() => navigate(result.url || "/")} 
+                      className="flex items-center gap-4 p-4 border-b border-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+                    >
                       <div className="p-2 bg-turquoise rounded-lg text-gold">
-                        {result.type === "Kitap" ? <Book size={20} /> : <Star size={20} />}
+                        {result.type === "Kitap" && <Book size={20} />}
+                        {result.type === "14 Masum" && <Star size={20} />}
+                        {result.type !== "Kitap" && result.type !== "14 Masum" && <Search size={20} />}
                       </div>
                       <div>
-                        <h4 className="text-sand font-bold text-lg">{result.title}</h4>
-                        <span className="text-xs text-turquoise-light uppercase tracking-wider">{result.type} • {result.category}</span>
+                        <h4 className="text-sand font-bold text-lg">{result.title || "İsimsiz"}</h4>
+                        <span className="text-xs text-turquoise-light uppercase tracking-wider">{result.type || "Belirsiz"} • {result.category || "Genel"}</span>
                       </div>
-                    </Link>
+                    </div>
                   ))
                 ) : (
-                  <div className="p-6 text-center text-slate-300 italic">"{heroSearch}" ile ilgili sonuç bulunamadı. Lütfen "Ali" veya "Zikir" gibi anahtar kelimeler deneyin.</div>
+                  <div className="p-6 text-center text-slate-300 italic">"{heroSearch}" ile ilgili sonuç bulunamadı. Lütfen farklı bir kelime deneyin.</div>
                 )}
               </div>
             )}
@@ -184,7 +191,6 @@ export default function Home() {
               <MoodChip label="Hüzünlü" icon={<Heart size={16} />} link="/manevi-receteler" color="hover:bg-rose-500/20 hover:border-rose-400 hover:text-rose-200" />
               <MoodChip label="Meraklı" icon={<HelpCircle size={16} />} link="/library" color="hover:bg-blue-500/20 hover:border-blue-400 hover:text-blue-200" />
               <MoodChip label="Şükür Dolu" icon={<Sun size={16} />} link="/zikir" color="hover:bg-yellow-500/20 hover:border-yellow-400 hover:text-yellow-200" />
-              <MoodChip label="Kayıp Hissediyorum" icon={<Sparkles size={16} />} link="/14-masum" color="hover:bg-purple-500/20 hover:border-purple-400 hover:text-purple-200" />
             </div>
           </div>
         </div>
