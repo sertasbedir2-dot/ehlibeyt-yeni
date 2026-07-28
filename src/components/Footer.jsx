@@ -1,144 +1,110 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Sparkles, Facebook, Instagram, Youtube, Music, Mail, MapPin, Phone, Globe } from 'lucide-react';
+import { Facebook, Instagram, Youtube, BookOpen, MapPin, Mail, Phone, Globe } from 'lucide-react';
+
+// Özel TikTok İkonu (Lucide'de standart olmadığı için SVG olarak ekliyoruz)
+const TikTokIcon = ({ size = 24, className = "" }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+  </svg>
+);
 
 export default function Footer() {
-  // Sosyal Medya Linkleri (Güncellendi)
-  const socialLinks = [
-    { 
-      name: "Facebook",
-      icon: Facebook, 
-      href: "https://www.facebook.com/share/1Bzqaux6JM/", 
-      containerStyle: "!bg-[#1877F2] !border-[#1877F2] shadow-[0_0_30px_rgba(24,119,242,0.4)] hover:shadow-[0_0_50px_rgba(24,119,242,0.8)] hover:!bg-[#166fe5]",
-      iconColor: "!text-white"
-    },
-    { 
-      name: "Instagram",
-      icon: Instagram, 
-      href: "https://www.instagram.com/dunya_ehlibeyt_platformu/?__pwa=1#", 
-      containerStyle: "!bg-[#E1306C] !border-[#E1306C] shadow-[0_0_30px_rgba(225,48,108,0.4)] hover:shadow-[0_0_50px_rgba(225,48,108,0.8)] hover:!bg-[#d62e65]",
-      iconColor: "!text-white"
-    },
-    { 
-      name: "TikTok",
-      icon: Music, // TikTok için Müzik ikonu kullanıyoruz
-      href: "https://www.tiktok.com/@dnya.ehlibeyt.pla?is_from_webapp=1&sender_device=pc", 
-      containerStyle: "!bg-[#000000] !border-[#000000] shadow-[0_0_30px_rgba(0,0,0,0.4)] hover:shadow-[0_0_50px_rgba(0,0,0,0.8)] hover:!bg-[#333333]",
-      iconColor: "!text-white"
-    },
-    { 
-      name: "Youtube",
-      icon: Youtube, 
-      href: "https://www.youtube.com/channel/UCLfgnjX44z95MrXzcywmm1A", 
-      containerStyle: "!bg-[#FF0000] !border-[#FF0000] shadow-[0_0_30px_rgba(255,0,0,0.4)] hover:shadow-[0_0_50px_rgba(255,0,0,0.8)] hover:!bg-[#cc0000]",
-      iconColor: "!text-white"
-    }
-  ];
-
-  // Keşfet Menüsü (Tüm Başlıklar Eklendi)
-  const navigation = [
-    { name: 'Ana Sayfa', href: '/' },
-    { name: 'Manevi Reçeteler', href: '/manevi-receteler' },
-    { name: 'Kütüphane', href: '/library' },
-    { name: 'Soru/Cevap', href: '/soru-cevap' },
-    { name: '14 Masum', href: '/14-masum' },
-    { name: 'Tesbihat & Zikir', href: '/zikir' },
-    { name: 'İlim Köşesi', href: '/ilim' },
-    { name: 'Medya Merkezi', href: '/medya' },
-    { name: 'Bilgi Yarışması', href: '/quiz' },
-    { name: 'Heybem (Favoriler)', href: '/heybem' },
-  ];
-
   return (
-    <footer className="bg-[#0F172A] text-slate-400 py-16 relative overflow-hidden border-t border-gold/10 animate-fade-in mt-12">
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none"></div>
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-gold/30 to-transparent"></div>
-
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+    <footer className="bg-[#04151a] border-t border-[#C5A059]/20 pt-16 pb-8 text-slate-300 font-serif relative z-10">
+      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+        
+        {/* Sol Bölüm: Marka ve Sosyal Medya */}
+        <div>
+          <Link to="/" className="flex items-center gap-3 mb-6 group">
+             <div className="p-2 bg-[#09303a] rounded-lg text-[#C5A059] border border-[#C5A059]/30 group-hover:bg-[#C5A059] group-hover:text-[#09303a] transition-colors">
+                <BookOpen size={24} />
+             </div>
+             <h2 className="text-2xl font-sans font-bold text-[#FDF6E3] tracking-wide">OnikiKapı</h2>
+          </Link>
+          <p className="text-sm leading-relaxed mb-8 opacity-80">
+            Ehlibeyt mektebinin ilim ve hikmet pınarlarından süzülen hakikatleri, modern çağın idrakine sunan dijital bir külliye.
+          </p>
           
-          {/* Marka ve İkon Alanı */}
-          <div className="col-span-1 md:col-span-2 space-y-8">
-            <Link to="/" className="flex items-center space-x-3 group w-fit">
-                <div className="p-2 bg-gold/10 rounded-full group-hover:bg-gold/20 transition-colors">
-                  <BookOpen size={32} className="text-gold drop-shadow-[0_0_10px_rgba(255,215,0,0.3)]" />
-                </div>
-                <span className="text-3xl font-bold text-sand tracking-wider font-serif group-hover:text-gold transition-colors">OnikiKapı</span>
-            </Link>
-            <p className="text-slate-400 leading-relaxed pr-6 font-serif text-lg">
-              Ehlibeyt mektebinin ilim ve hikmet pınarlarından süzülen hakikatleri, modern çağın idrakine sunan dijital bir külliye.
-            </p>
-            
-            <div className="flex flex-wrap items-center gap-6 pt-4">
-              {socialLinks.map((social, index) => (
-                <a
-                  key={index}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`
-                      group relative flex items-center justify-center 
-                      !w-12 !h-12 rounded-xl border-2 
-                      transition-all duration-300 ease-out 
-                      hover:scale-110 hover:-translate-y-1
-                      ${social.containerStyle}
-                  `}
-                  aria-label={social.name}
-                >
-                  <social.icon 
-                      className={`!w-6 !h-6 transition-transform duration-300 group-hover:rotate-12 ${social.iconColor}`}
-                      strokeWidth={2} 
-                  />
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Hızlı Linkler (Keşfet) */}
-          <div className="pt-4">
-            <h4 className="text-sand font-bold text-lg mb-6 flex items-center gap-2 uppercase tracking-widest">
-              <Sparkles size={16} className="text-gold" /> Keşfet
-            </h4>
-            <ul className="space-y-3">
-              {navigation.map((item) => (
-                <li key={item.name}>
-                  <Link to={item.href} className="hover:text-gold transition-colors flex items-center gap-2 text-base font-medium group">
-                    <span className="w-1.5 h-1.5 bg-gold/50 rounded-full group-hover:bg-gold group-hover:scale-125 transition-all"></span>
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* İletişim */}
-          <div className="pt-4">
-            <h4 className="text-sand font-bold text-lg mb-6 flex items-center gap-2 uppercase tracking-widest">
-                <MapPin size={16} className="text-gold" /> İletişim
-            </h4>
-            <ul className="space-y-4 text-base font-medium">
-              <li className="flex items-start gap-3 group">
-                  <Mail size={20} className="text-gold shrink-0 group-hover:scale-110 transition-transform" />
-                  <a href="mailto:info@onikikapi.com" className="hover:text-gold transition-colors">info@onikikapi.com</a>
-              </li>
-              <li className="flex items-start gap-3 group">
-                  <Phone size={20} className="text-gold shrink-0 group-hover:scale-110 transition-transform" />
-                  <span className="hover:text-gold transition-colors">+90 555 000 00 00</span>
-              </li>
-              <li className="flex items-start gap-3 group">
-                  <Globe size={20} className="text-gold shrink-0 group-hover:scale-110 transition-transform" />
-                  <span className="hover:text-gold transition-colors">İstanbul, Türkiye</span>
-              </li>
-            </ul>
+          {/* YENİ SOSYAL MEDYA İKONLARI (MONOKROM ZIRHI) */}
+          <div className="flex gap-4">
+            <a href="#" className="p-2.5 rounded-lg border border-[#C5A059]/30 text-[#C5A059] hover:bg-[#C5A059] hover:text-[#09303a] hover:border-[#C5A059] transition-all transform hover:-translate-y-1">
+              <Facebook size={20} />
+            </a>
+            <a href="#" className="p-2.5 rounded-lg border border-[#C5A059]/30 text-[#C5A059] hover:bg-[#C5A059] hover:text-[#09303a] hover:border-[#C5A059] transition-all transform hover:-translate-y-1">
+              <Instagram size={20} />
+            </a>
+            <a href="#" className="p-2.5 rounded-lg border border-[#C5A059]/30 text-[#C5A059] hover:bg-[#C5A059] hover:text-[#09303a] hover:border-[#C5A059] transition-all transform hover:-translate-y-1">
+              <TikTokIcon size={20} />
+            </a>
+            <a href="#" className="p-2.5 rounded-lg border border-[#C5A059]/30 text-[#C5A059] hover:bg-[#C5A059] hover:text-[#09303a] hover:border-[#C5A059] transition-all transform hover:-translate-y-1">
+              <Youtube size={20} />
+            </a>
           </div>
         </div>
 
-        <div className="border-t border-white/10 pt-8 mt-12 flex flex-col md:flex-row justify-between items-center text-sm text-slate-500 font-medium">
-          <p>© {new Date().getFullYear()} OnikiKapı. Tüm hakları saklıdır.</p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
-            <Link to="/privacy" className="hover:text-gold transition-colors">Gizlilik Politikası</Link>
-            <Link to="/terms" className="hover:text-gold transition-colors">Kullanım Şartları</Link>
-          </div>
+        {/* Orta Bölüm: Keşfet (Hızlı Linkler) */}
+        <div>
+          <h3 className="text-lg font-bold text-[#FDF6E3] mb-6 flex items-center gap-2">
+            <Sparkles size={18} className="text-[#C5A059]" /> KEŞFET
+          </h3>
+          <ul className="space-y-3">
+            {[
+              { name: 'Ana Sayfa', path: '/' },
+              { name: 'Manevi Reçeteler', path: '/manevi-receteler' },
+              { name: 'Kütüphane', path: '/library' },
+              { name: 'Soru/Cevap', path: '/soru-cevap' },
+              { name: '14 Masum', path: '/14-masum' },
+              { name: 'Medya Merkezi', path: '/medya' }
+            ].map((link, idx) => (
+              <li key={idx}>
+                <Link to={link.path} className="hover:text-[#C5A059] transition-colors flex items-center gap-2 before:content-['•'] before:text-[#C5A059]">
+                  {link.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Sağ Bölüm: İletişim */}
+        <div>
+          <h3 className="text-lg font-bold text-[#FDF6E3] mb-6 flex items-center gap-2">
+            <MapPin size={18} className="text-[#C5A059]" /> İLETİŞİM
+          </h3>
+          <ul className="space-y-4">
+            <li className="flex items-center gap-3">
+              <Mail className="text-[#C5A059]" size={18} />
+              <a href="mailto:info@onikikapi.com" className="hover:text-[#FDF6E3] transition-colors">info@onikikapi.com</a>
+            </li>
+            <li className="flex items-center gap-3">
+              <Phone className="text-[#C5A059]" size={18} />
+              <span>+90 555 000 00 00</span>
+            </li>
+            <li className="flex items-center gap-3">
+              <Globe className="text-[#C5A059]" size={18} />
+              <span>İstanbul, Türkiye</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center text-sm opacity-60">
+        <p>© {new Date().getFullYear()} OnikiKapı. Tüm hakları saklıdır.</p>
+        <div className="flex gap-4 mt-4 md:mt-0">
+          <Link to="/" className="hover:text-[#C5A059] transition-colors">Gizlilik Politikası</Link>
+          <Link to="/" className="hover:text-[#C5A059] transition-colors">Kullanım Şartları</Link>
         </div>
       </div>
     </footer>
