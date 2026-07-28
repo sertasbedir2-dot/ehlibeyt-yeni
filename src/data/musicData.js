@@ -92,7 +92,7 @@ const rawMusicList = [
 
 export const musicList = rawMusicList.map((track, index) => {
   // --- OTOMATİK KATEGORİ ALGORİTMASI ---
-  let cat = "Deyiş"; // Varsayılan kategori
+  let cat = "Deyişler"; // Varsayılan kategori (Sekmelerle uyumlu olması için "Deyişler" yaptık)
   const lowerTitle = track.title.toLowerCase();
 
   // 1. Mersiye / Ağıt Kontrolü (Hüzünlü parçalar)
@@ -104,7 +104,7 @@ export const musicList = rawMusicList.map((track, index) => {
       lowerTitle.includes("acı") ||
       lowerTitle.includes("medet")
   ) {
-    cat = "Mersiye";
+    cat = "Mersiyeler"; // Sekme ismiyle eşleşmesi için
   } 
   // 2. Enstrümantal Kontrolü
   else if (lowerTitle.includes("mey") || lowerTitle.includes("enstrümantal") || lowerTitle.includes("melodi")) {
@@ -112,16 +112,21 @@ export const musicList = rawMusicList.map((track, index) => {
   }
   // 3. Belgesel / Anlatı Kontrolü
   else if (lowerTitle.includes("belgesel") || lowerTitle.includes("hayatı") || lowerTitle.includes("biyografi")) {
-    cat = "Belgesel";
+    cat = "Belgeseller"; // Sekme ismiyle eşleşmesi için
+  }
+  // 4. Sohbet Kontrolü (Gerekirse)
+  else if (lowerTitle.includes("sohbet") || lowerTitle.includes("ders")) {
+      cat = "Sohbetler";
   }
 
   return {
     id: `music-track-${index}`,
     title: track.title,
     artist: cat === "Enstrümantal" ? "Enstrümantal İcra" : "Ehlibeyt Külliyatı",
-    // encodeURI kullanarak Türkçe karakterlerin URL içinde bozulmamasını sağlıyoruz
+    // URL'nin sonuna direkt dosyayı bağlıyoruz. 
     url: BASE_URL + encodeURI(track.file),
+    // Varsayılan kapak fotoğrafı, daha sonra değiştirebilirsin
     cover: "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?q=80&w=400&auto=format&fit=crop",
-    category: cat // Otomatik atanan kategori
+    category: cat 
   };
 });
