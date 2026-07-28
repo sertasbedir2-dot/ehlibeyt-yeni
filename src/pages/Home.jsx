@@ -7,9 +7,10 @@ import { globalSearchData } from '../data/siteData';
 import { toPng } from 'html-to-image';
 import { QRCodeSVG } from 'qrcode.react';
 
+// --- ÇÖKME SEBEBİ BURASIYDI! Link ve ctaText eklendi ---
 const GOREVLER = [
-  { text: "Bugün telefon rehberinden uzun süredir konuşmadığın bir akrabanı ara ve halini hatırını sor.", type: "Sıla-i Rahim", link: "/soru-cevap", ctaText: "Sıla-i Rahim hakkında hadisleri oku" },
-  { text: "Bugün karşılaştığın bir çocuğun başını okşa veya ona küçük bir çikolata ikram et.", type: "Merhamet", link: "/library", ctaText: "Şefkat ile ilgili kıssalara göz at" },
+  { text: "Bugün telefon rehberinden uzun süredir konuşmadığın bir akrabanı ara ve halini hatırını sor.", type: "Sıla-i Rahim", link: "/soru-cevap", ctaText: "Sıla-i Rahim hakkında oku" },
+  { text: "Bugün karşılaştığın bir çocuğun başını okşa veya ona küçük bir çikolata ikram et.", type: "Merhamet", link: "/library", ctaText: "Şefkat kıssalarına göz at" },
   { text: "Bugün bir sokak hayvanına (kedi/köpek/kuş) su veya mama ver.", type: "Şefkat", link: "/manevi-receteler", ctaText: "Doğaya merhamet reçeteleri" }
 ];
 
@@ -50,12 +51,17 @@ export default function Home() {
 
   const dailyTask = useMemo(() => {
     const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+    // Eğer GOREVLER dizisinde o güne ait görev yoksa (ki olmaz ama tedbir alıyoruz), ilkini seç.
     return GOREVLER[(dayOfYear - 1) % GOREVLER.length] || GOREVLER[0];
   }, []);
 
   useEffect(() => {
-    if (!localStorage.getItem('notificationAsked') && 'Notification' in window && Notification.permission === 'default') {
-      setTimeout(() => setShowNotificationModal(true), 3000);
+    try {
+      if (!localStorage.getItem('notificationAsked') && 'Notification' in window && Notification.permission === 'default') {
+        setTimeout(() => setShowNotificationModal(true), 3000);
+      }
+    } catch (e) {
+      console.error("Local Storage Hatası:", e);
     }
   }, []);
 
@@ -70,11 +76,14 @@ export default function Home() {
 
   const requestNotificationPermission = () => {
     setShowNotificationModal(false);
-    localStorage.setItem('notificationAsked', 'true');
+    try {
+      localStorage.setItem('notificationAsked', 'true');
+    } catch(e) {}
+    
     Notification.requestPermission().then((permission) => {
       if (permission === "granted") {
         setTimeout(() => alert("Teşekkürler! Sabah virdiniz her gün cihazınıza iletilecektir."), 300);
-        localStorage.setItem('lastNotificationDate', new Date().toDateString());
+        try { localStorage.setItem('lastNotificationDate', new Date().toDateString()); } catch(e){}
       }
     });
   };
@@ -202,10 +211,12 @@ export default function Home() {
               <blockquote className="text-2xl md:text-3xl font-sans font-medium text-[#FDF6E3] leading-relaxed">"{dailyTask.text}"</blockquote>
             </div>
           </div>
-          {/* HAREKETE GEÇİRİCİ MESAJ (CTA) YÖNLENDİRMESİ */}
-          <Link to={dailyTask.link} className="mt-4 flex items-center gap-2 text-[#C5A059] hover:text-white transition-colors font-bold text-sm bg-black/30 px-6 py-3 rounded-xl border border-[#C5A059]/20 hover:border-[#C5A059]/50">
-            {dailyTask.ctaText} <ArrowRight size={16} />
-          </Link>
+          {/* GÜVENLİ LİNK (CTA) - Çökmeyecek Şekilde Korundu */}
+          {dailyTask.link && (
+            <Link to={dailyTask.link} className="mt-4 flex items-center gap-2 text-[#C5A059] hover:text-white transition-colors font-bold text-sm bg-black/30 px-6 py-3 rounded-xl border border-[#C5A059]/20 hover:border-[#C5A059]/50">
+              {dailyTask.ctaText} <ArrowRight size={16} />
+            </Link>
+          )}
         </div>
       </div>
 
