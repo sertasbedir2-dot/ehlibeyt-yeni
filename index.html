@@ -2,6 +2,8 @@
 <html lang="tr" class="dark">
   <head>
     <meta charset="UTF-8" />
+    
+    <!-- PWA VE İKON ALTYAPISI (DOKUNULMADI, UYGULAMA İNDİRME İÇİN HAYATİ!) -->
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -9,31 +11,39 @@
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="shortcut icon" href="/favicon.ico">
     
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
-    <meta name="theme-color" content="#0b3d2c">
+    <!-- 1. TEMEL VİTRİN VE GÜVENLİK KİLİDİ -->
+    <!-- maximum-scale=1.0 ile FB/TikTok in-app tarayıcılarında ekranın kayması/çökmesi engellendi -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#04151a"> <!-- Koyu Zümrüt Arkaplan -->
 
-    <title>OnikiKapı | Stratejik Zeka ve Vizyon Karargahı</title>
-    <meta name="description" content="Tarihin arka odalarındaki sansürsüz analizler, Ehlibeyt felsefesi ve asimetrik savaş stratejileri. Vizyon kodunu test et ve Karargaha katıl." />
+    <title>OnikiKapı | İlim ve Hikmet Şehri</title>
+    <meta name="description" content="Ehlibeyt mektebinin ilim ve hikmet pınarlarından süzülen hakikatleri, modern çağın idrakine sunan dijital bir külliye." />
 
+    <!-- 2. OPEN GRAPH (WHATSAPP, FACEBOOK, TELEGRAM İÇİN PAYLAŞIM VİTRİNİ) -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.onikikapi.com/" />
-    <meta property="og:title" content="OnikiKapı | Stratejik Vizyon Testine Katıl" />
-    <meta property="og:description" content="%1'lik vizyoner dilimde misin? Sansürsüz arşivlere erişmek ve stratejik zekanı test etmek için hemen tıkla." />
-    <meta property="og:image" content="https://www.onikikapi.com/og-image.png" />
+    <meta property="og:title" content="OnikiKapı | İlim ve Hikmet Şehri" />
+    <meta property="og:description" content="Hakikati arayanların, Ehlibeyt'in nurlu yolunda yürümek isteyenlerin buluşma noktası. Kütüphanemizde kaybolun, manevi reçetelerle ruhunuzu dinlendirin." />
+    <!-- Tıklamaya teşvik edecek büyük okyanus görseli (Eğer kendi resmin yoksa bu mükemmel durur) -->
+    <meta property="og:image" content="https://images.unsplash.com/photo-1518837695005-2083093ee35b?q=80&w=1200&auto=format&fit=crop" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
 
+    <!-- 3. TWITTER / TIKTOK / INSTAGRAM DM VİTRİNİ -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://www.onikikapi.com/" />
-    <meta name="twitter:title" content="OnikiKapı | Stratejik Vizyon Testi" />
-    <meta name="twitter:description" content="%1'lik vizyoner dilimde misin? Kendi stratejik zekanı test et ve Karargaha katıl." />
-    <meta name="twitter:image" content="https://www.onikikapi.com/og-image.png" />
+    <meta name="twitter:title" content="OnikiKapı | İlim Şehrine Davet" />
+    <meta name="twitter:description" content="Hikmet, adalet ve marifet arayışında olanlar için Ehlibeyt kaynaklı dijital kütüphane ve manevi reçeteler." />
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1518837695005-2083093ee35b?q=80&w=1200&auto=format&fit=crop" />
   </head>
+  
   <body>
     <div id="root">
-        <div style="background:#0b3d2c; color:#f7d547; padding:50px; text-align:center; font-family:sans-serif;">
-            <h1>OnikiKapı İlim Şehri</h1>
-            <p>Stratejik Vizyon ve Ehlibeyt Arşivi. Karargaha katılmak için uygulamayı başlatın.</p>
+        <!-- React tam yüklenene kadar saniyelik çıkacak Fallback (Yükleniyor) Ekranı -->
+        <!-- Bu ekranı da yeni siyah/zümrüt/altın temamıza uyarladım ki pürüzsüz açılsın. -->
+        <div style="background-color:#04151a; color:#C5A059; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; font-family:sans-serif; margin:0;">
+            <h1 style="font-size:2rem; font-weight:bold; letter-spacing:2px; text-transform:uppercase;">OnikiKapı</h1>
+            <p style="color:#FDF6E3; opacity:0.8; margin-top:10px;">İlim ve Hikmet Şehri Yükleniyor...</p>
         </div>
     </div>
     <script type="module" src="/src/main.jsx"></script>
