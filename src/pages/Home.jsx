@@ -1,7 +1,8 @@
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { PenTool, Scale, Flower, BookOpen, Sparkles, Search, Heart, HelpCircle, Sun, RefreshCw, Volume2, Share2, Flame, Bell, X, Download, HandHeart, CheckCircle2, Star } from 'lucide-react';
+// EKSİK OLAN "Book" İKONU BURAYA EKLENDİ! ARTIK KESİNLİKLE ÇÖKMEYECEK.
+import { PenTool, Scale, Flower, BookOpen, Book, Sparkles, Search, Heart, HelpCircle, Sun, RefreshCw, Volume2, Share2, Flame, Bell, X, Download, HandHeart, CheckCircle2, Star } from 'lucide-react';
 import { wisdomData } from '../data/wisdomData';
 import { globalSearchData } from '../data/siteData'; 
 import { toPng } from 'html-to-image';
@@ -157,7 +158,7 @@ export default function Home() {
               <button type="submit" className="absolute right-2 p-2 bg-gold/90 hover:bg-gold text-turquoise-dark rounded-full transition-colors shadow-md"><Search size={24} /></button>
             </form>
             
-            {/* ARAMA SONUÇLARI DROPDOWN (Link Hatası Giderildi!) */}
+            {/* ARAMA SONUÇLARI DROPDOWN */}
             {heroSearch.trim() && (
               <div className="absolute top-20 left-0 w-full bg-turquoise-dark/95 backdrop-blur-xl border border-gold/30 rounded-xl overflow-hidden shadow-2xl z-40 max-h-80 overflow-y-auto text-left animate-fade-in custom-scrollbar">
                 {searchResults.length > 0 ? (
