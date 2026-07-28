@@ -2,16 +2,13 @@ const express = require('express');
 const neo4j = require('neo4j-driver');
 const cors = require('cors');
 const OpenAI = require('openai');
-const fs = require('fs');
-require('dotenv').config(); 
 
 const app = express();
-const port = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
 
-// 1. NEO4J BAĞLANTISI
+// 1. NEO4J BAĞLANTISI (Warm-start için global tanımlandı)
 const driver = neo4j.driver(
   process.env.NEO4J_URI, 
   neo4j.auth.basic(process.env.NEO4J_USER, process.env.NEO4J_PASSWORD) 
@@ -94,7 +91,6 @@ app.post('/api/ai-analiz', async (req, res) => {
   const session = driver.session();
 
   try {
-    // 1. Veritabanı Kontrolü
     const checkQuery = await session.run(
       `MATCH (n) 
        WHERE (n.name_tr = $isim OR n.name = $isim OR n.title = $isim) AND n.ai_ozet IS NOT NULL 
@@ -106,10 +102,8 @@ app.post('/api/ai-analiz', async (req, res) => {
       return res.json({ reply: checkQuery.records[0].get('ozet') });
     }
 
-    // 2. Yapay Zeka Üretimi
     console.log(`🤖 AI Çalışıyor (Thaqalayn Modu): ${isim}`);
     
-    // 👇 BURASI SİZİN BELİRLEDİĞİNİZ ANAYASADIR
     const systemPrompt = `
       Sen Ehl-i Beyt (Caferi/Şia/İmamiyye) mektebinin itikadi ve tarihi esaslarına sıkı sıkıya bağlı, 
       derin ilim sahibi, fasih konuşan ve "Thaqalayn" (Kur'an ve Ehl-i Beyt) şuuruna sahip bir uzmansın.
@@ -174,7 +168,6 @@ app.post('/api/ai-analiz', async (req, res) => {
 
     const aiCevabi = chatCompletion.choices[0].message.content;
 
-    // 3. Veritabanına Kaydetme
     await session.run(
       `MATCH (n) 
        WHERE (n.name_tr = $isim OR n.name = $isim OR n.title = $isim) 
@@ -192,17 +185,8 @@ app.post('/api/ai-analiz', async (req, res) => {
   }
 });
 
-// --- LOGLAMA ---
 app.post('/api/log-eksik-arama', (req, res) => {
   const { terim } = req.body;
-  const zaman = new Date().toLocaleString('tr-TR');
-  const satir = `[${zaman}] Aranan: "${terim}" - Sonuç Bulunamadı\n`;
-  fs.appendFile('eksik_aramalar.txt', satir, (err) => {
-    if (err) { return res.status(500).send("Hata"); }
-    res.send("Kaydedildi");
-  });
-});
-
-app.listen(port, () => {
-  console.log(`🔌 Thaqalayn Backend (AI + Log) Çalışıyor: http://localhost:${port}`);
+  console.warn(`[EKSİK ARAMA] ${new Date().toLocaleString('tr-TR')} - Bulunamadı: "${terim}"`);
+  res.send("Kaydedildi");
 });
