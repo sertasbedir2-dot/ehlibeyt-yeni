@@ -44,7 +44,11 @@ function SearchResults({ query, closeSearch }) {
   
   // ZIRHLANMIŞ ARAMA ALGORİTMASI
   const queryLower = query.toLowerCase();
-  const results = globalSearchData.filter(item => {
+  
+  // globalSearchData'nın undefined olup olmadığını kontrol et
+  const validData = Array.isArray(globalSearchData) ? globalSearchData : [];
+  
+  const results = validData.filter(item => {
     if(!item) return false;
     const tMatch = item.title ? String(item.title).toLowerCase().includes(queryLower) : false;
     const cMatch = item.category ? String(item.category).toLowerCase().includes(queryLower) : false;
@@ -95,8 +99,6 @@ function AppContent() {
     } catch (err) {}
   };
 
-  // HER TÜRLÜ GÜVENLİK DUVARI VE FACEBOOK KONTROLÜ TAMAMEN SİLİNDİ
-  // DOĞRUDAN ANA SİTEYE GEÇİŞ
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-turquoise-dark to-turquoise text-sand flex flex-col font-serif relative animate-fade-in">
        
