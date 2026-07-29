@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Suspense, Component } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Search, X, Share2, Book, Star, Sparkles, Menu, Flame, BookOpen } from 'lucide-react';
+import { Search, X, Share2, Book, Star, Sparkles, Menu, Flame, BookOpen, Shield } from 'lucide-react';
 
 // --- DATA ---
 import { globalSearchData } from './data/siteData'; 
@@ -29,7 +29,6 @@ const KitapOku = React.lazy(() => import('./pages/KitapOku'));
 const Favorites = React.lazy(() => import('./pages/Favorites')); 
 
 // --- GLOBAL ÇÖKME ÖNLEYİCİ (THE NAKED REALISM SHIELD) ---
-// Bu kod artık SADECE orta kısmı değil, TÜM UYGULAMAYI koruyor.
 class GlobalErrorBoundary extends Component {
   constructor(props) {
     super(props);
@@ -208,11 +207,24 @@ function TopNavigation() {
   );
 }
 
+// --- YARDIMCI FONKSİYON: SEVİYE HESAPLAMA ---
+const getLevelInfo = (hp) => {
+  if(hp < 100) return { name: "Yolcu", next: 100, prev: 0 };
+  if(hp < 500) return { name: "Talip", next: 500, prev: 100 };
+  if(hp < 1500) return { name: "Derviş", next: 1500, prev: 500 };
+  if(hp < 4000) return { name: "Ahi", next: 4000, prev: 1500 };
+  if(hp < 10000) return { name: "Arif", next: 10000, prev: 4000 };
+  return { name: "Kamil", next: 10000, prev: 10000, isMax: true };
+};
+
 // --- ANA UYGULAMA İÇERİĞİ ---
 function AppContent() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [streak, setStreak] = useState(0);
+  
+  // HİKMET PUANI (HP) STATE'İ
+  const [hp, setHp] = useState(0);
 
   useEffect(() => {
     try {
@@ -229,6 +241,16 @@ function AppContent() {
       }
       setStreak(currentStreak);
     } catch (e) { console.error("Storage Hatası", e); }
+    
+    // HP SENKRONİZASYONU
+    const loadHp = () => {
+      const savedHp = parseInt(localStorage.getItem('hikmet_puani') || '0');
+      setHp(savedHp);
+    };
+    
+    loadHp(); // İlk yüklemede çalıştır
+    window.addEventListener('hp_updated', loadHp); // Başka sayfalarda HP değişirse anında yakala
+    return () => window.removeEventListener('hp_updated', loadHp);
   }, []);
 
   const handleShare = async () => {
@@ -241,6 +263,10 @@ function AppContent() {
       }
     } catch (err) {}
   };
+
+  // GAMIFICATION HESAPLAMALARI
+  const levelInfo = getLevelInfo(hp);
+  const progressPercent = levelInfo.isMax ? 100 : ((hp - levelInfo.prev) / (levelInfo.next - levelInfo.prev)) * 100;
 
   return (
     <div className="min-h-screen w-full bg-[#04151a] text-[#FDF6E3] flex flex-col font-serif relative animate-fade-in">
@@ -256,14 +282,26 @@ function AppContent() {
             
             <div className="flex items-center gap-2 md:gap-4 ml-auto lg:ml-0">
               
-              {/* ZİNCİR (STREAK) WIDGET'I - ARTIK MOBİLDE DE GÖRÜNÜR */}
+              {/* GAMIFICATION WIDGET - İLİM YOLCULUĞU (YENİ) */}
+              <div className="flex flex-col items-end mr-1 md:mr-3" title={`${hp} HP - Sonraki seviye: ${levelInfo.next}`}>
+                 <div className="flex items-center gap-1.5 text-[#C5A059] text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+                    <Shield size={12} className="sm:w-[14px] sm:h-[14px]" /> 
+                    <span>{levelInfo.name}</span> 
+                    <span className="hidden sm:inline text-white/40 text-[10px] ml-1 font-mono lowercase">{hp} hp</span>
+                 </div>
+                 <div className="w-16 sm:w-24 md:w-32 h-1 sm:h-1.5 bg-black/50 rounded-full mt-1 overflow-hidden border border-[#C5A059]/20 shadow-inner">
+                    <div className="h-full bg-gradient-to-r from-yellow-700 via-yellow-500 to-[#C5A059] rounded-full transition-all duration-500 ease-out" style={{ width: `${progressPercent}%` }}></div>
+                 </div>
+              </div>
+
+              {/* ZİNCİR (STREAK) WIDGET'I */}
               <div className="flex items-center gap-1.5 bg-black/30 border border-[#C5A059]/30 px-2 sm:px-3 py-1.5 rounded-full text-[#C5A059] text-xs font-bold shadow-inner" title="Aralıksız ziyaret serisi">
                 <Flame size={14} className={`${streak > 0 ? 'fill-[#C5A059] animate-pulse' : 'text-slate-500'}`} />
                 <span className="hidden sm:inline">{streak} Gün</span>
                 <span className="sm:hidden">{streak}</span>
               </div>
 
-              {/* PAYLAŞ BUTONU - MOBİLDE SADECE İKON, MASAÜSTÜNDE YAZILI */}
+              {/* PAYLAŞ BUTONU */}
               <button onClick={handleShare} className="flex items-center gap-2 bg-[#C5A059]/10 text-[#C5A059] border border-[#C5A059]/30 p-2 sm:px-3 sm:py-2 rounded-lg font-bold text-sm hover:bg-[#C5A059] hover:text-[#09303a] transition-colors">
                 <Share2 size={18} className="sm:w-4 sm:h-4"/> 
                 <span className="hidden sm:inline">Paylaş</span>
@@ -310,7 +348,6 @@ function AppContent() {
   );
 }
 
-// EN ÜST KATMAN ZIRHI: Tıpkı bir kalkan gibi tüm AppContent'i içine alır.
 export default function App() {
   return (
     <AppProvider>
