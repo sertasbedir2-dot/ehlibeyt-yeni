@@ -107,7 +107,7 @@ export default function Home() {
   };
 
   return (
-    <div className="space-y-16 animate-fade-in relative">
+    <div className="space-y-8 animate-fade-in relative">
       {/* SAĞ ÜSTTE SABİT VAKİT/TAKVİM WIDGET'I */}
       <div className="hidden lg:block fixed top-24 right-6 z-[100]">
          <PrayerTimesWidget />
@@ -194,94 +194,121 @@ export default function Home() {
         </div>
       </div>
 
-      {/* GÜNÜN HİKMETİ */}
-      <div id="gunun-hikmeti-alani" ref={wisdomSectionRef} className="w-full max-w-4xl mx-auto my-8 px-4 scroll-mt-24">
-        <div className="relative bg-gradient-to-r from-[#0f172a] to-[#1e293b] border border-[#C5A059]/30 rounded-2xl p-8 text-center shadow-[0_0_25px_rgba(197,160,89,0.15)] group hover:border-[#C5A059]/50 transition-all duration-500">
-          <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-[#0B1120] border border-[#C5A059] p-3 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C5A059" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-          </div>
-          <span className="inline-block mt-4 mb-4 text-xs font-bold text-[#C5A059] tracking-widest uppercase opacity-70 border-b border-[#C5A059]/30 pb-1">Günün Hikmeti • {dailyWisdom.category}</span>
-          <h2 className="text-xl md:text-3xl font-serif text-slate-200 leading-relaxed italic mb-6">"{dailyWisdom.quote}"</h2>
-          <div className="flex items-center justify-center gap-2 mb-8">
-            <div className="h-px w-8 bg-[#C5A059]/50"></div>
-            <p className="text-[#C5A059] font-bold font-sans text-sm md:text-base">{dailyWisdom.source}</p>
-            <div className="h-px w-8 bg-[#C5A059]/50"></div>
-          </div>
-          <div className="flex justify-center gap-4 border-t border-white/5 pt-6">
-            <button onClick={handleSpeak} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-[#C5A059]/20 text-slate-300 hover:text-[#C5A059] transition-colors text-sm font-medium"><Volume2 size={18} /><span className="hidden sm:inline">Dinle</span></button>
-            
-            {/* YENİ: SÜRTÜNMESİZ PAYLAŞ BUTONU */}
-            <button 
-              onClick={() => handleNativeShare("OnikiKapı - Günün Hikmeti", `"${dailyWisdom.quote}" — ${dailyWisdom.source}`)} 
-              className="flex items-center gap-2 px-6 py-2 rounded-lg bg-[#C5A059] hover:bg-[#b08d48] text-[#09303a] transition-colors text-sm font-bold shadow-lg group-hover:scale-105 transform duration-300"
-            >
-              <Share2 size={18} /><span>Paylaş</span>
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* --- BENTO GRID MİMARİSİ BAŞLANGICI --- */}
+      <div className="w-full max-w-7xl mx-auto pt-6 z-20 relative">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          
+          {/* BENTO BLOK 1: GÜNÜN HİKMETİ (8 Sütun) */}
+          <div id="gunun-hikmeti-alani" ref={wisdomSectionRef} className="md:col-span-8 bg-[#0b1b24]/90 backdrop-blur-md border border-[#C5A059]/30 rounded-3xl p-8 lg:p-12 relative group hover:border-[#C5A059]/50 transition-all duration-500 shadow-xl flex flex-col justify-between overflow-hidden">
+             <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#C5A059]/5 rounded-full blur-3xl group-hover:bg-[#C5A059]/10 transition-colors"></div>
+             
+             <div>
+               <div className="flex items-center gap-3 mb-6">
+                 <div className="bg-[#0B1120] border border-[#C5A059] p-2 rounded-full">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C5A059" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                 </div>
+                 <span className="text-xs font-bold text-[#C5A059] tracking-widest uppercase opacity-80 border-b border-[#C5A059]/30 pb-1">
+                   Günün Hikmeti • {dailyWisdom.category}
+                 </span>
+               </div>
+               
+               <h2 className="text-2xl md:text-4xl font-serif text-[#FDF6E3] leading-relaxed italic mb-8 relative z-10 drop-shadow-sm">
+                 "{dailyWisdom.quote}"
+               </h2>
+               
+               <div className="flex items-center gap-4 mb-8">
+                 <div className="h-px flex-grow bg-gradient-to-r from-transparent via-[#C5A059]/50 to-transparent"></div>
+                 <p className="text-[#C5A059] font-bold font-sans text-lg">{dailyWisdom.source}</p>
+                 <div className="h-px flex-grow bg-gradient-to-r from-transparent via-[#C5A059]/50 to-transparent"></div>
+               </div>
+             </div>
 
-      {/* GÜNÜN MANEVİ GÖREVİ */}
-      <div className="bg-gradient-to-br from-[#0F4C5C] to-[#09303a] p-10 rounded-3xl border border-[#C5A059]/20 relative overflow-hidden shadow-xl mx-4 transition-all duration-500 hover:shadow-[#C5A059]/10 group">
-        <div className="absolute -bottom-10 -left-10 p-4 opacity-5 rotate-12 pointer-events-none group-hover:opacity-10 transition-opacity"><HandHeart size={200} className="text-[#C5A059]" /></div>
-        <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-6">
-          <div className="flex items-center gap-2 text-[#C5A059] font-bold uppercase tracking-widest text-sm bg-black/20 px-4 py-1 rounded-full border border-[#C5A059]/10"><CheckCircle2 size={16} /> Günün Manevi Görevi</div>
-          <div className="space-y-6 animate-fade-in w-full max-w-2xl">
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-6 rounded-2xl">
-              <p className="text-[#C5A059] text-xs font-bold uppercase tracking-widest mb-2 opacity-80">{dailyTask.type}</p>
-              <blockquote className="text-2xl md:text-3xl font-sans font-medium text-[#FDF6E3] leading-relaxed">"{dailyTask.text}"</blockquote>
+             <div className="flex flex-wrap gap-4 pt-6 border-t border-white/10 relative z-10">
+               <button onClick={handleSpeak} className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-[#C5A059]/20 text-slate-300 hover:text-[#C5A059] hover:border-[#C5A059]/50 transition-all text-sm font-bold flex-1 sm:flex-none">
+                 <Volume2 size={18} /><span>Dinle</span>
+               </button>
+               
+               <button 
+                 onClick={() => handleNativeShare("OnikiKapı - Günün Hikmeti", `"${dailyWisdom.quote}" — ${dailyWisdom.source}`)} 
+                 className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#C5A059] hover:bg-[#b08d48] text-[#09303a] transition-all text-sm font-bold shadow-lg hover:scale-105 flex-1 sm:flex-none"
+               >
+                 <Share2 size={18} /><span>Paylaş</span>
+               </button>
+             </div>
+          </div>
+
+          {/* BENTO BLOK 2: GÜNÜN MANEVİ GÖREVİ (4 Sütun) */}
+          <div className="md:col-span-4 bg-gradient-to-br from-[#0F4C5C] to-[#09303a] rounded-3xl border border-[#C5A059]/20 p-8 relative overflow-hidden shadow-xl group hover:border-[#C5A059]/50 hover:shadow-[0_0_20px_rgba(197,160,89,0.15)] transition-all duration-500 flex flex-col justify-between">
+            <div className="absolute -bottom-10 -right-10 p-4 opacity-10 rotate-12 pointer-events-none group-hover:opacity-20 transition-opacity">
+              <HandHeart size={150} className="text-[#C5A059]" />
+            </div>
+            
+            <div className="relative z-10">
+              <div className="inline-flex items-center gap-2 text-[#C5A059] font-bold uppercase tracking-widest text-xs bg-black/30 px-3 py-1.5 rounded-full border border-[#C5A059]/20 mb-6">
+                <CheckCircle2 size={14} /> Manevi Görev
+              </div>
+              
+              <p className="text-[#C5A059] text-[10px] font-bold uppercase tracking-widest mb-2 opacity-80">{dailyTask.type}</p>
+              <blockquote className="text-xl md:text-2xl font-sans font-medium text-[#FDF6E3] leading-snug mb-8">
+                "{dailyTask.text}"
+              </blockquote>
+            </div>
+            
+            <div className="relative z-10 flex flex-col gap-3">
+              {dailyTask.link && (
+                <Link to={dailyTask.link} className="flex items-center justify-between text-[#C5A059] hover:text-[#FDF6E3] transition-colors font-bold text-sm bg-black/40 px-5 py-3 rounded-xl border border-[#C5A059]/20 hover:border-[#C5A059]/60 w-full group/btn">
+                  <span>{dailyTask.ctaText}</span>
+                  <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
+                </Link>
+              )}
+              <button 
+                onClick={() => handleNativeShare("OnikiKapı - Günün Manevi Görevi", dailyTask.text)}
+                className="flex items-center justify-center gap-2 px-5 py-3 bg-[#C5A059]/10 text-[#C5A059] border border-[#C5A059]/30 font-bold text-sm rounded-xl hover:bg-[#C5A059] hover:text-[#09303a] transition-all shadow-lg w-full"
+              >
+                <Share2 size={16} /> Görevi Paylaş
+              </button>
             </div>
           </div>
-          
-          {/* BUTON GRUBU: Link + Paylaş */}
-          <div className="mt-4 flex flex-col sm:flex-row items-center gap-4">
-            {dailyTask.link && (
-              <Link to={dailyTask.link} className="flex items-center justify-center gap-2 text-[#C5A059] hover:text-white transition-colors font-bold text-sm bg-black/30 px-6 py-3 rounded-xl border border-[#C5A059]/20 hover:border-[#C5A059]/50 w-full sm:w-auto">
-                {dailyTask.ctaText} <ArrowRight size={16} />
-              </Link>
-            )}
-            
-            {/* YENİ: SÜRTÜNMESİZ GÖREV PAYLAŞ BUTONU */}
-            <button 
-              onClick={() => handleNativeShare("OnikiKapı - Günün Manevi Görevi", dailyTask.text)}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-[#C5A059] text-[#09303a] font-bold text-sm rounded-xl hover:bg-white transition-all shadow-lg group-hover:scale-105 w-full sm:w-auto"
-            >
-              <Share2 size={16} /> Görevi Paylaş
-            </button>
+
+          {/* BENTO BLOK 3, 4, 5: ÇAPRAZ ÖNERİLER (4'er Sütun) */}
+          <div className="md:col-span-4 h-full">
+            <FeatureCard icon={<Flower size={28} className="text-rose-300" />} title="Manevi Reçeteler" desc="Ruhsal dinginlik ve ilahi aşk için Ehlibeyt kaynaklı manevi şifa kapısı." link="/manevi-receteler" />
+          </div>
+          <div className="md:col-span-4 h-full">
+            <FeatureCard icon={<PenTool size={28} className="text-[#C5A059]" />} title="İlim Kütüphanesi" desc="'Oku' emrinin izinde, kadim ve sahih kaynaklara açılan ilim kapısı." link="/library" />
+          </div>
+          <div className="md:col-span-4 h-full">
+            <FeatureCard icon={<Scale size={28} className="text-[#93c5fd]" />} title="Adalet ve Hakikat" desc="Evrensel adalet ilkesi ve hakikat üzerine Soru/Cevap kapısı." link="/soru-cevap" />
           </div>
 
         </div>
-      </div>
-
-      {/* FEATURE CARDS */}
-      <div className="grid md:grid-cols-3 gap-8 relative px-4 mt-8">
-        <div className="absolute inset-0 flex justify-center items-center opacity-5 pointer-events-none"><Flower size={300} className="text-[#93c5fd] rotate-12" /></div>
-        <FeatureCard icon={<Flower size={32} className="text-rose-300" />} title="Manevi Reçeteler ve Muhabbet" desc="Ruhsal dinginlik ve ilahi aşk için Ehlibeyt kaynaklı manevi şifa kapısı." link="/manevi-receteler" />
-        <FeatureCard icon={<PenTool size={32} className="text-[#C5A059]" />} title="İlim ve Hikmet Kütüphanesi" desc="'Oku' emrinin izinde, kadim ve sahih kaynaklara açılan ilim kapısı." link="/library" />
-        <FeatureCard icon={<Scale size={32} className="text-[#93c5fd]" />} title="Adalet ve Hakikat Arayışı" desc="Evrensel adalet ilkesi ve hakikat üzerine Soru/Cevap kapısı." link="/soru-cevap" />
       </div>
     </div>
   );
 }
 
+// BİLEŞEN: Duygu Çipleri
 function MoodChip({ label, icon, onClick, color }) { 
   return (
     <button 
       onClick={onClick} 
-      className={`flex items-center gap-2 px-6 py-3 rounded-full border backdrop-blur-md text-sm font-bold transition-all duration-300 shadow-lg ${color}`}
+      className={`flex items-center gap-2 px-5 py-2.5 rounded-full border backdrop-blur-md text-sm font-bold transition-all duration-300 shadow-lg ${color}`}
     >
       {icon} {label}
     </button>
   ); 
 }
 
+// BİLEŞEN: Özellik Kartları (Bento Grid İçin Optimize Edildi)
 function FeatureCard({ icon, title, desc, link }) { 
   return (
     <Link to={link} className="block group relative z-10 h-full">
-      <div className="bg-[#09303a] p-8 rounded-2xl border border-white/10 h-full hover:border-[#C5A059]/50 transition-all duration-500 hover:-translate-y-2 shadow-lg hover:shadow-2xl bg-opacity-80 backdrop-blur-sm flex flex-col">
-        <div className="mb-6 p-4 bg-[#04151a] rounded-xl w-fit group-hover:scale-110 transition-transform border border-[#C5A059]/20 shadow-[0_0_15px_rgba(0,0,0,0.2)]">{icon}</div>
-        <h3 className="text-2xl font-bold text-[#FDF6E3] mb-3 group-hover:text-[#C5A059] transition-colors font-sans">{title}</h3>
-        <p className="text-slate-300 text-base leading-relaxed font-serif line-clamp-3">{desc}</p>
+      <div className="bg-[#09303a]/80 p-6 rounded-3xl border border-white/10 h-full hover:border-[#C5A059]/50 transition-all duration-500 hover:-translate-y-1 shadow-lg hover:shadow-2xl backdrop-blur-md flex flex-col justify-center">
+        <div className="mb-4 p-3 bg-[#04151a] rounded-xl w-fit group-hover:scale-110 transition-transform border border-[#C5A059]/20 shadow-inner">
+          {icon}
+        </div>
+        <h3 className="text-xl font-bold text-[#FDF6E3] mb-2 group-hover:text-[#C5A059] transition-colors font-sans">{title}</h3>
+        <p className="text-slate-300 text-sm leading-relaxed font-serif line-clamp-2">{desc}</p>
       </div>
     </Link>
   ); 
