@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Search, ChevronRight, X, Play, BookOpen, Clock, Activity, AlertCircle, CheckCircle2, Heart, Sparkles, Share2 } from 'lucide-react';
+import { Search, ChevronRight, X, Play, BookOpen, Clock, Activity, AlertCircle, CheckCircle2, Heart, Sparkles, Share2, Square, CheckSquare } from 'lucide-react';
 import { categories, recipes, moods } from '../data/recetelerData';
 
 export default function ManeviReceteler() {
@@ -8,6 +8,18 @@ export default function ManeviReceteler() {
   const [selectedMood, setSelectedMood] = useState(null);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // --- DİJİTAL RİYAZET (HOOK MODELİ) STATE'LERİ ---
+  const [checkedSteps, setCheckedSteps] = useState([false, false, false]);
+  const [hpClaimed, setHpClaimed] = useState(false);
+
+  // Modal değiştiğinde veya kapandığında Checklist'i sıfırla
+  useEffect(() => {
+    if (selectedRecipe) {
+      setCheckedSteps([false, false, false]);
+      setHpClaimed(false);
+    }
+  }, [selectedRecipe]);
 
   const filteredRecipes = recipes.filter(recipe => {
     const matchesCategory = activeCategory === 'all' || recipe.categoryId === activeCategory;
@@ -22,11 +34,29 @@ export default function ManeviReceteler() {
     setSearchQuery(""); 
   };
 
-  // --- YENİ EKLENEN PAYLAŞIM FONKSİYONU ---
+  // --- CHECKLIST TETİKLEYİCİSİ ---
+  const toggleStep = (index) => {
+    if (hpClaimed) return; // Puan alındıysa kitle
+    const newSteps = [...checkedSteps];
+    newSteps[index] = !newSteps[index];
+    setCheckedSteps(newSteps);
+  };
+
+  // --- HİKMET PUANI KAZANIMI ---
+  const handleClaimHP = () => {
+    if (hpClaimed) return;
+    const currentHP = parseInt(localStorage.getItem('hikmet_puani') || '0', 10);
+    localStorage.setItem('hikmet_puani', (currentHP + 20).toString());
+    
+    // Navbar'ı anında haberdar et
+    window.dispatchEvent(new Event('hp-updated'));
+    setHpClaimed(true);
+  };
+
+  // --- PAYLAŞIM FONKSİYONU ---
   const handleShare = async () => {
     if (!selectedRecipe) return;
 
-    // Paylaşılacak metni özenle hazırlıyoruz
     const shareText = `
 🌿 *${selectedRecipe.title}*
 "${selectedRecipe.diagnosis}"
@@ -42,7 +72,6 @@ ${selectedRecipe.cure.arabic}
 https://www.onikikapi.com/manevi-receteler
     `.trim();
 
-    // Mobil paylaşım API'sini kullan
     if (navigator.share) {
       try {
         await navigator.share({
@@ -54,11 +83,17 @@ https://www.onikikapi.com/manevi-receteler
         console.log('Paylaşım iptal edildi');
       }
     } else {
-      // Bilgisayarda ise panoya kopyala
       navigator.clipboard.writeText(shareText);
       alert("Reçete kopyalandı! Dilediğiniz yerde yapıştırıp paylaşabilirsiniz.");
     }
   };
+
+  // Şifa adımları metinleri
+  const prescriptionSteps = [
+    "Manevi arınma için abdest alıp kıbleye yöneldim.",
+    "Reçetedeki ilahi kelamı (duayı) huşu ile okudum.",
+    "Gözlerimi kapatıp, şifanın hikmetini tefekkür ettim."
+  ];
 
   return (
     <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 animate-fade-in text-sand">
@@ -263,10 +298,61 @@ https://www.onikikapi.com/manevi-receteler
                 </div>
               )}
 
+              {/* --- YENİ: DİJİTAL RİYAZET (CHECKLIST) --- */}
+              <div className="bg-white border border-[#C5A059]/40 p-6 rounded-xl shadow-sm mt-4">
+                 <h4 className="font-bold text-[#0B1120] uppercase text-sm tracking-wide mb-4 flex items-center gap-2">
+                   <Activity size={18} className="text-[#C5A059]"/> Şifa Adımları (Dijital Riyazet)
+                 </h4>
+                 
+                 <div className="space-y-3 mb-6">
+                   {prescriptionSteps.map((step, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => toggleStep(idx)}
+                        disabled={hpClaimed}
+                        className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all text-left ${
+                          checkedSteps[idx] 
+                            ? 'bg-emerald-50 border-emerald-200' 
+                            : 'bg-slate-50 border-slate-200 hover:border-[#C5A059]/50 hover:bg-orange-50/50'
+                        }`}
+                      >
+                        <div className={`${checkedSteps[idx] ? 'text-emerald-500' : 'text-slate-400'}`}>
+                          {checkedSteps[idx] ? <CheckSquare size={20} /> : <Square size={20} />}
+                        </div>
+                        <span className={`text-sm md:text-base font-medium transition-all ${
+                          checkedSteps[idx] ? 'text-slate-500 line-through opacity-70' : 'text-slate-700'
+                        }`}>
+                          {step}
+                        </span>
+                      </button>
+                   ))}
+                 </div>
+
+                 {!hpClaimed ? (
+                    <button
+                      onClick={handleClaimHP}
+                      disabled={!checkedSteps.every(Boolean)}
+                      className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 ${
+                        checkedSteps.every(Boolean) 
+                          ? 'bg-[#C5A059] text-white shadow-[0_0_20px_rgba(197,160,89,0.4)] hover:scale-[1.02] active:scale-95 cursor-pointer' 
+                          : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                      }`}
+                    >
+                      <Sparkles size={20} className={checkedSteps.every(Boolean) ? 'animate-pulse' : ''} />
+                      {checkedSteps.every(Boolean) ? 'Şifayı İçselleştir (+20 HP)' : 'Ödül İçin Adımları Tamamla'}
+                    </button>
+                 ) : (
+                    <div className="w-full bg-emerald-100 border border-emerald-300 text-emerald-800 p-4 rounded-xl flex items-center justify-center gap-2 shadow-inner">
+                       <CheckCircle2 size={20} />
+                       <span className="font-bold">Şifa Kaydedildi, İlim Yolculuğuna +20 HP Eklendi!</span>
+                    </div>
+                 )}
+              </div>
+
               {/* --- PAYLAŞ BUTONU --- */}
               <button 
                 onClick={handleShare}
-                className="w-full bg-[#C5A059] text-[#0B1120] font-sans font-bold text-lg py-4 rounded-xl shadow-lg hover:bg-[#b08d48] hover:text-white transition-all active:scale-95 flex items-center justify-center gap-2"
+                className="w-full bg-[#0B1120] text-[#C5A059] font-sans font-bold text-lg py-4 rounded-xl shadow-lg hover:bg-black transition-all active:scale-95 flex items-center justify-center gap-2 mt-4 border border-[#C5A059]/30"
               >
                 <Share2 size={24} />
                 Bu Reçeteyi Paylaş
