@@ -1,13 +1,11 @@
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { PenTool, Scale, Flower, BookOpen, Book, Sparkles, Search, Heart, HelpCircle, Sun, RefreshCw, Volume2, Share2, Flame, Bell, X, Download, HandHeart, CheckCircle2, Star, ArrowRight } from 'lucide-react';
+import { PenTool, Scale, Flower, BookOpen, Book, Sparkles, Search, Heart, HelpCircle, Sun, Volume2, Share2, Bell, X, HandHeart, CheckCircle2, Star, ArrowRight } from 'lucide-react';
 import { wisdomData } from '../data/wisdomData';
 import { globalSearchData } from '../data/siteData'; 
-import { toPng } from 'html-to-image';
-import { QRCodeSVG } from 'qrcode.react';
 
-// --- ÇÖKME SEBEBİ BURASIYDI! Link ve ctaText eklendi ---
+// --- GÜNLÜK GÖREVLER DATA ---
 const GOREVLER = [
   { text: "Bugün telefon rehberinden uzun süredir konuşmadığın bir akrabanı ara ve halini hatırını sor.", type: "Sıla-i Rahim", link: "/soru-cevap", ctaText: "Sıla-i Rahim hakkında oku" },
   { text: "Bugün karşılaştığın bir çocuğun başını okşa veya ona küçük bir çikolata ikram et.", type: "Merhamet", link: "/library", ctaText: "Şefkat kıssalarına göz at" },
@@ -19,7 +17,6 @@ export default function Home() {
   const [searchResults, setSearchResults] = useState([]); 
   const navigate = useNavigate();
   const [showNotificationModal, setShowNotificationModal] = useState(false);
-  const [showSharePreview, setShowSharePreview] = useState(false);
   const wisdomSectionRef = useRef(null);
 
   const safeSearch = (query) => {
@@ -51,7 +48,6 @@ export default function Home() {
 
   const dailyTask = useMemo(() => {
     const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
-    // Eğer GOREVLER dizisinde o güne ait görev yoksa (ki olmaz ama tedbir alıyoruz), ilkini seç.
     return GOREVLER[(dayOfYear - 1) % GOREVLER.length] || GOREVLER[0];
   }, []);
 
@@ -88,6 +84,28 @@ export default function Home() {
     });
   };
 
+  // --- SÜRTÜNMESİZ PAYLAŞIM (NATIVE SHARE API) ---
+  const handleNativeShare = async (title, textContent) => {
+    const siteUrl = "https://www.onikikapi.com";
+    const shareText = `${textContent}\n\nDaha fazlası için:`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: title,
+          text: shareText,
+          url: siteUrl,
+        });
+        console.log('Başarıyla paylaşıldı');
+      } catch (err) {
+        console.log('Paylaşım iptal edildi veya hata oluştu:', err);
+      }
+    } else {
+      navigator.clipboard.writeText(`${title} - ${shareText} ${siteUrl}`);
+      alert("Metin ve bağlantı kopyalandı! İstediğiniz yere yapıştırabilirsiniz.");
+    }
+  };
+
   return (
     <div className="space-y-16 animate-fade-in relative">
       {/* SAĞ ÜSTTE SABİT VAKİT/TAKVİM WIDGET'I */}
@@ -95,8 +113,6 @@ export default function Home() {
          <PrayerTimesWidget />
       </div>
 
-      {showSharePreview && <SharePreviewModal dailyWisdom={dailyWisdom} onClose={() => setShowSharePreview(false)} />}
-      
       {showNotificationModal && (
         <div className="fixed inset-0 bg-black/80 z-[300] flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-[#09303a] border border-[#C5A059] rounded-2xl p-6 max-w-sm text-center shadow-2xl relative animate-fade-in">
@@ -115,11 +131,9 @@ export default function Home() {
       {/* HERO SECTION */}
       <div className="relative py-20 px-6 rounded-3xl overflow-hidden text-center border border-[#C5A059]/20 shadow-2xl group min-h-[500px] flex flex-col justify-center mt-6">
         <div className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1518837695005-2083093ee35b?q=80&w=2000&auto=format&fit=crop')` }}></div>
-        {/* Okunabilirliği artıran degrade */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#04151a]/80 via-[#04151a]/60 to-[#04151a]/90"></div>
         
         <div className="relative z-10 max-w-4xl mx-auto space-y-8 flex flex-col items-center w-full">
-          {/* Mobilde Vakit Widget'ı ortada görünür */}
           <div className="lg:hidden mb-4 animate-fade-in w-full max-w-xs mx-auto z-20"><PrayerTimesWidget /></div>
           
           <div className="relative w-20 h-20 mx-auto flex items-center justify-center mb-2">
@@ -195,7 +209,14 @@ export default function Home() {
           </div>
           <div className="flex justify-center gap-4 border-t border-white/5 pt-6">
             <button onClick={handleSpeak} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-[#C5A059]/20 text-slate-300 hover:text-[#C5A059] transition-colors text-sm font-medium"><Volume2 size={18} /><span className="hidden sm:inline">Dinle</span></button>
-            <button onClick={() => setShowSharePreview(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C5A059] hover:bg-[#b08d48] text-[#09303a] transition-colors text-sm font-bold shadow-lg group-hover:scale-105 transform duration-300"><Share2 size={18} /><span>Hikayende Paylaş</span></button>
+            
+            {/* YENİ: SÜRTÜNMESİZ PAYLAŞ BUTONU */}
+            <button 
+              onClick={() => handleNativeShare("OnikiKapı - Günün Hikmeti", `"${dailyWisdom.quote}" — ${dailyWisdom.source}`)} 
+              className="flex items-center gap-2 px-6 py-2 rounded-lg bg-[#C5A059] hover:bg-[#b08d48] text-[#09303a] transition-colors text-sm font-bold shadow-lg group-hover:scale-105 transform duration-300"
+            >
+              <Share2 size={18} /><span>Paylaş</span>
+            </button>
           </div>
         </div>
       </div>
@@ -211,12 +232,24 @@ export default function Home() {
               <blockquote className="text-2xl md:text-3xl font-sans font-medium text-[#FDF6E3] leading-relaxed">"{dailyTask.text}"</blockquote>
             </div>
           </div>
-          {/* GÜVENLİ LİNK (CTA) - Çökmeyecek Şekilde Korundu */}
-          {dailyTask.link && (
-            <Link to={dailyTask.link} className="mt-4 flex items-center gap-2 text-[#C5A059] hover:text-white transition-colors font-bold text-sm bg-black/30 px-6 py-3 rounded-xl border border-[#C5A059]/20 hover:border-[#C5A059]/50">
-              {dailyTask.ctaText} <ArrowRight size={16} />
-            </Link>
-          )}
+          
+          {/* BUTON GRUBU: Link + Paylaş */}
+          <div className="mt-4 flex flex-col sm:flex-row items-center gap-4">
+            {dailyTask.link && (
+              <Link to={dailyTask.link} className="flex items-center justify-center gap-2 text-[#C5A059] hover:text-white transition-colors font-bold text-sm bg-black/30 px-6 py-3 rounded-xl border border-[#C5A059]/20 hover:border-[#C5A059]/50 w-full sm:w-auto">
+                {dailyTask.ctaText} <ArrowRight size={16} />
+              </Link>
+            )}
+            
+            {/* YENİ: SÜRTÜNMESİZ GÖREV PAYLAŞ BUTONU */}
+            <button 
+              onClick={() => handleNativeShare("OnikiKapı - Günün Manevi Görevi", dailyTask.text)}
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-[#C5A059] text-[#09303a] font-bold text-sm rounded-xl hover:bg-white transition-all shadow-lg group-hover:scale-105 w-full sm:w-auto"
+            >
+              <Share2 size={16} /> Görevi Paylaş
+            </button>
+          </div>
+
         </div>
       </div>
 
@@ -231,7 +264,6 @@ export default function Home() {
   );
 }
 
-// --- YENİLENMİŞ MOOD CHIP BİLEŞENİ ---
 function MoodChip({ label, icon, onClick, color }) { 
   return (
     <button 
@@ -253,58 +285,4 @@ function FeatureCard({ icon, title, desc, link }) {
       </div>
     </Link>
   ); 
-}
-
-// --- ORTAK KART BİLEŞENİ ---
-function StoryCardContent({ dailyWisdom }) {
-  return (
-    <div className="w-[1080px] h-[1920px] bg-[#0F4C5C] flex flex-col items-center justify-between text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0F4C5C] via-[#09303a] to-[#04151a]"></div>
-        <div className="absolute inset-0 opacity-10 pointer-events-none" style={{backgroundImage: "url('https://www.transparenttextures.com/patterns/cubes.png')"}}></div>
-        <div className="z-10 mt-32 flex flex-col items-center w-full px-12">
-              <div className="p-8 border-[6px] border-[#E5C17C] rounded-full mb-8 bg-[#0F4C5C] shadow-2xl"><BookOpen size={120} className="text-[#E5C17C]" /></div>
-              <h3 className="text-[#E5C17C] text-6xl font-sans tracking-[0.4em] uppercase font-bold mb-4">Günün Hikmeti</h3>
-              <div className="w-64 h-2 bg-[#E5C17C] rounded-full"></div>
-        </div>
-        <div className="z-10 flex-grow flex flex-col justify-center px-24 relative w-full">
-            <span className="absolute top-0 left-12 text-[#E5C17C] opacity-10 text-[500px] font-serif leading-none">“</span>
-            <h1 className="text-[5.5rem] font-serif text-[#FDF6E3] leading-[1.2] italic mb-16 drop-shadow-xl px-4 tracking-wide">{dailyWisdom.quote}</h1>
-            <div className="flex items-center justify-center gap-8 w-full"><div className="h-2 w-32 bg-[#E5C17C]"></div><p className="text-5xl text-[#E5C17C] font-sans font-black tracking-widest uppercase">{dailyWisdom.source}</p><div className="h-2 w-32 bg-[#E5C17C]"></div></div>
-        </div>
-        <div className="z-10 mb-32 w-full px-12 flex flex-col items-center gap-10">
-            <div className="bg-white p-6 rounded-[3rem] shadow-[0_0_50px_rgba(229,193,124,0.3)] border-[10px] border-[#E5C17C]"><QRCodeSVG value="https://www.onikikapi.com/" size={250} /></div>
-            <div className="bg-[#09303a] px-16 py-6 rounded-full border-2 border-[#E5C17C]/50 shadow-lg"><p className="text-4xl text-[#E5C17C] tracking-wider font-bold font-mono">www.onikikapi.com</p></div>
-            <div className="flex flex-col items-center mt-4"><h1 className="text-[12rem] font-black text-[#E5C17C] leading-[0.8] tracking-tighter font-sans drop-shadow-2xl" style={{ textShadow: "10px 10px 0px rgba(0,0,0,0.5)" }}>OnikiKapı</h1><p className="text-4xl text-slate-400 font-serif tracking-[0.5em] mt-6 uppercase">İlim ve Hikmet Şehri</p></div>
-        </div>
-    </div>
-  );
-}
-
-// --- ÖNİZLEME PENCERESİ (MODAL) ---
-function SharePreviewModal({ dailyWisdom, onClose }) {
-  const captureRef = useRef(null); 
-  const [downloading, setDownloading] = useState(false);
-
-  const handleDownload = async () => {
-    if (captureRef.current && !downloading) {
-      setDownloading(true);
-      try {
-        await document.fonts.ready;
-        const dataUrl = await toPng(captureRef.current, { cacheBust: true, width: 1080, height: 1920, style: { transform: 'scale(1)', transformOrigin: 'top left', opacity: '1', visibility: 'visible', display: 'flex' } });
-        const link = document.createElement("a"); link.href = dataUrl; link.download = `OnikiKapi_Hikmet_${new Date().toLocaleDateString()}.png`; link.click();
-      } catch (err) { console.error("Hata:", err); alert("Resim indirilemedi. Lütfen tekrar deneyin."); } finally { setDownloading(false); }
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4 animate-fade-in backdrop-blur-md overflow-hidden">
-      <div className="relative w-full max-w-lg flex flex-col items-center gap-4">
-        <div className="flex justify-between items-center w-full text-white px-2"><h3 className="text-lg font-bold text-[#C5A059]">Önizleme</h3><button onClick={onClose} className="p-2 bg-white/10 rounded-full hover:bg-white/20"><X size={24} /></button></div>
-        <div className="relative overflow-hidden shadow-2xl rounded-xl border-4 border-[#C5A059]/30"><div style={{ transform: "scale(0.3)", transformOrigin: "top left", width: "1080px", height: "1920px", marginBottom: "-1344px" }}><StoryCardContent dailyWisdom={dailyWisdom} /></div></div>
-        <div style={{ position: "fixed", top: 0, left: 0, zIndex: -9999, opacity: 0, pointerEvents: "none" }}><div ref={captureRef}><StoryCardContent dailyWisdom={dailyWisdom} /></div></div>
-        <button onClick={handleDownload} disabled={downloading} className="w-full bg-[#E5C17C] text-[#09303a] font-bold text-lg py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-white transition-all shadow-lg active:scale-95 disabled:opacity-50">{downloading ? <RefreshCw className="animate-spin" /> : <Download />}{downloading ? "Hazırlanıyor..." : "Resmi İndir"}</button>
-        <p className="text-white/50 text-xs text-center">İndirdikten sonra Instagram veya WhatsApp'ta paylaşabilirsiniz.</p>
-      </div>
-    </div>
-  );
 }
