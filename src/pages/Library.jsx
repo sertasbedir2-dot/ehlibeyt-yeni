@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Book, Download, Eye, Search, BookOpen } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // YENİ: Yönlendirme için eklendi
 
 export default function Library() {
   const [activeCategory, setActiveCategory] = useState("Tümü");
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate(); // YENİ: Kanca başlatıldı
 
+  // YENİ: pdfPath eklendi. Test için geçici olarak W3C'nin dummy PDF'i kullanılıyor.
+  // Kendi PDF'lerini public/dosyalar/ klasörüne atınca burayı "/dosyalar/kitap_adi.pdf" olarak güncelleyebilirsin.
   const books = [
-    { id: 1, title: "Kur'an-ı Kerim ve Meali", author: "İlahi Kelam", category: "Kutsal Kitap", cover: "https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1000", desc: "İnsanlığa son rehber, hidayet kaynağı Kur'an-ı Kerim'in Türkçe meali.", pages: 604, downloadLink: "/pdfs/kuran.pdf", readLink: "/pdfs/kuran.pdf" },
-    { id: 2, title: "Nehcü'l Belâga", author: "Hz. Ali (a.s)", category: "Hadis & Hikmet", cover: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1000", desc: "Hz. Ali'nin hutbeleri, mektupları ve hikmetli sözlerinin derlendiği eşsiz eser.", pages: 480, downloadLink: "/pdfs/nehcul-belaga.pdf", readLink: "/pdfs/nehcul-belaga.pdf" },
-    { id: 3, title: "Sahife-i Seccadiye", author: "İmam Zeynel Abidin (a.s)", category: "Dua & Münacat", cover: "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=1000", desc: "Ehl-i Beyt'in Zebur'u olarak bilinen, maneviyat dolu dualar hazinesi.", pages: 260, downloadLink: "#", readLink: "#" },
-    { id: 4, title: "Kerbela Şehitleri", author: "Kolektif", category: "Tarih", cover: "https://images.unsplash.com/photo-1535905557558-afc4877a26fc?q=80&w=1000", desc: "Aşura günü İmam Hüseyin ile şehadete yürüyen 72 yarenin hayatı.", pages: 320, downloadLink: "#", readLink: "#" },
-    { id: 5, title: "Tevhid Dersleri", author: "Allame Tabatabai", category: "Akaid", cover: "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=1000", desc: "İslam inancının temeli olan Tevhid inancının derinlemesine analizi.", pages: 210, downloadLink: "#", readLink: "#" },
-    { id: 6, title: "Mafatih-ul Cinan", author: "Şeyh Abbas Kummi", category: "Dua & Münacat", cover: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1000", desc: "Cennetlerin Anahtarları. Günlük dualar, zikirler ve ameller kitabı.", pages: 850, downloadLink: "#", readLink: "#" }
+    { id: 1, title: "Kur'an-ı Kerim ve Meali", author: "İlahi Kelam", category: "Kutsal Kitap", cover: "https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1000", desc: "İnsanlığa son rehber, hidayet kaynağı Kur'an-ı Kerim'in Türkçe meali.", pages: 604, downloadLink: "/pdfs/kuran.pdf", pdfPath: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
+    { id: 2, title: "Nehcü'l Belâga", author: "Hz. Ali (a.s)", category: "Hadis & Hikmet", cover: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1000", desc: "Hz. Ali'nin hutbeleri, mektupları ve hikmetli sözlerinin derlendiği eşsiz eser.", pages: 480, downloadLink: "/pdfs/nehcul-belaga.pdf", pdfPath: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
+    { id: 3, title: "Sahife-i Seccadiye", author: "İmam Zeynel Abidin (a.s)", category: "Dua & Münacat", cover: "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=1000", desc: "Ehl-i Beyt'in Zebur'u olarak bilinen, maneviyat dolu dualar hazinesi.", pages: 260, downloadLink: "#", pdfPath: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
+    { id: 4, title: "Kerbela Şehitleri", author: "Kolektif", category: "Tarih", cover: "https://images.unsplash.com/photo-1535905557558-afc4877a26fc?q=80&w=1000", desc: "Aşura günü İmam Hüseyin ile şehadete yürüyen 72 yarenin hayatı.", pages: 320, downloadLink: "#", pdfPath: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
+    { id: 5, title: "Tevhid Dersleri", author: "Allame Tabatabai", category: "Akaid", cover: "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=1000", desc: "İslam inancının temeli olan Tevhid inancının derinlemesine analizi.", pages: 210, downloadLink: "#", pdfPath: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
+    { id: 6, title: "Mafatih-ul Cinan", author: "Şeyh Abbas Kummi", category: "Dua & Münacat", cover: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1000", desc: "Cennetlerin Anahtarları. Günlük dualar, zikirler ve ameller kitabı.", pages: 850, downloadLink: "#", pdfPath: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" }
   ];
 
   const categories = ["Tümü", "Kutsal Kitap", "Hadis & Hikmet", "Tarih", "Dua & Münacat", "Akaid"];
@@ -62,9 +66,13 @@ export default function Library() {
                 <p className="text-xs text-slate-400 font-serif leading-relaxed line-clamp-2 px-2">{book.desc}</p>
               </div>
               <div className="mt-6 flex gap-2">
-                <a href={book.readLink} target="_blank" rel="noopener noreferrer" className="flex-1 bg-white/5 hover:bg-[#FFD700] hover:text-[#0f172a] text-[#f5f5dc] py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 border border-white/10 hover:border-[#FFD700]">
+                {/* YENİ: "Oku" butonu artık react-router ile KitapOku sayfasına data taşıyor */}
+                <button 
+                  onClick={() => navigate('/kitap-oku', { state: { pdfPath: book.pdfPath, title: book.title } })}
+                  className="flex-1 bg-white/5 hover:bg-[#FFD700] hover:text-[#0f172a] text-[#f5f5dc] py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 border border-white/10 hover:border-[#FFD700]"
+                >
                   <Eye size={16} /> Oku
-                </a>
+                </button>
                 <a href={book.downloadLink} download className="flex-1 bg-[#60a5fa]/20 hover:bg-[#60a5fa] hover:text-white text-[#93c5fd] py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 border border-[#60a5fa]/30">
                   <Download size={16} /> PDF
                 </a>
