@@ -199,7 +199,6 @@ function TopNavigation() {
               <Link key={link.path} to={link.path} onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-bold p-3 rounded-lg transition-colors ${location.pathname === link.path ? 'bg-[#C5A059]/10 text-[#C5A059]' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}>
                 {link.name}
               </Link>
-            </div>
             ))}
           </div>
         </div>
@@ -243,7 +242,7 @@ function AppContent() {
       setStreak(currentStreak);
     } catch (e) { console.error("Storage Hatası", e); }
     
-    // HP SENKRONİZASYONU (GÜNCELLENDİ)
+    // HP SENKRONİZASYONU
     const loadHp = () => {
       const savedHp = parseInt(localStorage.getItem('hikmet_puani') || '0');
       setHp(savedHp);
@@ -251,9 +250,9 @@ function AppContent() {
     
     loadHp(); // İlk yüklemede çalıştır
     
-    // YENİ: Hem eski (_ alt tireli) hem yeni (- tireli) eventleri dinle
-    window.addEventListener('hp_updated', loadHp); // Eski modüller (Zikir.jsx) için
-    window.addEventListener('hp-updated', loadHp); // Yeni modüller (KitapOku.jsx) için
+    // Hem eski (_ alt tireli) hem yeni (- tireli) eventleri dinle
+    window.addEventListener('hp_updated', loadHp); 
+    window.addEventListener('hp-updated', loadHp); 
     
     return () => {
       window.removeEventListener('hp_updated', loadHp);
