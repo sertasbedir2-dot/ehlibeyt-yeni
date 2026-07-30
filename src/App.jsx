@@ -28,6 +28,7 @@ const Library = React.lazy(() => import('./pages/Library'));
 const KitapOku = React.lazy(() => import('./pages/KitapOku'));
 const Favorites = React.lazy(() => import('./pages/Favorites')); 
 const IrfanAgi = React.lazy(() => import('./pages/IrfanAgi')); 
+const CanliMeclis = React.lazy(() => import('./pages/CanliMeclis')); // YENİ ROTA EKLENDİ
 
 // --- GLOBAL ÇÖKME ÖNLEYİCİ ---
 class GlobalErrorBoundary extends Component {
@@ -268,18 +269,15 @@ function TopNavigation() {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Günlük Rotasyon Algoritması (0: Pazar, 1: Pazartesi ... 6: Cumartesi)
   const getDayBasedBadge = (path) => {
     const today = new Date().getDay(); 
-    
-    if (today === 1 && path === '/library') return { text: "İlme Başla", color: "bg-blue-500/90 text-white" }; // Pazartesi
-    if (today === 2 && path === '/quiz') return { text: "Zihnini Sına", color: "bg-red-500/90 text-white" }; // Salı
-    if (today === 3 && path === '/soru-cevap') return { text: "Akla Danış", color: "bg-purple-500/90 text-white" }; // Çarşamba
-    if (today === 4 && path === '/manevi-receteler') return { text: "Şifa Bul", color: "bg-emerald-500/90 text-white" }; // Perşembe
-    if (today === 5 && path === '/14-masum') return { text: "Nurlu Yol", color: "bg-[#C5A059] text-[#04151a]" }; // Cuma
-    if ((today === 6 || today === 0) && path === '/irfan-agi') return { text: "Meclise Katıl", color: "bg-[#C5A059] text-[#04151a]" }; // H.sonu
-    
-    return null; // O gün için atanmış badge yoksa null dön
+    if (today === 1 && path === '/library') return { text: "İlme Başla", color: "bg-blue-500/90 text-white" }; 
+    if (today === 2 && path === '/quiz') return { text: "Zihnini Sına", color: "bg-red-500/90 text-white" }; 
+    if (today === 3 && path === '/soru-cevap') return { text: "Akla Danış", color: "bg-purple-500/90 text-white" }; 
+    if (today === 4 && path === '/manevi-receteler') return { text: "Şifa Bul", color: "bg-emerald-500/90 text-white" }; 
+    if (today === 5 && path === '/14-masum') return { text: "Nurlu Yol", color: "bg-[#C5A059] text-[#04151a]" }; 
+    if ((today === 6 || today === 0) && path === '/irfan-agi') return { text: "Meclise Katıl", color: "bg-[#C5A059] text-[#04151a]" }; 
+    return null; 
   };
 
   const baseNavLinks = [
@@ -292,7 +290,6 @@ function TopNavigation() {
     { name: "Medya", path: "/medya" }
   ];
 
-  // Linklere dinamik rozetleri (badge) enjekte et
   const navLinks = baseNavLinks.map(link => ({
     ...link,
     badgeInfo: getDayBasedBadge(link.path)
@@ -304,7 +301,6 @@ function TopNavigation() {
         {navLinks.map((link) => (
           <Link key={link.path} to={link.path} className={`relative text-sm font-bold transition-all hover:-translate-y-0.5 ${location.pathname === link.path ? 'text-[#C5A059] border-b-2 border-[#C5A059] pb-1' : 'text-slate-300 hover:text-white'}`}>
             {link.name}
-            {/* MASAÜSTÜ BALONCUK ENJEKSİYONU */}
             {link.badgeInfo && (
               <span className={`absolute -top-3.5 -right-5 px-1.5 py-0.5 text-[8px] font-black uppercase rounded-full animate-pulse shadow-md border border-white/20 whitespace-nowrap ${link.badgeInfo.color}`}>
                 {link.badgeInfo.text}
@@ -322,7 +318,6 @@ function TopNavigation() {
             {navLinks.map((link) => (
               <Link key={link.path} to={link.path} onClick={() => setIsMobileMenuOpen(false)} className={`relative flex items-center justify-between text-base font-bold p-3 rounded-lg transition-colors ${location.pathname === link.path ? 'bg-[#C5A059]/10 text-[#C5A059]' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}>
                 <span>{link.name}</span>
-                {/* MOBİL BALONCUK ENJEKSİYONU (Taşmayı önleyen justify-between ve shrink-0) */}
                 {link.badgeInfo && (
                   <span className={`px-2 py-1 text-[9px] font-black uppercase rounded-full animate-pulse shadow-md border border-white/20 shrink-0 ${link.badgeInfo.color}`}>
                     {link.badgeInfo.text}
@@ -337,7 +332,6 @@ function TopNavigation() {
   );
 }
 
-// --- YARDIMCI FONKSİYON: SEVİYE HESAPLAMA ---
 const getLevelInfo = (hp) => {
   if(hp < 100) return { name: "Yolcu", next: 100, prev: 0 };
   if(hp < 500) return { name: "Talip", next: 500, prev: 100 };
@@ -347,13 +341,10 @@ const getLevelInfo = (hp) => {
   return { name: "Kamil", next: 10000, prev: 10000, isMax: true };
 };
 
-// --- ANA UYGULAMA İÇERİĞİ ---
 function AppContent() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [streak, setStreak] = useState(0);
-  
-  // HİKMET PUANI (HP) STATE'İ
   const [hp, setHp] = useState(0);
 
   useEffect(() => {
@@ -372,15 +363,13 @@ function AppContent() {
       setStreak(currentStreak);
     } catch (e) { console.error("Storage Hatası", e); }
     
-    // HP SENKRONİZASYONU
     const loadHp = () => {
       const savedHp = parseInt(localStorage.getItem('hikmet_puani') || '0');
       setHp(savedHp);
     };
     
-    loadHp(); // İlk yüklemede çalıştır
+    loadHp(); 
     
-    // Hem eski (_ alt tireli) hem yeni (- tireli) eventleri dinle
     window.addEventListener('hp_updated', loadHp); 
     window.addEventListener('hp-updated', loadHp); 
     
@@ -406,9 +395,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen w-full bg-[#04151a] text-[#FDF6E3] flex flex-col font-serif relative animate-fade-in">
-       {/* 1. DUYURU VE İŞBİRLİĞİ ÇUBUĞU (EN TEPEDE - GECİKMELİ YÜKLENİR) */}
        <AnnouncementBar />
-       
        <WelcomeModal />
        
        <nav className="bg-[#09303a] border-b border-[#C5A059]/20 sticky top-0 z-50 shadow-xl backdrop-blur-md px-4 py-3">
@@ -420,7 +407,6 @@ function AppContent() {
             <TopNavigation />
             
             <div className="flex items-center gap-2 md:gap-4 ml-auto lg:ml-0">
-              
               <div className="flex flex-col items-end mr-1 md:mr-3" title={`${hp} HP - Sonraki seviye: ${levelInfo.next}`}>
                  <div className="flex items-center gap-1.5 text-[#C5A059] text-[10px] sm:text-xs font-bold uppercase tracking-wider">
                     <Shield size={12} className="sm:w-[14px] sm:h-[14px]" /> 
@@ -473,6 +459,8 @@ function AppContent() {
              <Route path="/medya" element={<MediaCenter />} />
              <Route path="/heybem" element={<Favorites />} /> 
              <Route path="/irfan-agi" element={<IrfanAgi />} /> 
+             {/* CANLI MECLİS ROTASI EKLENDİ */}
+             <Route path="/canli-meclis" element={<CanliMeclis />} /> 
            </Routes>
          </Suspense>
        </main>
