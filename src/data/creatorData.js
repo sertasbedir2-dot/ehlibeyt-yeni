@@ -3,56 +3,56 @@
 export const creatorData = [
   {
     id: 1,
-    name: "Kevser Yayınları",
-    category: "Kitap & Neşriyat",
-    description: "Ehl-i Beyt mektebinin temel kaynaklarını ve çağdaş eserlerini Türkçeye kazandıran köklü yayınevi.",
-    avatar: "https://ui-avatars.com/api/?name=Kevser+Y&background=09303a&color=C5A059&size=150",
-    tags: ["Kitap", "Tercüme", "Nehcü'l Belağa"],
+    name: "Ali'nin Sesi",
+    category: "Video & İlim",
+    description: "Nehcü'l Belağa'nın modern çağdaki yankısı. İmam Ali'nin (a.s) felsefesi üzerine dijital sohbetler.",
+    avatar: "https://ui-avatars.com/api/?name=Alinin+Sesi&background=09303a&color=C5A059&size=150",
+    tags: ["Nehcü'l Belağa", "Felsefe", "YouTube"],
     platforms: {
       youtube: "https://youtube.com/",
-      website: "https://kevseryayincilik.com",
-      instagram: null,
+      website: null,
+      instagram: "https://instagram.com/",
       twitter: null
     }
   },
   {
     id: 2,
-    name: "On4 TV",
-    category: "Medya & Haber",
-    description: "Türkiye'nin Ehl-i Beyt çizgisine sahip çıkan, evrensel insani değerleri savunan ulusal yayın organı.",
-    avatar: "https://ui-avatars.com/api/?name=On4+TV&background=C5A059&color=04151a&size=150",
-    tags: ["Haber", "Canlı Yayın", "Belgesel"],
+    name: "Kırkıncı Kapı",
+    category: "Makale & Araştırma",
+    description: "İrfan, adalet ve Ehl-i Beyt tasavvufu üzerine haftalık derinlemesine okumalar ve analizler.",
+    avatar: "https://ui-avatars.com/api/?name=Kırkıncı+K&background=C5A059&color=04151a&size=150",
+    tags: ["İrfan", "Makale", "Blog"],
     platforms: {
-      youtube: "https://youtube.com/",
-      website: "https://on4haber.com",
-      instagram: "https://instagram.com/",
+      youtube: null,
+      website: "https://onikikapi.com",
+      instagram: null,
       twitter: "https://twitter.com/"
     }
   },
   {
     id: 3,
-    name: "Ehla-Der",
-    category: "İlim & Toplum",
-    description: "Ehlibeyt Alimleri Derneği. Toplumsal irşad, dini sorulara cevaplar ve akademik/ilmi makaleler.",
-    avatar: "https://ui-avatars.com/api/?name=Ehla+Der&background=04151a&color=C5A059&size=150",
-    tags: ["Fıkıh", "Makale", "Fetva"],
+    name: "Zülfikar Medya",
+    category: "Animasyon & Belgesel",
+    description: "Kerbela direnişini ve 14 Masum'un hayatını anlatan yüksek kaliteli kısa dijital belgeseller.",
+    avatar: "https://ui-avatars.com/api/?name=Zülfikar+M&background=04151a&color=C5A059&size=150",
+    tags: ["Tarih", "Belgesel", "Tasarım"],
     platforms: {
-      youtube: null,
-      website: "https://ehla-der.com",
-      instagram: null,
+      youtube: "https://youtube.com/",
+      website: null,
+      instagram: "https://instagram.com/",
       twitter: null
     }
   },
   {
     id: 4,
-    name: "Alulbeyt Türkiye",
-    category: "Kültür & Akademi",
-    description: "İslami ilimler, dev konferanslar ve uluslararası düzeyde Ehl-i Beyt kültürünü yayan müessese.",
-    avatar: "https://ui-avatars.com/api/?name=Alulbeyt&background=0F4C5C&color=FDF6E3&size=150",
-    tags: ["Akademi", "Konferans", "Kültür"],
+    name: "Kum Tanesi",
+    category: "Podcast & Telkin",
+    description: "Günlük hayatın ve modernizmin koşuşturmacasında, Ehl-i Beyt ahlakı üzerine sakinleştirici sesli telkinler.",
+    avatar: "https://ui-avatars.com/api/?name=Kum+Tanesi&background=0F4C5C&color=FDF6E3&size=150",
+    tags: ["Podcast", "Ahlak", "Sesli Sohbet"],
     platforms: {
-      youtube: "https://youtube.com/",
-      website: "https://alulbeyt.com.tr",
+      youtube: null,
+      website: "https://spotify.com",
       instagram: "https://instagram.com/",
       twitter: null
     }

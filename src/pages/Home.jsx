@@ -1,10 +1,10 @@
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { PenTool, Scale, Flower, BookOpen, Book, Sparkles, Search, Heart, HelpCircle, Sun, Volume2, Share2, Bell, X, HandHeart, CheckCircle2, Star, ArrowRight, Users } from 'lucide-react';
+import { PenTool, Scale, Flower, BookOpen, Book, Sparkles, Search, Heart, HelpCircle, Sun, Volume2, Share2, Bell, X, HandHeart, CheckCircle2, Star, ArrowRight, Users, MessageCircle, Mic } from 'lucide-react';
 import { wisdomData } from '../data/wisdomData';
 import { globalSearchData } from '../data/siteData'; 
-import { creatorData } from '../data/creatorData'; // EKLENDİ: İrfan Ağı veritabanı
+import { creatorData } from '../data/creatorData'; 
 
 // --- GÜNLÜK GÖREVLER DATA ---
 const GOREVLER = [
@@ -18,6 +18,7 @@ export default function Home() {
   const [searchResults, setSearchResults] = useState([]); 
   const navigate = useNavigate();
   const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState(12); // Canlı sohbet simülasyonu
   const wisdomSectionRef = useRef(null);
 
   const safeSearch = (query) => {
@@ -52,7 +53,6 @@ export default function Home() {
     return GOREVLER[(dayOfYear - 1) % GOREVLER.length] || GOREVLER[0];
   }, []);
 
-  // EKLENDİ: Günün İrfan Ağı Üreticisi Seçimi
   const featuredCreator = useMemo(() => {
     if (!creatorData || creatorData.length === 0) return null;
     const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
@@ -60,6 +60,9 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    // Çevrimiçi kullanıcı sayısını rastgele belirle (12 ile 34 arası)
+    setOnlineUsers(Math.floor(Math.random() * 22) + 12);
+
     try {
       if (!localStorage.getItem('notificationAsked') && 'Notification' in window && Notification.permission === 'default') {
         setTimeout(() => setShowNotificationModal(true), 3000);
@@ -92,30 +95,42 @@ export default function Home() {
     });
   };
 
-  // --- SÜRTÜNMESİZ PAYLAŞIM (NATIVE SHARE API) ---
   const handleNativeShare = async (title, textContent) => {
     const siteUrl = "https://www.onikikapi.com";
     const shareText = `${textContent}\n\nDaha fazlası için:`;
 
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: title,
-          text: shareText,
-          url: siteUrl,
-        });
-        console.log('Başarıyla paylaşıldı');
+        await navigator.share({ title: title, text: shareText, url: siteUrl });
       } catch (err) {
-        console.log('Paylaşım iptal edildi veya hata oluştu:', err);
+        console.log('Paylaşım hatası:', err);
       }
     } else {
       navigator.clipboard.writeText(`${title} - ${shareText} ${siteUrl}`);
-      alert("Metin ve bağlantı kopyalandı! İstediğiniz yere yapıştırabilirsiniz.");
+      alert("Metin ve bağlantı kopyalandı!");
     }
   };
 
   return (
-    <div className="space-y-8 animate-fade-in relative">
+    <div className="space-y-8 animate-fade-in relative pb-20 md:pb-0">
+      
+      {/* CANLI İLİM MECLİSİ - YÜZEN BUTON (FAB) */}
+      <button
+        onClick={() => navigate('/canli-meclis')}
+        className="fixed bottom-6 right-6 z-[200] group flex items-center gap-3 bg-[#04151a]/90 backdrop-blur-md border border-[#C5A059]/50 px-4 py-3 rounded-full shadow-[0_0_25px_rgba(197,160,89,0.25)] hover:bg-[#09303a] hover:scale-105 transition-all duration-300"
+      >
+        <div className="relative flex h-3 w-3">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
+        </div>
+        <div className="flex flex-col items-start hidden sm:flex">
+          <span className="text-[#FDF6E3] font-bold text-sm leading-none group-hover:text-[#C5A059] transition-colors">Canlı Meclis</span>
+          <span className="text-slate-400 text-[10px] font-bold tracking-wider mt-1">{onlineUsers} CAN ÇEVRİMİÇİ</span>
+        </div>
+        <MessageCircle className="text-[#C5A059] sm:hidden" size={24} />
+        <MessageCircle className="text-[#C5A059] hidden sm:block ml-2 group-hover:rotate-12 transition-transform" size={20} />
+      </button>
+
       {/* SAĞ ÜSTTE SABİT VAKİT/TAKVİM WIDGET'I */}
       <div className="hidden lg:block fixed top-24 right-6 z-[100]">
          <PrayerTimesWidget />
@@ -206,7 +221,7 @@ export default function Home() {
       <div className="w-full max-w-7xl mx-auto pt-6 z-20 relative">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           
-          {/* BENTO BLOK 1: GÜNÜN HİKMETİ (8 Sütun) */}
+          {/* BENTO BLOK 1: GÜNÜN HİKMETİ */}
           <div id="gunun-hikmeti-alani" ref={wisdomSectionRef} className="md:col-span-8 bg-[#0b1b24]/90 backdrop-blur-md border border-[#C5A059]/30 rounded-3xl p-8 lg:p-12 relative group hover:border-[#C5A059]/50 transition-all duration-500 shadow-xl flex flex-col justify-between overflow-hidden">
              <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#C5A059]/5 rounded-full blur-3xl group-hover:bg-[#C5A059]/10 transition-colors"></div>
              
@@ -245,7 +260,7 @@ export default function Home() {
              </div>
           </div>
 
-          {/* BENTO BLOK 2: GÜNÜN MANEVİ GÖREVİ (4 Sütun) */}
+          {/* BENTO BLOK 2: GÜNÜN MANEVİ GÖREVİ */}
           <div className="md:col-span-4 bg-gradient-to-br from-[#0F4C5C] to-[#09303a] rounded-3xl border border-[#C5A059]/20 p-8 relative overflow-hidden shadow-xl group hover:border-[#C5A059]/50 hover:shadow-[0_0_20px_rgba(197,160,89,0.15)] transition-all duration-500 flex flex-col justify-between">
             <div className="absolute -bottom-10 -right-10 p-4 opacity-10 rotate-12 pointer-events-none group-hover:opacity-20 transition-opacity">
               <HandHeart size={150} className="text-[#C5A059]" />
@@ -278,7 +293,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* BENTO BLOK 3, 4, 5: ÇAPRAZ ÖNERİLER (4'er Sütun) */}
+          {/* BENTO BLOK 3, 4, 5: ÇAPRAZ ÖNERİLER */}
           <div className="md:col-span-4 h-full">
             <FeatureCard icon={<Flower size={28} className="text-rose-300" />} title="Manevi Reçeteler" desc="Ruhsal dinginlik ve ilahi aşk için Ehlibeyt kaynaklı manevi şifa kapısı." link="/manevi-receteler" />
           </div>
@@ -289,12 +304,11 @@ export default function Home() {
             <FeatureCard icon={<Scale size={28} className="text-[#93c5fd]" />} title="Adalet ve Hakikat" desc="Evrensel adalet ilkesi ve hakikat üzerine Soru/Cevap kapısı." link="/soru-cevap" />
           </div>
 
-          {/* BENTO BLOK 6 (YENİ): İRFAN AĞI (DİJİTAL MECLİS) MASTER BLOCK (12 Sütun) */}
+          {/* BENTO BLOK 6: İRFAN AĞI & ÜRETİCİ DAVETİ */}
           <div className="md:col-span-12 bg-gradient-to-r from-[#04151a] via-[#09303a] to-[#04151a] rounded-3xl border border-[#C5A059]/40 p-8 lg:p-10 relative overflow-hidden shadow-2xl group hover:border-[#C5A059]/80 transition-all duration-700 flex flex-col md:flex-row items-center justify-between gap-8">
-            {/* Background Effects */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#C5A059]/10 rounded-full blur-3xl group-hover:bg-[#C5A059]/20 transition-colors pointer-events-none"></div>
 
-            <div className="flex-1 relative z-10 space-y-4 text-center md:text-left">
+            <div className="flex-1 relative z-10 space-y-4 text-center md:text-left w-full">
               <div className="inline-flex items-center gap-2 text-[#C5A059] font-bold uppercase tracking-widest text-xs bg-black/40 px-4 py-2 rounded-full border border-[#C5A059]/30">
                 <Users size={16} /> Dijital Meclis
               </div>
@@ -302,13 +316,25 @@ export default function Home() {
               <p className="text-slate-300 font-serif max-w-2xl leading-relaxed text-sm md:text-base">
                 Dağınık olan zayıftır. Sosyal medyanın gürültüsünde kaybolan hakikat çağrılarını tek bir çatı altında topluyoruz. Üreticileri, yazarları ve Ehl-i Beyt platformlarını keşfet.
               </p>
-              <Link to="/irfan-agi" className="inline-flex items-center gap-2 px-6 py-3 mt-2 bg-[#C5A059] text-[#04151a] font-bold rounded-xl hover:bg-[#FDF6E3] transition-colors shadow-[0_0_15px_rgba(197,160,89,0.4)] hover:scale-105">
-                İrfan Ağı'nı Keşfet <ArrowRight size={18} />
-              </Link>
+              
+              <div className="flex flex-col sm:flex-row items-center gap-4 mt-2">
+                <Link to="/irfan-agi" className="inline-flex items-center justify-center w-full sm:w-auto gap-2 px-6 py-3 bg-[#C5A059] text-[#04151a] font-bold rounded-xl hover:bg-[#FDF6E3] transition-colors shadow-[0_0_15px_rgba(197,160,89,0.4)] hover:scale-105">
+                  İrfan Ağı'nı Keşfet <ArrowRight size={18} />
+                </Link>
+                
+                {/* ÜRETİCİ DAVET KANCASI */}
+                <Link to="/basvuru" className="group/creator flex items-center gap-2 px-4 py-3 sm:py-2 border border-transparent hover:border-[#C5A059]/30 rounded-xl transition-all">
+                  <Mic size={18} className="text-slate-400 group-hover/creator:text-[#C5A059] transition-colors" />
+                  <div className="flex flex-col items-start">
+                    <span className="text-xs text-slate-400 font-medium">İçerik mi üretiyorsun?</span>
+                    <span className="text-sm text-[#C5A059] font-bold group-hover/creator:text-[#FDF6E3] transition-colors">Bize Katıl</span>
+                  </div>
+                </Link>
+              </div>
             </div>
 
             {featuredCreator && (
-              <div className="w-full md:w-1/3 bg-[#0B1120]/80 backdrop-blur-md rounded-2xl p-6 border border-white/10 relative z-10 group-hover:-translate-y-2 transition-transform duration-500 shadow-xl">
+              <div className="w-full md:w-1/3 bg-[#0B1120]/80 backdrop-blur-md rounded-2xl p-6 border border-white/10 relative z-10 group-hover:-translate-y-2 transition-transform duration-500 shadow-xl mt-6 md:mt-0">
                 <div className="absolute -top-3 -right-3 bg-rose-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg border border-rose-400 z-20">Günün Öne Çıkanı</div>
                 <div className="flex items-center gap-4 mb-4">
                   <img src={featuredCreator.avatar} alt={featuredCreator.name} className="w-16 h-16 rounded-full border-2 border-[#C5A059] shadow-[0_0_10px_rgba(197,160,89,0.3)]" />
@@ -345,7 +371,7 @@ function MoodChip({ label, icon, onClick, color }) {
   ); 
 }
 
-// BİLEŞEN: Özellik Kartları (Bento Grid İçin Optimize Edildi)
+// BİLEŞEN: Özellik Kartları
 function FeatureCard({ icon, title, desc, link }) { 
   return (
     <Link to={link} className="block group relative z-10 h-full">
