@@ -1,9 +1,10 @@
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { PenTool, Scale, Flower, BookOpen, Book, Sparkles, Search, Heart, HelpCircle, Sun, Volume2, Share2, Bell, X, HandHeart, CheckCircle2, Star, ArrowRight } from 'lucide-react';
+import { PenTool, Scale, Flower, BookOpen, Book, Sparkles, Search, Heart, HelpCircle, Sun, Volume2, Share2, Bell, X, HandHeart, CheckCircle2, Star, ArrowRight, Users } from 'lucide-react';
 import { wisdomData } from '../data/wisdomData';
 import { globalSearchData } from '../data/siteData'; 
+import { creatorData } from '../data/creatorData'; // EKLENDİ: İrfan Ağı veritabanı
 
 // --- GÜNLÜK GÖREVLER DATA ---
 const GOREVLER = [
@@ -49,6 +50,13 @@ export default function Home() {
   const dailyTask = useMemo(() => {
     const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
     return GOREVLER[(dayOfYear - 1) % GOREVLER.length] || GOREVLER[0];
+  }, []);
+
+  // EKLENDİ: Günün İrfan Ağı Üreticisi Seçimi
+  const featuredCreator = useMemo(() => {
+    if (!creatorData || creatorData.length === 0) return null;
+    const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+    return creatorData[(dayOfYear) % creatorData.length];
   }, []);
 
   useEffect(() => {
@@ -279,6 +287,44 @@ export default function Home() {
           </div>
           <div className="md:col-span-4 h-full">
             <FeatureCard icon={<Scale size={28} className="text-[#93c5fd]" />} title="Adalet ve Hakikat" desc="Evrensel adalet ilkesi ve hakikat üzerine Soru/Cevap kapısı." link="/soru-cevap" />
+          </div>
+
+          {/* BENTO BLOK 6 (YENİ): İRFAN AĞI (DİJİTAL MECLİS) MASTER BLOCK (12 Sütun) */}
+          <div className="md:col-span-12 bg-gradient-to-r from-[#04151a] via-[#09303a] to-[#04151a] rounded-3xl border border-[#C5A059]/40 p-8 lg:p-10 relative overflow-hidden shadow-2xl group hover:border-[#C5A059]/80 transition-all duration-700 flex flex-col md:flex-row items-center justify-between gap-8">
+            {/* Background Effects */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#C5A059]/10 rounded-full blur-3xl group-hover:bg-[#C5A059]/20 transition-colors pointer-events-none"></div>
+
+            <div className="flex-1 relative z-10 space-y-4 text-center md:text-left">
+              <div className="inline-flex items-center gap-2 text-[#C5A059] font-bold uppercase tracking-widest text-xs bg-black/40 px-4 py-2 rounded-full border border-[#C5A059]/30">
+                <Users size={16} /> Dijital Meclis
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#FDF6E3] font-sans">Ehl-i Beyt Ağına Bağlan</h2>
+              <p className="text-slate-300 font-serif max-w-2xl leading-relaxed text-sm md:text-base">
+                Dağınık olan zayıftır. Sosyal medyanın gürültüsünde kaybolan hakikat çağrılarını tek bir çatı altında topluyoruz. Üreticileri, yazarları ve Ehl-i Beyt platformlarını keşfet.
+              </p>
+              <Link to="/irfan-agi" className="inline-flex items-center gap-2 px-6 py-3 mt-2 bg-[#C5A059] text-[#04151a] font-bold rounded-xl hover:bg-[#FDF6E3] transition-colors shadow-[0_0_15px_rgba(197,160,89,0.4)] hover:scale-105">
+                İrfan Ağı'nı Keşfet <ArrowRight size={18} />
+              </Link>
+            </div>
+
+            {featuredCreator && (
+              <div className="w-full md:w-1/3 bg-[#0B1120]/80 backdrop-blur-md rounded-2xl p-6 border border-white/10 relative z-10 group-hover:-translate-y-2 transition-transform duration-500 shadow-xl">
+                <div className="absolute -top-3 -right-3 bg-rose-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg border border-rose-400 z-20">Günün Öne Çıkanı</div>
+                <div className="flex items-center gap-4 mb-4">
+                  <img src={featuredCreator.avatar} alt={featuredCreator.name} className="w-16 h-16 rounded-full border-2 border-[#C5A059] shadow-[0_0_10px_rgba(197,160,89,0.3)]" />
+                  <div>
+                    <h3 className="text-[#FDF6E3] font-bold font-sans text-lg leading-tight">{featuredCreator.name}</h3>
+                    <p className="text-[#C5A059] text-xs font-bold uppercase tracking-wider mt-1">{featuredCreator.category}</p>
+                  </div>
+                </div>
+                <p className="text-slate-400 text-xs italic mb-4 line-clamp-2">"{featuredCreator.description}"</p>
+                <div className="flex gap-2">
+                  {featuredCreator.tags.slice(0,2).map(tag => (
+                    <span key={tag} className="text-[10px] px-2 py-1 bg-white/5 border border-white/10 rounded-md text-slate-300">{tag}</span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
         </div>
