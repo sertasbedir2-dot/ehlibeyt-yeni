@@ -27,10 +27,9 @@ const MediaCenter = React.lazy(() => import('./pages/MediaCenter'));
 const Library = React.lazy(() => import('./pages/Library'));
 const KitapOku = React.lazy(() => import('./pages/KitapOku'));
 const Favorites = React.lazy(() => import('./pages/Favorites')); 
-// YENİ EKLENEN SAYFA: İRFAN AĞI
 const IrfanAgi = React.lazy(() => import('./pages/IrfanAgi')); 
 
-// --- GLOBAL ÇÖKME ÖNLEYİCİ (THE NAKED REALISM SHIELD) ---
+// --- GLOBAL ÇÖKME ÖNLEYİCİ ---
 class GlobalErrorBoundary extends Component {
   constructor(props) {
     super(props);
@@ -72,6 +71,38 @@ function Toast() {
   );
 }
 
+// --- BİLEŞEN: EN ÜST İŞBİRLİĞİ VE DUYURU ÇUBUĞU (YENİ) ---
+function AnnouncementBar() {
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    // Kullanıcı kapatmışsa, bu tarayıcı oturumu boyunca bir daha gösterme
+    const dismissed = sessionStorage.getItem('announcementDismissed');
+    if (dismissed) setIsVisible(false);
+  }, []);
+
+  const dismiss = () => {
+    sessionStorage.setItem('announcementDismissed', 'true');
+    setIsVisible(false);
+  };
+
+  if (!isVisible) return null;
+
+  return (
+    <div className="bg-gradient-to-r from-[#09303a] via-[#04151a] to-[#09303a] border-b border-[#C5A059]/20 px-4 py-2.5 flex items-center justify-between z-[60] relative animate-fade-in">
+       <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-300 mx-auto font-sans text-center max-w-3xl">
+         <Sparkles size={16} className="text-[#C5A059] hidden sm:block shrink-0" />
+         <p>
+           Ehl-i Beyt yolunda üreten bir kanal veya yazar mısınız? <a href="https://wa.me/905553137021?text=Selam%C3%BCn%20Aleyk%C3%BCm.%20%C4%B0rfan%20A%C4%9F%C4%B1'na%20i%C3%A7erik%20%C3%BCreticisi%20olarak%20kat%C4%B1lmak%20istiyorum." target="_blank" rel="noopener noreferrer" className="text-[#C5A059] font-bold underline hover:text-white transition-colors ml-1">İrfan Ağı'na katılın</a>, meclisi birlikte büyütelim.
+         </p>
+       </div>
+       <button onClick={dismiss} className="text-slate-500 hover:text-white ml-4 shrink-0 transition-colors">
+         <X size={16} />
+       </button>
+    </div>
+  );
+}
+
 // --- BİLEŞEN: AKILLI KARŞILAMA EKRANI (DUYGUSAL ZEKA MODALI) ---
 function WelcomeModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -83,7 +114,6 @@ function WelcomeModal() {
       const lastModalDate = localStorage.getItem('lastModalDate');
       const legacyWelcome = localStorage.getItem('hasSeenWelcome_v1');
 
-      // Günde sadece 1 kez göster (Kullanıcıyı yormamak için)
       if (lastModalDate === today) return;
 
       const hour = new Date().getHours();
@@ -91,7 +121,6 @@ function WelcomeModal() {
       let content = {};
 
       if (!lastModalDate && !legacyWelcome) {
-        // DURUM 1: TAMAMEN İLK GELİŞ
         content = {
           title: "İlim Şehrine Hoş Geldin",
           desc: "Burası sıradan bir web sitesi değil; hakikati arayanların, Ehlibeyt'in nurlu yolunda yürümek isteyenlerin meclisidir. İrfan ağımızda yerini al.",
@@ -100,7 +129,6 @@ function WelcomeModal() {
           button: "Kapıdan İçeri Gir"
         };
       } else {
-        // DURUM 2: DÖNÜŞ YAPAN KULLANICI (GÜN FARKINI HESAPLA)
         let daysDiff = 1;
         if (lastModalDate) {
           const diffTime = Math.abs(new Date().setHours(0,0,0,0) - new Date(lastModalDate).setHours(0,0,0,0));
@@ -108,7 +136,6 @@ function WelcomeModal() {
         }
 
         if (daysDiff >= 3) {
-          // 3 GÜNDEN FAZLA YOKSA (ÖZLEM KANCASI)
           content = {
             title: "Neredeydin Can?",
             desc: "Meclisimiz seni özledi. Uzun zamandır kapımızı çalmadın. Gel, ruhunu Ehlibeyt'in hikmet pınarlarıyla yeniden dinlendir, arayı soğutma.",
@@ -117,7 +144,6 @@ function WelcomeModal() {
             button: "Meclise Tekrar Katıl"
           };
         } else {
-          // HER GÜN VEYA YAKIN ZAMANDA GELEN (GÜNLÜK RUTİN)
           content = {
             title: `${greeting} Can`,
             desc: "İlim yolculuğuna kaldığın yerden devam et. Her yeni gün, hakikate ve marifete atılmış yeni bir adımdır.",
@@ -137,7 +163,7 @@ function WelcomeModal() {
   const handleClose = () => {
     try { 
       localStorage.setItem('lastModalDate', new Date().toDateString());
-      localStorage.setItem('hasSeenWelcome_v1', 'true'); // Geriye dönük uyumluluk
+      localStorage.setItem('hasSeenWelcome_v1', 'true');
     } catch (e) {}
     setIsOpen(false);
   };
@@ -172,7 +198,6 @@ function WelcomeModal() {
           {modalContent.button}
         </button>
 
-        {/* İŞBİRLİĞİ VE İLETİŞİM KANCASI (DARK SOCIAL) */}
         <a href="https://wa.me/905553137021?text=Selam%C3%BCn%20Aleyk%C3%BCm.%20OnikiKap%C4%B1%20hakk%C4%B1nda%20yaz%C4%B1yorum." 
            target="_blank" rel="noopener noreferrer" 
            className="mt-8 pt-5 border-t border-white/10 flex items-center justify-center gap-2 text-xs md:text-sm text-slate-400 hover:text-[#C5A059] transition-colors relative z-10 group cursor-pointer font-sans">
@@ -228,18 +253,19 @@ function SearchResults({ query, closeSearch }) {
   );
 }
 
-// --- BİLEŞEN: ÜST MENÜ (HEADER) ---
+// --- BİLEŞEN: ÜST MENÜ (HEADER) VE AKILLI ROZETLER (YENİ) ---
 function TopNavigation() {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // navLinks dizisine "badge" özelliği eklenerek dinamik rozetler oluşturuldu.
   const navLinks = [
     { name: "Manevi Reçeteler", path: "/manevi-receteler" },
     { name: "Kütüphane", path: "/library" },
     { name: "Soru/Cevap", path: "/soru-cevap" },
     { name: "14 Masum", path: "/14-masum" },
-    { name: "İlim Meydanı", path: "/quiz" }, 
-    { name: "İrfan Ağı", path: "/irfan-agi" },
+    { name: "İlim Meydanı", path: "/quiz", badge: "Test Et", badgeColor: "bg-red-500/90 text-white border border-red-400/50" }, 
+    { name: "İrfan Ağı", path: "/irfan-agi", badge: "İşbirliği", badgeColor: "bg-[#C5A059] text-[#04151a]" },
     { name: "Medya", path: "/medya" }
   ];
 
@@ -247,8 +273,14 @@ function TopNavigation() {
     <>
       <div className="hidden lg:flex items-center gap-6 ml-8">
         {navLinks.map((link) => (
-          <Link key={link.path} to={link.path} className={`text-sm font-bold transition-all hover:-translate-y-0.5 ${location.pathname === link.path ? 'text-[#C5A059] border-b-2 border-[#C5A059] pb-1' : 'text-slate-300 hover:text-white'}`}>
+          <Link key={link.path} to={link.path} className={`relative text-sm font-bold transition-all hover:-translate-y-0.5 ${location.pathname === link.path ? 'text-[#C5A059] border-b-2 border-[#C5A059] pb-1' : 'text-slate-300 hover:text-white'}`}>
             {link.name}
+            {/* MASAÜSTÜ BALONCUK ENJEKSİYONU */}
+            {link.badge && (
+              <span className={`absolute -top-3.5 -right-5 px-1.5 py-0.5 text-[8px] font-black uppercase rounded-full animate-pulse shadow-md ${link.badgeColor}`}>
+                {link.badge}
+              </span>
+            )}
           </Link>
         ))}
       </div>
@@ -259,8 +291,14 @@ function TopNavigation() {
         <div className="absolute top-[72px] left-0 w-full bg-[#09303a] border-b border-[#C5A059]/20 shadow-2xl lg:hidden z-[200] animate-fade-in">
           <div className="flex flex-col p-4 space-y-2">
             {navLinks.map((link) => (
-              <Link key={link.path} to={link.path} onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-bold p-3 rounded-lg transition-colors ${location.pathname === link.path ? 'bg-[#C5A059]/10 text-[#C5A059]' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}>
-                {link.name}
+              <Link key={link.path} to={link.path} onClick={() => setIsMobileMenuOpen(false)} className={`relative flex items-center justify-between text-base font-bold p-3 rounded-lg transition-colors ${location.pathname === link.path ? 'bg-[#C5A059]/10 text-[#C5A059]' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}>
+                <span>{link.name}</span>
+                {/* MOBİL BALONCUK ENJEKSİYONU */}
+                {link.badge && (
+                  <span className={`px-2 py-1 text-[9px] font-black uppercase rounded-full animate-pulse shadow-md ${link.badgeColor}`}>
+                    {link.badge}
+                  </span>
+                )}
               </Link>
             ))}
           </div>
@@ -334,12 +372,14 @@ function AppContent() {
     } catch (err) {}
   };
 
-  // GAMIFICATION HESAPLAMALARI
   const levelInfo = getLevelInfo(hp);
   const progressPercent = levelInfo.isMax ? 100 : ((hp - levelInfo.prev) / (levelInfo.next - levelInfo.prev)) * 100;
 
   return (
     <div className="min-h-screen w-full bg-[#04151a] text-[#FDF6E3] flex flex-col font-serif relative animate-fade-in">
+       {/* 1. DUYURU VE İŞBİRLİĞİ ÇUBUĞU (EN TEPEDE) */}
+       <AnnouncementBar />
+       
        <WelcomeModal />
        
        <nav className="bg-[#09303a] border-b border-[#C5A059]/20 sticky top-0 z-50 shadow-xl backdrop-blur-md px-4 py-3">
@@ -352,7 +392,6 @@ function AppContent() {
             
             <div className="flex items-center gap-2 md:gap-4 ml-auto lg:ml-0">
               
-              {/* GAMIFICATION WIDGET - İLİM YOLCULUĞU */}
               <div className="flex flex-col items-end mr-1 md:mr-3" title={`${hp} HP - Sonraki seviye: ${levelInfo.next}`}>
                  <div className="flex items-center gap-1.5 text-[#C5A059] text-[10px] sm:text-xs font-bold uppercase tracking-wider">
                     <Shield size={12} className="sm:w-[14px] sm:h-[14px]" /> 
@@ -364,20 +403,17 @@ function AppContent() {
                  </div>
               </div>
 
-              {/* ZİNCİR (STREAK) WIDGET'I */}
               <div className="flex items-center gap-1.5 bg-black/30 border border-[#C5A059]/30 px-2 sm:px-3 py-1.5 rounded-full text-[#C5A059] text-xs font-bold shadow-inner" title="Aralıksız ziyaret serisi">
                 <Flame size={14} className={`${streak > 0 ? 'fill-[#C5A059] animate-pulse' : 'text-slate-500'}`} />
                 <span className="hidden sm:inline">{streak} Gün</span>
                 <span className="sm:hidden">{streak}</span>
               </div>
 
-              {/* PAYLAŞ BUTONU */}
               <button onClick={handleShare} className="flex items-center gap-2 bg-[#C5A059]/10 text-[#C5A059] border border-[#C5A059]/30 p-2 sm:px-3 sm:py-2 rounded-lg font-bold text-sm hover:bg-[#C5A059] hover:text-[#09303a] transition-colors">
                 <Share2 size={18} className="sm:w-4 sm:h-4"/> 
                 <span className="hidden sm:inline">Paylaş</span>
               </button>
 
-              {/* ARAMA WIDGET'I */}
               {isSearchOpen ? (
                 <div className="flex items-center bg-white/10 rounded-lg px-2 relative z-50">
                   <input type="text" placeholder="Ara..." className="bg-transparent text-white focus:outline-none p-2 w-32 md:w-64 font-sans text-sm" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} autoFocus />
