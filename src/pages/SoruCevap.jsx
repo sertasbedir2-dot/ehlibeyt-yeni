@@ -221,10 +221,10 @@ export default function SoruCevap() {
           Eğer itikadi veya tarihi konularda daha derin bir sorunuz varsa, topluluğumuzla iletişime geçin. Doğru kaynağı bulmanıza yardımcı olalım.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="https://wa.me/" 905553137021 "_blank" rel="noopener noreferrer" className="bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-xl font-bold transition-colors shadow-lg flex items-center justify-center gap-2">
+          <a href="https://wa.me/"905553137021 "_blank" rel="noopener noreferrer" className="bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-xl font-bold transition-colors shadow-lg flex items-center justify-center gap-2">
              WhatsApp'tan Sor
           </a>
-          <a href="https://t.me/" dunyaehlibeyt"_blank" rel="noopener noreferrer" className="bg-blue-500 hover:bg-blue-400 text-white px-8 py-3 rounded-xl font-bold transition-colors shadow-lg flex items-center justify-center gap-2">
+          <a href="https://t.me/"dunyaehlibeyt"_blank" rel="noopener noreferrer" className="bg-blue-500 hover:bg-blue-400 text-white px-8 py-3 rounded-xl font-bold transition-colors shadow-lg flex items-center justify-center gap-2">
              Telegram Grubumuza Katıl
           </a>
         </div>
