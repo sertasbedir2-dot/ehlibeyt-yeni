@@ -12,23 +12,44 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        // Facebook'un eklediği takip parametrelerini görmezden gel
+        // JSON ve medya dosyalarını da offline için önbelleğe al
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,mp3,wav}'],
         ignoreURLParametersMatching: [/^utm_/, /^fbclid$/],
-        navigateFallback: '/index.html'
+        navigateFallback: '/index.html',
+        // Dış kaynakları (Fontlar vb.) cihazda depolama kuralları
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-cache',
+              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 } // 1 Yıl
+            }
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'gstatic-fonts-cache',
+              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] }
+            }
+          }
+        ]
       },
       devOptions: { enabled: true },
       manifest: {
-        name: 'OnikiKapı',
+        name: 'OnikiKapı | İlim ve Hikmet Şehri',
         short_name: 'OnikiKapı',
-        description: 'Ehlibeyt mektebinin dijital külliyesi.',
-        theme_color: '#008080',
-        background_color: '#0f172a',
+        description: 'Ehlibeyt mektebinin dijital külliyesi. Hakikati arayanların buluşma noktası.',
+        theme_color: '#04151a', // Mimarimize uygun OLED Siyah
+        background_color: '#04151a',
         display: 'standalone',
-        orientation: 'any',
+        orientation: 'portrait-primary', // Telefonda dikey deneyimi zorla
         icons: [
-          { src: 'web-app-manifest-192x192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'web-app-manifest-512x512.png', sizes: '512x512', type: 'image/png' }
+          { src: '/web-app-manifest-192x192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/web-app-manifest-512x512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/web-app-manifest-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' } // Android için dinamik ikon uyumu
         ]
       }
     })
