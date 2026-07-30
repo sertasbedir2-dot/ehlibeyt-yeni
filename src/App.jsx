@@ -71,14 +71,24 @@ function Toast() {
   );
 }
 
-// --- BİLEŞEN: EN ÜST İŞBİRLİĞİ VE DUYURU ÇUBUĞU (YENİ) ---
+// --- BİLEŞEN: EN ÜST İŞBİRLİĞİ VE DUYURU ÇUBUĞU (GECİKMELİ) ---
 function AnnouncementBar() {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false); // Başlangıçta gizli
+  const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
-    // Kullanıcı kapatmışsa, bu tarayıcı oturumu boyunca bir daha gösterme
     const dismissed = sessionStorage.getItem('announcementDismissed');
-    if (dismissed) setIsVisible(false);
+    if (dismissed) {
+      setIsDismissed(true);
+      return;
+    }
+
+    // Modalın kapanması veya kullanıcının siteye alışması için 4 saniye bekle
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 4000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const dismiss = () => {
@@ -86,7 +96,7 @@ function AnnouncementBar() {
     setIsVisible(false);
   };
 
-  if (!isVisible) return null;
+  if (isDismissed || !isVisible) return null;
 
   return (
     <div className="bg-gradient-to-r from-[#09303a] via-[#04151a] to-[#09303a] border-b border-[#C5A059]/20 px-4 py-2.5 flex items-center justify-between z-[60] relative animate-fade-in">
@@ -253,21 +263,40 @@ function SearchResults({ query, closeSearch }) {
   );
 }
 
-// --- BİLEŞEN: ÜST MENÜ (HEADER) VE AKILLI ROZETLER (YENİ) ---
+// --- BİLEŞEN: ÜST MENÜ VE GÜNLÜK AKILLI ROZETLER ---
 function TopNavigation() {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // navLinks dizisine "badge" özelliği eklenerek dinamik rozetler oluşturuldu.
-  const navLinks = [
+  // Günlük Rotasyon Algoritması (0: Pazar, 1: Pazartesi ... 6: Cumartesi)
+  const getDayBasedBadge = (path) => {
+    const today = new Date().getDay(); 
+    
+    if (today === 1 && path === '/library') return { text: "İlme Başla", color: "bg-blue-500/90 text-white" }; // Pazartesi
+    if (today === 2 && path === '/quiz') return { text: "Zihnini Sına", color: "bg-red-500/90 text-white" }; // Salı
+    if (today === 3 && path === '/soru-cevap') return { text: "Akla Danış", color: "bg-purple-500/90 text-white" }; // Çarşamba
+    if (today === 4 && path === '/manevi-receteler') return { text: "Şifa Bul", color: "bg-emerald-500/90 text-white" }; // Perşembe
+    if (today === 5 && path === '/14-masum') return { text: "Nurlu Yol", color: "bg-[#C5A059] text-[#04151a]" }; // Cuma
+    if ((today === 6 || today === 0) && path === '/irfan-agi') return { text: "Meclise Katıl", color: "bg-[#C5A059] text-[#04151a]" }; // H.sonu
+    
+    return null; // O gün için atanmış badge yoksa null dön
+  };
+
+  const baseNavLinks = [
     { name: "Manevi Reçeteler", path: "/manevi-receteler" },
     { name: "Kütüphane", path: "/library" },
     { name: "Soru/Cevap", path: "/soru-cevap" },
     { name: "14 Masum", path: "/14-masum" },
-    { name: "İlim Meydanı", path: "/quiz", badge: "Test Et", badgeColor: "bg-red-500/90 text-white border border-red-400/50" }, 
-    { name: "İrfan Ağı", path: "/irfan-agi", badge: "İşbirliği", badgeColor: "bg-[#C5A059] text-[#04151a]" },
+    { name: "İlim Meydanı", path: "/quiz" }, 
+    { name: "İrfan Ağı", path: "/irfan-agi" },
     { name: "Medya", path: "/medya" }
   ];
+
+  // Linklere dinamik rozetleri (badge) enjekte et
+  const navLinks = baseNavLinks.map(link => ({
+    ...link,
+    badgeInfo: getDayBasedBadge(link.path)
+  }));
 
   return (
     <>
@@ -276,9 +305,9 @@ function TopNavigation() {
           <Link key={link.path} to={link.path} className={`relative text-sm font-bold transition-all hover:-translate-y-0.5 ${location.pathname === link.path ? 'text-[#C5A059] border-b-2 border-[#C5A059] pb-1' : 'text-slate-300 hover:text-white'}`}>
             {link.name}
             {/* MASAÜSTÜ BALONCUK ENJEKSİYONU */}
-            {link.badge && (
-              <span className={`absolute -top-3.5 -right-5 px-1.5 py-0.5 text-[8px] font-black uppercase rounded-full animate-pulse shadow-md ${link.badgeColor}`}>
-                {link.badge}
+            {link.badgeInfo && (
+              <span className={`absolute -top-3.5 -right-5 px-1.5 py-0.5 text-[8px] font-black uppercase rounded-full animate-pulse shadow-md border border-white/20 whitespace-nowrap ${link.badgeInfo.color}`}>
+                {link.badgeInfo.text}
               </span>
             )}
           </Link>
@@ -293,10 +322,10 @@ function TopNavigation() {
             {navLinks.map((link) => (
               <Link key={link.path} to={link.path} onClick={() => setIsMobileMenuOpen(false)} className={`relative flex items-center justify-between text-base font-bold p-3 rounded-lg transition-colors ${location.pathname === link.path ? 'bg-[#C5A059]/10 text-[#C5A059]' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}>
                 <span>{link.name}</span>
-                {/* MOBİL BALONCUK ENJEKSİYONU */}
-                {link.badge && (
-                  <span className={`px-2 py-1 text-[9px] font-black uppercase rounded-full animate-pulse shadow-md ${link.badgeColor}`}>
-                    {link.badge}
+                {/* MOBİL BALONCUK ENJEKSİYONU (Taşmayı önleyen justify-between ve shrink-0) */}
+                {link.badgeInfo && (
+                  <span className={`px-2 py-1 text-[9px] font-black uppercase rounded-full animate-pulse shadow-md border border-white/20 shrink-0 ${link.badgeInfo.color}`}>
+                    {link.badgeInfo.text}
                   </span>
                 )}
               </Link>
@@ -377,7 +406,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen w-full bg-[#04151a] text-[#FDF6E3] flex flex-col font-serif relative animate-fade-in">
-       {/* 1. DUYURU VE İŞBİRLİĞİ ÇUBUĞU (EN TEPEDE) */}
+       {/* 1. DUYURU VE İŞBİRLİĞİ ÇUBUĞU (EN TEPEDE - GECİKMELİ YÜKLENİR) */}
        <AnnouncementBar />
        
        <WelcomeModal />
