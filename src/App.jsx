@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Suspense, Component } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Search, X, Share2, Book, Star, Sparkles, Menu, Flame, BookOpen, Shield } from 'lucide-react';
+import { Search, X, Share2, Book, Star, Sparkles, Menu, Flame, BookOpen, Shield, MessageCircle } from 'lucide-react';
 
 // --- DATA ---
 import { globalSearchData } from './data/siteData'; 
@@ -72,54 +72,113 @@ function Toast() {
   );
 }
 
-// --- BİLEŞEN: KARŞILAMA EKRANI (WELCOME MODAL) ---
+// --- BİLEŞEN: AKILLI KARŞILAMA EKRANI (DUYGUSAL ZEKA MODALI) ---
 function WelcomeModal() {
   const [isOpen, setIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState(null);
 
   useEffect(() => {
     try {
-      const hasSeenWelcome = localStorage.getItem('hasSeenWelcome_v1');
-      if (!hasSeenWelcome) {
-        const timer = setTimeout(() => setIsOpen(true), 1500);
-        return () => clearTimeout(timer);
+      const today = new Date().toDateString();
+      const lastModalDate = localStorage.getItem('lastModalDate');
+      const legacyWelcome = localStorage.getItem('hasSeenWelcome_v1');
+
+      // Günde sadece 1 kez göster (Kullanıcıyı yormamak için)
+      if (lastModalDate === today) return;
+
+      const hour = new Date().getHours();
+      const greeting = hour < 11 ? 'Sabah-ı Şerifler' : hour < 18 ? 'Günün Aydın Olsun' : 'Akşam-ı Şerifler';
+      let content = {};
+
+      if (!lastModalDate && !legacyWelcome) {
+        // DURUM 1: TAMAMEN İLK GELİŞ
+        content = {
+          title: "İlim Şehrine Hoş Geldin",
+          desc: "Burası sıradan bir web sitesi değil; hakikati arayanların, Ehlibeyt'in nurlu yolunda yürümek isteyenlerin meclisidir. İrfan ağımızda yerini al.",
+          icon: BookOpen,
+          iconColor: "text-[#C5A059]",
+          button: "Kapıdan İçeri Gir"
+        };
+      } else {
+        // DURUM 2: DÖNÜŞ YAPAN KULLANICI (GÜN FARKINI HESAPLA)
+        let daysDiff = 1;
+        if (lastModalDate) {
+          const diffTime = Math.abs(new Date().setHours(0,0,0,0) - new Date(lastModalDate).setHours(0,0,0,0));
+          daysDiff = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        if (daysDiff >= 3) {
+          // 3 GÜNDEN FAZLA YOKSA (ÖZLEM KANCASI)
+          content = {
+            title: "Neredeydin Can?",
+            desc: "Meclisimiz seni özledi. Uzun zamandır kapımızı çalmadın. Gel, ruhunu Ehlibeyt'in hikmet pınarlarıyla yeniden dinlendir, arayı soğutma.",
+            icon: Flame,
+            iconColor: "text-orange-400",
+            button: "Meclise Tekrar Katıl"
+          };
+        } else {
+          // HER GÜN VEYA YAKIN ZAMANDA GELEN (GÜNLÜK RUTİN)
+          content = {
+            title: `${greeting} Can`,
+            desc: "İlim yolculuğuna kaldığın yerden devam et. Her yeni gün, hakikate ve marifete atılmış yeni bir adımdır.",
+            icon: Sparkles,
+            iconColor: "text-emerald-400",
+            button: "İlme Devam Et"
+          };
+        }
       }
+
+      setModalContent(content);
+      const timer = setTimeout(() => setIsOpen(true), 1200);
+      return () => clearTimeout(timer);
     } catch (e) { console.error("Storage Hatası:", e); }
   }, []);
 
   const handleClose = () => {
-    try { localStorage.setItem('hasSeenWelcome_v1', 'true'); } catch (e) {}
+    try { 
+      localStorage.setItem('lastModalDate', new Date().toDateString());
+      localStorage.setItem('hasSeenWelcome_v1', 'true'); // Geriye dönük uyumluluk
+    } catch (e) {}
     setIsOpen(false);
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !modalContent) return null;
+
+  const ActiveIcon = modalContent.icon;
 
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in">
-      <div className="relative bg-[#0b1b24] border border-[#C5A059]/40 rounded-2xl p-8 md:p-10 max-w-lg text-center shadow-[0_0_40px_rgba(197,160,89,0.15)] overflow-hidden">
+      <div className="relative bg-[#0b1b24] border border-[#C5A059]/40 rounded-2xl p-8 md:p-10 max-w-lg text-center shadow-[0_0_40px_rgba(197,160,89,0.15)] overflow-hidden w-full flex flex-col">
         <div className="absolute -top-20 -left-20 w-40 h-40 bg-[#C5A059]/10 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-[#C5A059]/10 rounded-full blur-3xl"></div>
         
-        <button onClick={handleClose} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors z-10">
+        <button onClick={handleClose} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors z-10 p-2">
           <X size={24}/>
         </button>
 
         <div className="mx-auto w-16 h-16 bg-[#C5A059]/10 rounded-full flex items-center justify-center mb-6 border border-[#C5A059]/30 relative z-10">
-          <BookOpen className="text-[#C5A059]" size={32} />
+          <ActiveIcon className={modalContent.iconColor} size={32} />
         </div>
 
         <h2 className="text-3xl font-serif font-bold text-[#FDF6E3] mb-4 relative z-10">
-          İlim Şehrine Hoş Geldiniz
+          {modalContent.title}
         </h2>
         
         <div className="space-y-4 text-slate-300 font-serif leading-relaxed relative z-10">
-          <p>Burası sıradan bir web sitesi değil; hakikati arayanların, Ehlibeyt'in nurlu yolunda yürümek isteyenlerin buluşma noktasıdır.</p>
-          <p className="italic text-[#C5A059]/90">"Ben ilmin şehriyim, Ali de onun kapısıdır."</p>
-          <p>Kütüphanemizde kaybolun, manevi reçetelerle ruhunuzu dinlendirin ve ilim kapısından içeri adım atın.</p>
+          <p>{modalContent.desc}</p>
         </div>
 
         <button onClick={handleClose} className="mt-8 relative z-10 bg-[#C5A059] text-[#09303a] px-8 py-3 rounded-xl font-bold text-lg hover:bg-white transition-all shadow-[0_0_20px_rgba(197,160,89,0.3)] hover:scale-105 active:scale-95">
-          Kapıdan İçeri Gir
+          {modalContent.button}
         </button>
+
+        {/* İŞBİRLİĞİ VE İLETİŞİM KANCASI (DARK SOCIAL) */}
+        <a href="https://wa.me/905553137021?text=Selam%C3%BCn%20Aleyk%C3%BCm.%20OnikiKap%C4%B1%20hakk%C4%B1nda%20yaz%C4%B1yorum." 
+           target="_blank" rel="noopener noreferrer" 
+           className="mt-8 pt-5 border-t border-white/10 flex items-center justify-center gap-2 text-xs md:text-sm text-slate-400 hover:text-[#C5A059] transition-colors relative z-10 group cursor-pointer font-sans">
+           <MessageCircle size={16} className="group-hover:scale-110 transition-transform" />
+           <span>Öneri, şikayet veya <b>işbirliği</b> için bize ulaşın</span>
+        </a>
       </div>
     </div>
   );
@@ -174,14 +233,13 @@ function TopNavigation() {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // İRFAN AĞI MENÜYE EKLENDİ
   const navLinks = [
     { name: "Manevi Reçeteler", path: "/manevi-receteler" },
     { name: "Kütüphane", path: "/library" },
     { name: "Soru/Cevap", path: "/soru-cevap" },
     { name: "14 Masum", path: "/14-masum" },
     { name: "İlim Meydanı", path: "/quiz" }, 
-    { name: "İrfan Ağı", path: "/irfan-agi" }, // <-- YENİ EKLENEN BAĞLANTI
+    { name: "İrfan Ağı", path: "/irfan-agi" },
     { name: "Medya", path: "/medya" }
   ];
 
@@ -349,7 +407,6 @@ function AppContent() {
              <Route path="/quiz" element={<Quiz />} />
              <Route path="/medya" element={<MediaCenter />} />
              <Route path="/heybem" element={<Favorites />} /> 
-             {/* İRFAN AĞI ROTASI BURAYA EKLENDİ */}
              <Route path="/irfan-agi" element={<IrfanAgi />} /> 
            </Routes>
          </Suspense>
