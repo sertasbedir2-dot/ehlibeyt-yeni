@@ -27,6 +27,8 @@ const MediaCenter = React.lazy(() => import('./pages/MediaCenter'));
 const Library = React.lazy(() => import('./pages/Library'));
 const KitapOku = React.lazy(() => import('./pages/KitapOku'));
 const Favorites = React.lazy(() => import('./pages/Favorites')); 
+// YENİ EKLENEN SAYFA: İRFAN AĞI
+const IrfanAgi = React.lazy(() => import('./pages/IrfanAgi')); 
 
 // --- GLOBAL ÇÖKME ÖNLEYİCİ (THE NAKED REALISM SHIELD) ---
 class GlobalErrorBoundary extends Component {
@@ -172,12 +174,14 @@ function TopNavigation() {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // İRFAN AĞI MENÜYE EKLENDİ
   const navLinks = [
     { name: "Manevi Reçeteler", path: "/manevi-receteler" },
     { name: "Kütüphane", path: "/library" },
     { name: "Soru/Cevap", path: "/soru-cevap" },
     { name: "14 Masum", path: "/14-masum" },
-    { name: "İlim Meydanı", path: "/quiz" }, // <-- İLİM MEYDANI BURAYA EKLENDİ
+    { name: "İlim Meydanı", path: "/quiz" }, 
+    { name: "İrfan Ağı", path: "/irfan-agi" }, // <-- YENİ EKLENEN BAĞLANTI
     { name: "Medya", path: "/medya" }
   ];
 
@@ -345,6 +349,8 @@ function AppContent() {
              <Route path="/quiz" element={<Quiz />} />
              <Route path="/medya" element={<MediaCenter />} />
              <Route path="/heybem" element={<Favorites />} /> 
+             {/* İRFAN AĞI ROTASI BURAYA EKLENDİ */}
+             <Route path="/irfan-agi" element={<IrfanAgi />} /> 
            </Routes>
          </Suspense>
        </main>
