@@ -176,8 +176,9 @@ function TopNavigation() {
     { name: "Manevi Reçeteler", path: "/manevi-receteler" },
     { name: "Kütüphane", path: "/library" },
     { name: "Soru/Cevap", path: "/soru-cevap" },
-    { name: "Medya", path: "/medya" },
-    { name: "14 Masum", path: "/14-masum" }
+    { name: "14 Masum", path: "/14-masum" },
+    { name: "İlim Meydanı", path: "/quiz" }, // <-- İLİM MEYDANI BURAYA EKLENDİ
+    { name: "Medya", path: "/medya" }
   ];
 
   return (
@@ -289,7 +290,7 @@ function AppContent() {
             
             <div className="flex items-center gap-2 md:gap-4 ml-auto lg:ml-0">
               
-              {/* GAMIFICATION WIDGET - İLİM YOLCULUĞU (YENİ) */}
+              {/* GAMIFICATION WIDGET - İLİM YOLCULUĞU */}
               <div className="flex flex-col items-end mr-1 md:mr-3" title={`${hp} HP - Sonraki seviye: ${levelInfo.next}`}>
                  <div className="flex items-center gap-1.5 text-[#C5A059] text-[10px] sm:text-xs font-bold uppercase tracking-wider">
                     <Shield size={12} className="sm:w-[14px] sm:h-[14px]" /> 
