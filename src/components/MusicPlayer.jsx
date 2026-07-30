@@ -60,6 +60,23 @@ export default function MusicPlayer() {
     setIsPlaying(true);
   };
 
+  // --- GAMIFICATION: ESER BİTİMİNDE ÖDÜL VERME ---
+  const handleTrackEnd = () => {
+    try {
+      // 1. Ödülü Ver
+      const currentHP = parseInt(localStorage.getItem('hikmet_puani') || '0', 10);
+      localStorage.setItem('hikmet_puani', (currentHP + 50).toString());
+      
+      // 2. Üst menüyü (Navbar) tetikle
+      window.dispatchEvent(new Event('hp-updated'));
+    } catch (err) {
+      console.error("HP Update Error:", err);
+    }
+    
+    // 3. Sıradaki parçaya geç
+    handleNext();
+  };
+
   useEffect(() => {
     if ('mediaSession' in navigator && currentTrack) {
       navigator.mediaSession.metadata = new MediaMetadata({
@@ -73,7 +90,7 @@ export default function MusicPlayer() {
       navigator.mediaSession.setActionHandler('nexttrack', handleNext);
       navigator.mediaSession.setActionHandler('previoustrack', handlePrev);
     }
-  }, [currentTrack, isPlaying, isShuffle]);
+  }, [currentTrack, isPlaying, isShuffle, title, artist, coverImage]);
 
   useEffect(() => {
     if (!currentTrack || !audioSrc) return;
@@ -100,35 +117,60 @@ export default function MusicPlayer() {
   const displayCategory = currentTrack.category || (Array.isArray(musicList) ? musicList.find(t => t.title === title)?.category : null) || "Genel";
 
   return (
-    <div className={`fixed bottom-4 right-4 z-[9999] transition-all duration-300 ease-in-out bg-[#0f172a] border border-amber-500/30 rounded-2xl shadow-2xl overflow-hidden ${isExpanded ? 'w-[90vw] md:w-[400px]' : 'w-auto rounded-full'}`}>
-      <audio ref={audioRef} onTimeUpdate={() => audioRef.current && setProgress(audioRef.current.currentTime)} onLoadedData={() => { setIsLoading(false); if (audioRef.current) setDuration(audioRef.current.duration); if (isPlaying && audioRef.current) audioRef.current.play().catch(()=>{}); }} onEnded={handleNext} onError={() => { setError(true); setIsLoading(false); }} />
+    <div className={`fixed bottom-4 right-4 z-[9999] transition-all duration-300 ease-in-out bg-[#0b1b24]/95 backdrop-blur-xl border border-[#C5A059]/30 shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden ${isExpanded ? 'w-[90vw] md:w-[400px] rounded-2xl' : 'w-auto rounded-full'}`}>
+      
+      {/* Olay dinleyicisi onEnded güncellendi: handleTrackEnd */}
+      <audio 
+        ref={audioRef} 
+        onTimeUpdate={() => audioRef.current && setProgress(audioRef.current.currentTime)} 
+        onLoadedData={() => { setIsLoading(false); if (audioRef.current) setDuration(audioRef.current.duration); if (isPlaying && audioRef.current) audioRef.current.play().catch(()=>{}); }} 
+        onEnded={handleTrackEnd} 
+        onError={() => { setError(true); setIsLoading(false); }} 
+      />
+      
       <div className={`flex items-center gap-4 ${isExpanded ? 'p-4' : 'p-2'}`}>
-        <div className={`relative rounded-full overflow-hidden border-2 border-amber-500/50 flex-shrink-0 transition-all ${isExpanded ? 'w-16 h-16' : 'w-12 h-12'}`}>
+        <div className={`relative rounded-full overflow-hidden border-2 border-[#C5A059]/50 flex-shrink-0 transition-all ${isExpanded ? 'w-16 h-16' : 'w-12 h-12'}`}>
           <img src={coverImage} alt="Cover" className={`w-full h-full object-cover ${isPlaying && !isLoading ? 'animate-spin-slow' : ''}`} />
           {isLoading && <div className="absolute inset-0 bg-black/60 flex items-center justify-center"><Loader2 className="animate-spin text-white" size={20} /></div>}
         </div>
+        
         <div className={`flex-1 min-w-0 ${!isExpanded ? 'hidden' : 'block'}`}>
-          <h4 className="text-white font-bold truncate text-sm md:text-base">{title}</h4>
-          <div className="flex items-center gap-2">
-            <span className="text-amber-500 text-[10px] border border-amber-500/30 px-1 rounded uppercase tracking-wider">{displayCategory}</span>
+          <h4 className="text-[#FDF6E3] font-bold truncate text-sm md:text-base">{title}</h4>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="text-[#C5A059] text-[10px] border border-[#C5A059]/30 px-1.5 py-0.5 rounded uppercase tracking-wider">{displayCategory}</span>
             <p className="text-slate-400 text-xs truncate">{artist}</p>
           </div>
         </div>
+        
         <div className="flex items-center gap-2">
-          {isExpanded && <button onClick={() => setIsShuffle(!isShuffle)} className={`p-1 transition-colors ${isShuffle ? 'text-amber-500' : 'text-slate-500 hover:text-white'}`}><Shuffle size={16} /></button>}
+          {isExpanded && <button onClick={() => setIsShuffle(!isShuffle)} className={`p-1 transition-colors ${isShuffle ? 'text-[#C5A059]' : 'text-slate-500 hover:text-white'}`}><Shuffle size={16} /></button>}
           <button onClick={() => setIsExpanded(!isExpanded)} className="text-slate-400 hover:text-white p-1 md:block hidden">{isExpanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}</button>
-          {isExpanded && <button onClick={handlePrev} className="text-slate-300 hover:text-amber-500 transition-colors"><SkipBack size={20} fill="currentColor" /></button>}
-          <button onClick={() => setIsPlaying && setIsPlaying(!isPlaying)} disabled={error || isLoading} className={`w-10 h-10 rounded-full flex items-center justify-center text-slate-900 shadow-lg transition-transform active:scale-95 ${error ? 'bg-gray-600' : 'bg-amber-500 hover:bg-amber-400'}`}>
+          {isExpanded && <button onClick={handlePrev} className="text-slate-300 hover:text-[#C5A059] transition-colors"><SkipBack size={20} fill="currentColor" /></button>}
+          
+          <button onClick={() => setIsPlaying && setIsPlaying(!isPlaying)} disabled={error || isLoading} className={`w-10 h-10 rounded-full flex items-center justify-center text-[#04151a] shadow-lg transition-transform hover:scale-105 active:scale-95 ${error ? 'bg-slate-600' : 'bg-[#C5A059] hover:bg-white'}`}>
             {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
           </button>
-          {isExpanded && <button onClick={handleNext} className="text-slate-300 hover:text-amber-500 transition-colors"><SkipForward size={20} fill="currentColor" /></button>}
+          
+          {isExpanded && <button onClick={handleNext} className="text-slate-300 hover:text-[#C5A059] transition-colors"><SkipForward size={20} fill="currentColor" /></button>}
           <button onClick={() => { if (setIsPlaying) setIsPlaying(false); if (setCurrentTrack) setCurrentTrack(null); }} className="text-slate-400 hover:text-red-500 transition-colors p-1"><X size={20} /></button>
         </div>
       </div>
+      
       {isExpanded && !error && (
         <div className="px-4 pb-4">
-          <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono mb-1"><span>{formatTime(progress)}</span><span>{formatTime(duration)}</span></div>
-          <input type="range" min="0" max={duration || 0} value={progress} onChange={(e) => { const newTime = parseFloat(e.target.value); if (audioRef.current) { audioRef.current.currentTime = newTime; setProgress(newTime); } }} disabled={isLoading} className="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500 hover:h-1.5 transition-all" />
+          <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono mb-1.5">
+            <span>{formatTime(progress)}</span>
+            <span>{formatTime(duration)}</span>
+          </div>
+          <input 
+            type="range" 
+            min="0" 
+            max={duration || 0} 
+            value={progress} 
+            onChange={(e) => { const newTime = parseFloat(e.target.value); if (audioRef.current) { audioRef.current.currentTime = newTime; setProgress(newTime); } }} 
+            disabled={isLoading} 
+            className="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#C5A059] hover:h-1.5 transition-all outline-none" 
+          />
         </div>
       )}
     </div>
