@@ -1,7 +1,6 @@
 import React, { useState, useEffect, Suspense, Component } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-// LayoutGrid YENİ EKLENDİ (Tüm Menü butonu için)
 import { Search, X, Share2, Book, Star, Sparkles, Flame, BookOpen, Shield, MessageCircle, Heart, Store, Compass, Headphones, GraduationCap, LayoutGrid, Droplets } from 'lucide-react';
 
 // --- DATA ---
@@ -35,30 +34,57 @@ const Podcast = React.lazy(() => import('./pages/Podcast'));
 const Akademi = React.lazy(() => import('./pages/Akademi')); 
 const Kerbela = React.lazy(() => import('./pages/Kerbela')); 
 const Ibadet = React.lazy(() => import('./pages/Ibadet')); 
-const Kesfet = React.lazy(() => import('./pages/Kesfet')); // YENİ: TÜM MENÜ SAYFASI
+const Kesfet = React.lazy(() => import('./pages/Kesfet'));
 
-// --- GLOBAL ÇÖKME ÖNLEYİCİ ---
+// --- GLOBAL ÇÖKME ÖNLEYİCİ VE SELF-HEALING (KENDİ KENDİNİ İYİLEŞTİRME) ---
 class GlobalErrorBoundary extends Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false, errorInfo: null, error: null };
   }
+  
   static getDerivedStateFromError(error) {
     return { hasError: true, error };
   }
+  
   componentDidCatch(error, errorInfo) {
     console.error("KRİTİK HATA YAKALANDI:", error, errorInfo);
+    
+    // YENİ EK: Vercel "Failed to fetch" hatasını yakala ve sayfayı sessizce yenile
+    const isChunkError = error?.name === 'ChunkLoadError' || 
+                         error?.message?.includes('Failed to fetch dynamically imported module') ||
+                         error?.message?.includes('Importing a module script failed');
+                         
+    if (isChunkError) {
+      const lastReload = sessionStorage.getItem('last_chunk_reload');
+      const now = Date.now();
+      // Sonsuz yenileme döngüsünü engellemek için 10 saniye bekleme süresi koyuyoruz
+      if (!lastReload || (now - parseInt(lastReload)) > 10000) {
+          sessionStorage.setItem('last_chunk_reload', now.toString());
+          window.location.reload(true); // Hard Refresh tetikler
+          return;
+      }
+    }
+    
     this.setState({ errorInfo: errorInfo.componentStack });
   }
+  
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: '2rem', backgroundColor: '#7f1d1d', color: 'white', minHeight: '100vh', fontFamily: 'sans-serif' }}>
-          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem' }}>Sistem Bir Hata Yakaladı!</h1>
-          <div style={{ backgroundColor: 'black', padding: '1rem', color: '#fca5a5', overflowX: 'auto', borderRadius: '0.5rem' }}>
-            <p style={{ fontWeight: 'bold' }}>{this.state.error?.toString()}</p>
+        <div style={{ padding: '2rem', backgroundColor: '#09303a', color: 'white', minHeight: '100vh', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <Flame size={48} color="#C5A059" style={{ marginBottom: '1rem' }} />
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem', color: '#FDF6E3' }}>Meclis Güncellendi</h1>
+          <p style={{ marginBottom: '2rem', color: '#94a3b8', textAlign: 'center', maxWidth: '400px' }}>
+            Dergâhımız arka planda yeni bir sürüme geçti. Devam etmek için sayfayı tazelememiz gerekiyor.
+          </p>
+          <button onClick={() => window.location.reload()} style={{ padding: '0.75rem 2rem', backgroundColor: '#C5A059', color: '#04151a', fontWeight: 'bold', borderRadius: '0.5rem', cursor: 'pointer', border: 'none' }}>
+            Sayfayı Yenile
+          </button>
+          
+          <div style={{ marginTop: '3rem', backgroundColor: '#04151a', padding: '1rem', color: '#ef4444', overflowX: 'auto', borderRadius: '0.5rem', fontSize: '0.7rem', maxWidth: '100%', opacity: 0.5 }}>
+            <p style={{ fontWeight: 'bold' }}>Teknik Detay (Geliştirici İçin): {this.state.error?.toString()}</p>
           </div>
-          <button onClick={() => window.location.reload()} style={{ marginTop: '1.5rem', padding: '0.75rem 1.5rem', backgroundColor: 'white', color: 'black', fontWeight: 'bold', borderRadius: '0.25rem', cursor: 'pointer' }}>Sayfayı Yenile</button>
         </div>
       );
     }
@@ -143,7 +169,6 @@ function SearchResults({ query, closeSearch }) {
   );
 }
 
-// Masaüstü için sadeleştirilmiş Top Navigation (Mobilde GİZLİ)
 function TopNavigation() {
   const location = useLocation();
   const navLinks = [
@@ -159,7 +184,6 @@ function TopNavigation() {
           {link.name}
         </Link>
       ))}
-      {/* Masaüstünde "Tüm Menü" linki */}
       <Link to="/kesfet" className="text-sm font-bold text-[#C5A059] bg-[#C5A059]/10 px-3 py-1.5 rounded-lg hover:bg-[#C5A059] hover:text-[#04151a] transition-all flex items-center gap-1.5">
         <LayoutGrid size={16}/> Tüm Menü
       </Link>
@@ -167,7 +191,6 @@ function TopNavigation() {
   );
 }
 
-// SÜPER APP MİMARİSİ: 5'Lİ ALT MENÜ
 function BottomNavigation() {
   const location = useLocation();
   const tabs = [
@@ -175,7 +198,7 @@ function BottomNavigation() {
     { name: "İbadet", path: "/ibadet", icon: Droplets },
     { name: "Akademi", path: "/akademi", icon: GraduationCap },
     { name: "Dinleti", path: "/podcast", icon: Headphones },
-    { name: "Menü", path: "/kesfet", icon: LayoutGrid } // SİHİRLİ BUTON
+    { name: "Menü", path: "/kesfet", icon: LayoutGrid } 
   ];
 
   return (
@@ -224,7 +247,6 @@ function AppContent() {
             <TopNavigation />
             
             <div className="flex items-center gap-3">
-              {/* HP Rozeti (Mobilde de sade olarak görünsün) */}
               <div className="flex items-center gap-1.5 bg-black/30 border border-[#C5A059]/30 px-3 py-1.5 rounded-full text-[#C5A059] text-xs font-bold">
                 <Shield size={14} /> <span>{hp} HP</span>
               </div>
@@ -265,7 +287,7 @@ function AppContent() {
              <Route path="/akademi" element={<Akademi />} /> 
              <Route path="/kerbela" element={<Kerbela />} /> 
              <Route path="/ibadet" element={<Ibadet />} />
-             <Route path="/kesfet" element={<Kesfet />} /> {/* YENİ MEGA MENÜ YOLU */}
+             <Route path="/kesfet" element={<Kesfet />} /> 
            </Routes>
          </Suspense>
        </main>
