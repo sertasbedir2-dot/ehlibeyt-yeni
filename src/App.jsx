@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Suspense, Component } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Search, X, Share2, Book, Star, Sparkles, Menu, Flame, BookOpen, Shield, MessageCircle } from 'lucide-react';
+import { Search, X, Share2, Book, Star, Sparkles, Menu, Flame, BookOpen, Shield, MessageCircle, Heart, Store } from 'lucide-react';
 
 // --- DATA ---
 import { globalSearchData } from './data/siteData'; 
@@ -28,7 +28,8 @@ const Library = React.lazy(() => import('./pages/Library'));
 const KitapOku = React.lazy(() => import('./pages/KitapOku'));
 const Favorites = React.lazy(() => import('./pages/Favorites')); 
 const IrfanAgi = React.lazy(() => import('./pages/IrfanAgi')); 
-const CanliMeclis = React.lazy(() => import('./pages/CanliMeclis')); // YENİ ROTA EKLENDİ
+const CanliMeclis = React.lazy(() => import('./pages/CanliMeclis')); 
+const Bazaar = React.lazy(() => import('./pages/Bazaar')); // YENİ ROTA EKLENDİ
 
 // --- GLOBAL ÇÖKME ÖNLEYİCİ ---
 class GlobalErrorBoundary extends Component {
@@ -72,9 +73,9 @@ function Toast() {
   );
 }
 
-// --- BİLEŞEN: EN ÜST İŞBİRLİĞİ VE DUYURU ÇUBUĞU (GECİKMELİ) ---
+// --- BİLEŞEN: EN ÜST İŞBİRLİĞİ VE DUYURU ÇUBUĞU ---
 function AnnouncementBar() {
-  const [isVisible, setIsVisible] = useState(false); // Başlangıçta gizli
+  const [isVisible, setIsVisible] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
@@ -83,12 +84,9 @@ function AnnouncementBar() {
       setIsDismissed(true);
       return;
     }
-
-    // Modalın kapanması veya kullanıcının siteye alışması için 4 saniye bekle
     const timer = setTimeout(() => {
       setIsVisible(true);
     }, 4000);
-
     return () => clearTimeout(timer);
   }, []);
 
@@ -114,7 +112,7 @@ function AnnouncementBar() {
   );
 }
 
-// --- BİLEŞEN: AKILLI KARŞILAMA EKRANI (DUYGUSAL ZEKA MODALI) ---
+// --- BİLEŞEN: AKILLI KARŞILAMA EKRANI ---
 function WelcomeModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState(null);
@@ -346,6 +344,7 @@ function AppContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [streak, setStreak] = useState(0);
   const [hp, setHp] = useState(0);
+  const navigate = useNavigate(); // Yönlendirme için eklendi
 
   useEffect(() => {
     try {
@@ -406,8 +405,19 @@ function AppContent() {
             
             <TopNavigation />
             
-            <div className="flex items-center gap-2 md:gap-4 ml-auto lg:ml-0">
-              <div className="flex flex-col items-end mr-1 md:mr-3" title={`${hp} HP - Sonraki seviye: ${levelInfo.next}`}>
+            <div className="flex items-center gap-3 md:gap-4 ml-auto lg:ml-0">
+              
+              {/* LOKMA BIRAK VE ÇARŞI BUTONU (YENİ GELİR MODELİ) */}
+              <button 
+                onClick={() => navigate('/bazaar')}
+                className="group flex items-center justify-center p-2 rounded-full hover:bg-white/10 transition-colors relative" 
+                title="Dergâh Çarşısı & Lokma Bırak"
+              >
+                <div className="absolute inset-0 bg-rose-500/20 rounded-full blur-md animate-pulse"></div>
+                <Heart size={20} className="text-rose-400 relative z-10 group-hover:scale-110 transition-transform" />
+              </button>
+
+              <div className="flex flex-col items-end mr-1 md:mr-3 hidden sm:flex" title={`${hp} HP - Sonraki seviye: ${levelInfo.next}`}>
                  <div className="flex items-center gap-1.5 text-[#C5A059] text-[10px] sm:text-xs font-bold uppercase tracking-wider">
                     <Shield size={12} className="sm:w-[14px] sm:h-[14px]" /> 
                     <span>{levelInfo.name}</span> 
@@ -424,9 +434,9 @@ function AppContent() {
                 <span className="sm:hidden">{streak}</span>
               </div>
 
-              <button onClick={handleShare} className="flex items-center gap-2 bg-[#C5A059]/10 text-[#C5A059] border border-[#C5A059]/30 p-2 sm:px-3 sm:py-2 rounded-lg font-bold text-sm hover:bg-[#C5A059] hover:text-[#09303a] transition-colors">
+              <button onClick={handleShare} className="hidden sm:flex items-center gap-2 bg-[#C5A059]/10 text-[#C5A059] border border-[#C5A059]/30 p-2 sm:px-3 sm:py-2 rounded-lg font-bold text-sm hover:bg-[#C5A059] hover:text-[#09303a] transition-colors">
                 <Share2 size={18} className="sm:w-4 sm:h-4"/> 
-                <span className="hidden sm:inline">Paylaş</span>
+                <span>Paylaş</span>
               </button>
 
               {isSearchOpen ? (
@@ -459,8 +469,8 @@ function AppContent() {
              <Route path="/medya" element={<MediaCenter />} />
              <Route path="/heybem" element={<Favorites />} /> 
              <Route path="/irfan-agi" element={<IrfanAgi />} /> 
-             {/* CANLI MECLİS ROTASI EKLENDİ */}
              <Route path="/canli-meclis" element={<CanliMeclis />} /> 
+             <Route path="/bazaar" element={<Bazaar />} /> {/* ÇARŞI ROTASI */}
            </Routes>
          </Suspense>
        </main>
