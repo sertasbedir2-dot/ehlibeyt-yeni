@@ -114,10 +114,10 @@ export default function Home() {
   return (
     <div className="space-y-8 animate-fade-in relative pb-20 md:pb-0">
       
-      {/* CANLI İLİM MECLİSİ - YÜZEN BUTON (FAB) */}
+      {/* CANLI İLİM MECLİSİ - YÜZEN BUTON (FAB) - MOBİL İÇİN YUKARI TAŞINDI */}
       <button
         onClick={() => navigate('/canli-meclis')}
-        className="fixed bottom-6 right-6 z-[200] group flex items-center gap-3 bg-[#04151a]/90 backdrop-blur-md border border-[#C5A059]/50 px-4 py-3 rounded-full shadow-[0_0_25px_rgba(197,160,89,0.25)] hover:bg-[#09303a] hover:scale-105 transition-all duration-300"
+        className="fixed bottom-28 right-4 md:bottom-6 md:right-6 z-[200] group flex items-center gap-3 bg-[#04151a]/90 backdrop-blur-md border border-[#C5A059]/50 px-4 py-3 rounded-full shadow-[0_0_25px_rgba(197,160,89,0.25)] hover:bg-[#09303a] hover:scale-105 transition-all duration-300"
       >
         <div className="relative flex h-3 w-3">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75"></span>
