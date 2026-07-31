@@ -1,8 +1,8 @@
 import React, { useState, useEffect, Suspense, Component } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-// İkonlar eksiksiz
-import { Search, X, Share2, Book, Star, Sparkles, Menu, Flame, BookOpen, Shield, MessageCircle, Heart, Store, Compass, Headphones, GraduationCap } from 'lucide-react';
+// LayoutGrid YENİ EKLENDİ (Tüm Menü butonu için)
+import { Search, X, Share2, Book, Star, Sparkles, Flame, BookOpen, Shield, MessageCircle, Heart, Store, Compass, Headphones, GraduationCap, LayoutGrid, Droplets } from 'lucide-react';
 
 // --- DATA ---
 import { globalSearchData } from './data/siteData'; 
@@ -33,8 +33,9 @@ const CanliMeclis = React.lazy(() => import('./pages/CanliMeclis'));
 const Bazaar = React.lazy(() => import('./pages/Bazaar')); 
 const Podcast = React.lazy(() => import('./pages/Podcast')); 
 const Akademi = React.lazy(() => import('./pages/Akademi')); 
-const Kerbela = React.lazy(() => import('./pages/Kerbela')); // YENİ MEGA MODÜL
-const Ibadet = React.lazy(() => import('./pages/Ibadet')); // YENİ MEGA MODÜL
+const Kerbela = React.lazy(() => import('./pages/Kerbela')); 
+const Ibadet = React.lazy(() => import('./pages/Ibadet')); 
+const Kesfet = React.lazy(() => import('./pages/Kesfet')); // YENİ: TÜM MENÜ SAYFASI
 
 // --- GLOBAL ÇÖKME ÖNLEYİCİ ---
 class GlobalErrorBoundary extends Component {
@@ -54,10 +55,8 @@ class GlobalErrorBoundary extends Component {
       return (
         <div style={{ padding: '2rem', backgroundColor: '#7f1d1d', color: 'white', minHeight: '100vh', fontFamily: 'sans-serif' }}>
           <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem' }}>Sistem Bir Hata Yakaladı!</h1>
-          <p style={{ marginBottom: '1rem' }}>Lütfen aşağıdaki hata mesajını kopyalayıp bana gönder:</p>
           <div style={{ backgroundColor: 'black', padding: '1rem', color: '#fca5a5', overflowX: 'auto', borderRadius: '0.5rem' }}>
-            <p style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{this.state.error?.toString()}</p>
-            <pre style={{ marginTop: '1rem', fontSize: '0.875rem' }}>{this.state.errorInfo}</pre>
+            <p style={{ fontWeight: 'bold' }}>{this.state.error?.toString()}</p>
           </div>
           <button onClick={() => window.location.reload()} style={{ marginTop: '1.5rem', padding: '0.75rem 1.5rem', backgroundColor: 'white', color: 'black', fontWeight: 'bold', borderRadius: '0.25rem', cursor: 'pointer' }}>Sayfayı Yenile</button>
         </div>
@@ -67,7 +66,6 @@ class GlobalErrorBoundary extends Component {
   }
 }
 
-// --- BİLEŞEN: KÜÇÜK BİLDİRİM (TOAST) ---
 function Toast() {
   const { toastMessage } = useAppContext();
   if (!toastMessage) return null;
@@ -78,27 +76,16 @@ function Toast() {
   );
 }
 
-// --- BİLEŞEN: EN ÜST İŞBİRLİĞİ VE DUYURU ÇUBUĞU ---
 function AnnouncementBar() {
   const [isVisible, setIsVisible] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
     const dismissed = sessionStorage.getItem('announcementDismissed');
-    if (dismissed) {
-      setIsDismissed(true);
-      return;
-    }
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 4000);
+    if (dismissed) { setIsDismissed(true); return; }
+    const timer = setTimeout(() => setIsVisible(true), 4000);
     return () => clearTimeout(timer);
   }, []);
-
-  const dismiss = () => {
-    sessionStorage.setItem('announcementDismissed', 'true');
-    setIsVisible(false);
-  };
 
   if (isDismissed || !isVisible) return null;
 
@@ -106,253 +93,100 @@ function AnnouncementBar() {
     <div className="bg-gradient-to-r from-[#09303a] via-[#04151a] to-[#09303a] border-b border-[#C5A059]/20 px-4 py-2.5 flex items-center justify-between z-[60] relative animate-fade-in">
        <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-300 mx-auto font-sans text-center max-w-3xl">
          <Sparkles size={16} className="text-[#C5A059] hidden sm:block shrink-0" />
-         <p>
-           Ehl-i Beyt yolunda üreten bir kanal veya yazar mısınız? <a href="https://wa.me/905553137021?text=Selam%C3%BCn%20Aleyk%C3%BCm.%20%C4%B0rfan%20A%C4%9F%C4%B1'na%20i%C3%A7erik%20%C3%BCreticisi%20olarak%20kat%C4%B1lmak%20istiyorum." target="_blank" rel="noopener noreferrer" className="text-[#C5A059] font-bold underline hover:text-white transition-colors ml-1">İrfan Ağı'na katılın</a>, meclisi birlikte büyütelim.
-         </p>
+         <p>Ehl-i Beyt yolunda üreten bir kanal veya yazar mısınız? <a href="https://wa.me/905553137021" target="_blank" rel="noopener noreferrer" className="text-[#C5A059] font-bold underline ml-1">İrfan Ağı'na katılın.</a></p>
        </div>
-       <button onClick={dismiss} className="text-slate-500 hover:text-white ml-4 shrink-0 transition-colors">
+       <button onClick={() => {sessionStorage.setItem('announcementDismissed', 'true'); setIsVisible(false);}} className="text-slate-500 hover:text-white ml-4 shrink-0 transition-colors">
          <X size={16} />
        </button>
     </div>
   );
 }
 
-// --- BİLEŞEN: AKILLI KARŞILAMA EKRANI ---
 function WelcomeModal() {
   const [isOpen, setIsOpen] = useState(false);
-  const [modalContent, setModalContent] = useState(null);
-
   useEffect(() => {
-    try {
-      const today = new Date().toDateString();
-      const lastModalDate = localStorage.getItem('lastModalDate');
-      const legacyWelcome = localStorage.getItem('hasSeenWelcome_v1');
-
-      if (lastModalDate === today) return;
-
-      const hour = new Date().getHours();
-      const greeting = hour < 11 ? 'Sabah-ı Şerifler' : hour < 18 ? 'Günün Aydın Olsun' : 'Akşam-ı Şerifler';
-      let content = {};
-
-      if (!lastModalDate && !legacyWelcome) {
-        content = {
-          title: "İlim Şehrine Hoş Geldin",
-          desc: "Burası sıradan bir web sitesi değil; hakikati arayanların, Ehlibeyt'in nurlu yolunda yürümek isteyenlerin meclisidir. İrfan ağımızda yerini al.",
-          icon: BookOpen,
-          iconColor: "text-[#C5A059]",
-          button: "Kapıdan İçeri Gir"
-        };
-      } else {
-        let daysDiff = 1;
-        if (lastModalDate) {
-          const diffTime = Math.abs(new Date().setHours(0,0,0,0) - new Date(lastModalDate).setHours(0,0,0,0));
-          daysDiff = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        }
-
-        if (daysDiff >= 3) {
-          content = {
-            title: "Neredeydin Can?",
-            desc: "Meclisimiz seni özledi. Uzun zamandır kapımızı çalmadın. Gel, ruhunu Ehlibeyt'in hikmet pınarlarıyla yeniden dinlendir, arayı soğutma.",
-            icon: Flame,
-            iconColor: "text-orange-400",
-            button: "Meclise Tekrar Katıl"
-          };
-        } else {
-          content = {
-            title: `${greeting} Can`,
-            desc: "İlim yolculuğuna kaldığın yerden devam et. Her yeni gün, hakikate ve marifete atılmış yeni bir adımdır.",
-            icon: Sparkles,
-            iconColor: "text-emerald-400",
-            button: "İlme Devam Et"
-          };
-        }
-      }
-
-      setModalContent(content);
-      const timer = setTimeout(() => setIsOpen(true), 1200);
-      return () => clearTimeout(timer);
-    } catch (e) { console.error("Storage Hatası:", e); }
+    const today = new Date().toDateString();
+    if (localStorage.getItem('lastModalDate') === today) return;
+    const timer = setTimeout(() => setIsOpen(true), 1200);
+    return () => clearTimeout(timer);
   }, []);
 
-  const handleClose = () => {
-    try { 
-      localStorage.setItem('lastModalDate', new Date().toDateString());
-      localStorage.setItem('hasSeenWelcome_v1', 'true');
-    } catch (e) {}
-    setIsOpen(false);
-  };
-
-  if (!isOpen || !modalContent) return null;
-
-  const ActiveIcon = modalContent.icon;
-
+  if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in">
-      <div className="relative bg-[#0b1b24] border border-[#C5A059]/40 rounded-2xl p-8 md:p-10 max-w-lg text-center shadow-[0_0_40px_rgba(197,160,89,0.15)] overflow-hidden w-full flex flex-col">
-        <div className="absolute -top-20 -left-20 w-40 h-40 bg-[#C5A059]/10 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-[#C5A059]/10 rounded-full blur-3xl"></div>
-        
-        <button onClick={handleClose} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors z-10 p-2">
-          <X size={24}/>
-        </button>
-
-        <div className="mx-auto w-16 h-16 bg-[#C5A059]/10 rounded-full flex items-center justify-center mb-6 border border-[#C5A059]/30 relative z-10">
-          <ActiveIcon className={modalContent.iconColor} size={32} />
-        </div>
-
-        <h2 className="text-3xl font-serif font-bold text-[#FDF6E3] mb-4 relative z-10">
-          {modalContent.title}
-        </h2>
-        
-        <div className="space-y-4 text-slate-300 font-serif leading-relaxed relative z-10">
-          <p>{modalContent.desc}</p>
-        </div>
-
-        <button onClick={handleClose} className="mt-8 relative z-10 bg-[#C5A059] text-[#09303a] px-8 py-3 rounded-xl font-bold text-lg hover:bg-white transition-all shadow-[0_0_20px_rgba(197,160,89,0.3)] hover:scale-105 active:scale-95">
-          {modalContent.button}
-        </button>
-
-        <a href="https://wa.me/905553137021?text=Selam%C3%BCn%20Aleyk%C3%BCm.%20OnikiKap%C4%B1%20hakk%C4%B1nda%20yaz%C4%B1yorum." 
-           target="_blank" rel="noopener noreferrer" 
-           className="mt-8 pt-5 border-t border-white/10 flex items-center justify-center gap-2 text-xs md:text-sm text-slate-400 hover:text-[#C5A059] transition-colors relative z-10 group cursor-pointer font-sans">
-           <MessageCircle size={16} className="group-hover:scale-110 transition-transform" />
-           <span>Öneri, şikayet veya <b>işbirliği</b> için bize ulaşın</span>
-        </a>
+      <div className="bg-[#0b1b24] border border-[#C5A059]/40 rounded-2xl p-8 max-w-lg text-center shadow-2xl relative w-full">
+        <button onClick={() => {localStorage.setItem('lastModalDate', new Date().toDateString()); setIsOpen(false);}} className="absolute top-4 right-4 text-slate-400 hover:text-white p-2"><X size={24}/></button>
+        <BookOpen className="text-[#C5A059] mx-auto mb-4" size={40} />
+        <h2 className="text-2xl font-bold text-[#FDF6E3] mb-2">İlim Şehrine Hoş Geldin</h2>
+        <p className="text-slate-300 mb-6">Hakikati arayanların, Ehlibeyt'in nurlu yolunda yürümek isteyenlerin meclisidir.</p>
+        <button onClick={() => {localStorage.setItem('lastModalDate', new Date().toDateString()); setIsOpen(false);}} className="bg-[#C5A059] text-[#09303a] px-8 py-3 rounded-xl font-bold w-full hover:bg-white transition-all">Kapıdan İçeri Gir</button>
       </div>
     </div>
   );
 }
 
-// --- BİLEŞEN: ARAMA SONUÇLARI ---
 function SearchResults({ query, closeSearch }) {
   const navigate = useNavigate();
   if (!query) return null;
-  
-  const queryLower = query.toLowerCase();
-  const validData = Array.isArray(globalSearchData) ? globalSearchData : [];
-  
-  const results = validData.filter(item => {
-    if(!item) return false;
-    const tMatch = item.title ? String(item.title).toLowerCase().includes(queryLower) : false;
-    const cMatch = item.category ? String(item.category).toLowerCase().includes(queryLower) : false;
-    const kMatch = item.keywords ? String(item.keywords).toLowerCase().includes(queryLower) : false;
-    return tMatch || cMatch || kMatch;
-  });
-
-  const handleNavigate = (url) => {
-    navigate(url || "/");
-    closeSearch();
-  };
-
+  const results = (Array.isArray(globalSearchData) ? globalSearchData : []).filter(item => 
+    item && (item.title?.toLowerCase().includes(query.toLowerCase()) || item.category?.toLowerCase().includes(query.toLowerCase()))
+  );
   return (
-    <div className="absolute top-20 left-0 w-full md:w-[600px] md:-ml-[300px] bg-[#0b1b24]/95 backdrop-blur-xl border border-[#C5A059]/30 rounded-xl overflow-hidden shadow-2xl max-h-96 overflow-y-auto z-[150] custom-scrollbar">
-      {results.length > 0 ? (
-        results.map((result, index) => (
-          <div key={index} onClick={() => handleNavigate(result.url)} className="p-4 border-b border-white/5 hover:bg-white/10 cursor-pointer flex items-center gap-4 transition-colors group">
-            <div className="p-2 bg-[#09303a] rounded-lg text-[#C5A059] group-hover:scale-110 transition-transform">
-               {result.type === "Kitap" && <Book size={20} />}
-               {result.type === "14 Masum" && <Star size={20} />}
-               {result.type !== "Kitap" && result.type !== "14 Masum" && <Search size={20} />}
-            </div>
-            <div>
-              <h4 className="text-[#FDF6E3] font-bold text-lg group-hover:text-[#C5A059]">{result.title}</h4>
-              <span className="text-xs text-[#93c5fd] uppercase tracking-wider">{result.type} • {result.category}</span>
-            </div>
-          </div>
-        ))
-      ) : (
-        <div className="p-8 text-center text-slate-300 italic">"{query}" ile ilgili sonuç bulunamadı.</div>
-      )}
+    <div className="absolute top-16 right-0 w-full md:w-[400px] bg-[#0b1b24]/95 backdrop-blur-xl border border-[#C5A059]/30 rounded-xl overflow-hidden shadow-2xl max-h-96 overflow-y-auto z-[150]">
+      {results.length > 0 ? results.map((r, i) => (
+        <div key={i} onClick={() => {navigate(r.url || "/"); closeSearch();}} className="p-4 border-b border-white/5 hover:bg-white/10 cursor-pointer flex items-center gap-3">
+          <Search size={16} className="text-[#C5A059]" />
+          <div><h4 className="text-[#FDF6E3] font-bold text-sm">{r.title}</h4><span className="text-[10px] text-blue-300 uppercase">{r.type}</span></div>
+        </div>
+      )) : <div className="p-4 text-slate-400 text-sm">Sonuç bulunamadı.</div>}
     </div>
   );
 }
 
-// --- BİLEŞEN: ÜST MENÜ VE GÜNLÜK AKILLI ROZETLER ---
+// Masaüstü için sadeleştirilmiş Top Navigation (Mobilde GİZLİ)
 function TopNavigation() {
   const location = useLocation();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const getDayBasedBadge = (path) => {
-    const today = new Date().getDay(); 
-    if (today === 1 && path === '/library') return { text: "İlme Başla", color: "bg-blue-500/90 text-white" }; 
-    if (today === 5 && path === '/14-masum') return { text: "Nurlu Yol", color: "bg-[#C5A059] text-[#04151a]" }; 
-    if ((today === 6 || today === 0) && path === '/irfan-agi') return { text: "Meclise Katıl", color: "bg-[#C5A059] text-[#04151a]" }; 
-    // Aşura ve Erbain dönemlerinde Kerbela sekmesine özel dinamik badge eklenebilir.
-    return null; 
-  };
-
-  // YENİ MEGA MODÜLLER (İbadet ve Kerbela) EKLENDİ
-  const baseNavLinks = [
+  const navLinks = [
     { name: "İbadet", path: "/ibadet" },
     { name: "Kerbela", path: "/kerbela" },
     { name: "Kütüphane", path: "/library" },
-    { name: "14 Masum", path: "/14-masum" },
-    { name: "İlim Meydanı", path: "/quiz" }, 
-    { name: "Soru/Cevap", path: "/soru-cevap" },
-    { name: "İrfan Ağı", path: "/irfan-agi" }
+    { name: "Soru/Cevap", path: "/soru-cevap" }
   ];
-
-  const navLinks = baseNavLinks.map(link => ({
-    ...link,
-    badgeInfo: getDayBasedBadge(link.path)
-  }));
-
   return (
-    <>
-      <div className="hidden lg:flex items-center gap-6 ml-8">
-        {navLinks.map((link) => (
-          <Link key={link.path} to={link.path} className={`relative text-sm font-bold transition-all hover:-translate-y-0.5 ${location.pathname === link.path ? 'text-[#C5A059] border-b-2 border-[#C5A059] pb-1' : 'text-slate-300 hover:text-white'}`}>
-            {link.name}
-            {link.badgeInfo && (
-              <span className={`absolute -top-3.5 -right-5 px-1.5 py-0.5 text-[8px] font-black uppercase rounded-full animate-pulse shadow-md border border-white/20 whitespace-nowrap ${link.badgeInfo.color}`}>
-                {link.badgeInfo.text}
-              </span>
-            )}
-          </Link>
-        ))}
-      </div>
-      <button className="lg:hidden text-[#C5A059] p-2 hover:bg-white/10 rounded-lg ml-auto" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-        {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
-      {isMobileMenuOpen && (
-        <div className="absolute top-[72px] left-0 w-full bg-[#09303a] border-b border-[#C5A059]/20 shadow-2xl lg:hidden z-[200] animate-fade-in">
-          <div className="flex flex-col p-4 space-y-2">
-            {navLinks.map((link) => (
-              <Link key={link.path} to={link.path} onClick={() => setIsMobileMenuOpen(false)} className={`relative flex items-center justify-between text-base font-bold p-3 rounded-lg transition-colors ${location.pathname === link.path ? 'bg-[#C5A059]/10 text-[#C5A059]' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}>
-                <span>{link.name}</span>
-                {link.badgeInfo && (
-                  <span className={`px-2 py-1 text-[9px] font-black uppercase rounded-full animate-pulse shadow-md border border-white/20 shrink-0 ${link.badgeInfo.color}`}>
-                    {link.badgeInfo.text}
-                  </span>
-                )}
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-    </>
+    <div className="hidden lg:flex items-center gap-6 ml-8">
+      {navLinks.map((link) => (
+        <Link key={link.path} to={link.path} className={`text-sm font-bold transition-all hover:text-white ${location.pathname === link.path ? 'text-[#C5A059] border-b-2 border-[#C5A059] pb-1' : 'text-slate-300'}`}>
+          {link.name}
+        </Link>
+      ))}
+      {/* Masaüstünde "Tüm Menü" linki */}
+      <Link to="/kesfet" className="text-sm font-bold text-[#C5A059] bg-[#C5A059]/10 px-3 py-1.5 rounded-lg hover:bg-[#C5A059] hover:text-[#04151a] transition-all flex items-center gap-1.5">
+        <LayoutGrid size={16}/> Tüm Menü
+      </Link>
+    </div>
   );
 }
 
-// --- MOBİL ALT NAVİGASYON ---
+// SÜPER APP MİMARİSİ: 5'Lİ ALT MENÜ
 function BottomNavigation() {
   const location = useLocation();
   const tabs = [
     { name: "Dergâh", path: "/", icon: Compass },
-    { name: "Dinleti", path: "/podcast", icon: Headphones },
+    { name: "İbadet", path: "/ibadet", icon: Droplets },
     { name: "Akademi", path: "/akademi", icon: GraduationCap },
-    { name: "Çarşı", path: "/bazaar", icon: Store }
+    { name: "Dinleti", path: "/podcast", icon: Headphones },
+    { name: "Menü", path: "/kesfet", icon: LayoutGrid } // SİHİRLİ BUTON
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 w-full bg-[#0b1b24]/95 backdrop-blur-xl border-t border-[#C5A059]/20 flex items-center justify-around z-[150] pt-2 pb-3 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+    <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#0b1b24]/95 backdrop-blur-xl border-t border-[#C5A059]/20 flex items-center justify-between px-2 z-[150] pt-2 pb-4 shadow-[0_-10px_40px_rgba(0,0,0,0.6)]">
       {tabs.map((tab) => {
         const isActive = location.pathname === tab.path;
         const Icon = tab.icon;
         return (
-          <Link key={tab.path} to={tab.path} className="flex flex-col items-center p-1 w-16">
+          <Link key={tab.path} to={tab.path} className="flex flex-col items-center p-1 w-[20%]">
             <div className={`p-1.5 rounded-xl transition-all duration-300 ${isActive ? 'bg-[#C5A059]/20 scale-110' : 'bg-transparent'}`}>
-              <Icon size={22} className={`${isActive ? 'text-[#C5A059]' : 'text-slate-400'}`} />
+              <Icon size={24} className={`${isActive ? 'text-[#C5A059]' : 'text-slate-400'}`} />
             </div>
             <span className={`text-[9px] font-bold mt-1 tracking-wide ${isActive ? 'text-[#C5A059]' : 'text-slate-400'}`}>
               {tab.name}
@@ -364,67 +198,17 @@ function BottomNavigation() {
   );
 }
 
-const getLevelInfo = (hp) => {
-  if(hp < 100) return { name: "Yolcu", next: 100, prev: 0 };
-  if(hp < 500) return { name: "Talip", next: 500, prev: 100 };
-  if(hp < 1500) return { name: "Derviş", next: 1500, prev: 500 };
-  if(hp < 4000) return { name: "Ahi", next: 4000, prev: 1500 };
-  if(hp < 10000) return { name: "Arif", next: 10000, prev: 4000 };
-  return { name: "Kamil", next: 10000, prev: 10000, isMax: true };
-};
-
 function AppContent() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [streak, setStreak] = useState(0);
-  const [hp, setHp] = useState(0);
+  const [hp, setHp] = useState(parseInt(localStorage.getItem('hikmet_puani') || '0'));
   const navigate = useNavigate(); 
 
   useEffect(() => {
-    try {
-      const today = new Date().toDateString();
-      const lastVisit = localStorage.getItem('lastVisit');
-      let currentStreak = parseInt(localStorage.getItem('streak') || '0');
-
-      if (lastVisit !== today) {
-        const yesterday = new Date(); 
-        yesterday.setDate(yesterday.getDate() - 1);
-        currentStreak = lastVisit === yesterday.toDateString() ? currentStreak + 1 : 1;
-        localStorage.setItem('lastVisit', today);
-        localStorage.setItem('streak', currentStreak.toString());
-      }
-      setStreak(currentStreak);
-    } catch (e) { console.error("Storage Hatası", e); }
-    
-    const loadHp = () => {
-      const savedHp = parseInt(localStorage.getItem('hikmet_puani') || '0');
-      setHp(savedHp);
-    };
-    
-    loadHp(); 
-    
+    const loadHp = () => setHp(parseInt(localStorage.getItem('hikmet_puani') || '0'));
     window.addEventListener('hp_updated', loadHp); 
-    window.addEventListener('hp-updated', loadHp); 
-    
-    return () => {
-      window.removeEventListener('hp_updated', loadHp);
-      window.removeEventListener('hp-updated', loadHp);
-    };
+    return () => window.removeEventListener('hp_updated', loadHp);
   }, []);
-
-  const handleShare = async () => {
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: 'OnikiKapı', text: 'İlim şehri OnikiKapı uygulamasını keşfet:', url: 'https://www.onikikapi.com' });
-      } else {
-        await navigator.clipboard.writeText('https://www.onikikapi.com');
-        alert('Bağlantı kopyalandı!');
-      }
-    } catch (err) {}
-  };
-
-  const levelInfo = getLevelInfo(hp);
-  const progressPercent = levelInfo.isMax ? 100 : ((hp - levelInfo.prev) / (levelInfo.next - levelInfo.prev)) * 100;
 
   return (
     <div className="min-h-screen w-full bg-[#04151a] text-[#FDF6E3] flex flex-col font-serif relative animate-fade-in">
@@ -432,62 +216,35 @@ function AppContent() {
        <WelcomeModal />
        
        <nav className="bg-[#09303a] border-b border-[#C5A059]/20 sticky top-0 z-50 shadow-xl backdrop-blur-md px-4 py-3">
-         <div className="max-w-7xl mx-auto flex items-center relative">
-            <Link to="/" className="text-2xl font-sans font-black text-[#C5A059] tracking-widest uppercase drop-shadow-md hover:scale-105 transition-transform">
+         <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <Link to="/" className="text-2xl font-sans font-black text-[#C5A059] tracking-widest uppercase drop-shadow-md">
               OnikiKapı
             </Link>
             
             <TopNavigation />
             
-            <div className="flex items-center gap-3 md:gap-4 ml-auto lg:ml-0">
-              
-              <button 
-                onClick={() => navigate('/bazaar')}
-                className="group flex items-center justify-center p-2 rounded-full hover:bg-white/10 transition-colors relative" 
-                title="Dergâh Çarşısı & Lokma Bırak"
-              >
-                <div className="absolute inset-0 bg-rose-500/20 rounded-full blur-md animate-pulse"></div>
-                <Heart size={20} className="text-rose-400 relative z-10 group-hover:scale-110 transition-transform" />
-              </button>
-
-              <div className="flex flex-col items-end mr-1 md:mr-3 hidden sm:flex" title={`${hp} HP - Sonraki seviye: ${levelInfo.next}`}>
-                 <div className="flex items-center gap-1.5 text-[#C5A059] text-[10px] sm:text-xs font-bold uppercase tracking-wider">
-                    <Shield size={12} className="sm:w-[14px] sm:h-[14px]" /> 
-                    <span>{levelInfo.name}</span> 
-                    <span className="hidden sm:inline text-white/40 text-[10px] ml-1 font-mono lowercase">{hp} hp</span>
-                 </div>
-                 <div className="w-16 sm:w-24 md:w-32 h-1 sm:h-1.5 bg-black/50 rounded-full mt-1 overflow-hidden border border-[#C5A059]/20 shadow-inner">
-                    <div className="h-full bg-gradient-to-r from-yellow-700 via-yellow-500 to-[#C5A059] rounded-full transition-all duration-500 ease-out" style={{ width: `${progressPercent}%` }}></div>
-                 </div>
+            <div className="flex items-center gap-3">
+              {/* HP Rozeti (Mobilde de sade olarak görünsün) */}
+              <div className="flex items-center gap-1.5 bg-black/30 border border-[#C5A059]/30 px-3 py-1.5 rounded-full text-[#C5A059] text-xs font-bold">
+                <Shield size={14} /> <span>{hp} HP</span>
               </div>
-
-              <div className="flex items-center gap-1.5 bg-black/30 border border-[#C5A059]/30 px-2 sm:px-3 py-1.5 rounded-full text-[#C5A059] text-xs font-bold shadow-inner" title="Aralıksız ziyaret serisi">
-                <Flame size={14} className={`${streak > 0 ? 'fill-[#C5A059] animate-pulse' : 'text-slate-500'}`} />
-                <span className="hidden sm:inline">{streak} Gün</span>
-                <span className="sm:hidden">{streak}</span>
-              </div>
-
-              <button onClick={handleShare} className="hidden sm:flex items-center gap-2 bg-[#C5A059]/10 text-[#C5A059] border border-[#C5A059]/30 p-2 sm:px-3 sm:py-2 rounded-lg font-bold text-sm hover:bg-[#C5A059] hover:text-[#09303a] transition-colors">
-                <Share2 size={18} className="sm:w-4 sm:h-4"/> 
-                <span>Paylaş</span>
-              </button>
 
               {isSearchOpen ? (
                 <div className="flex items-center bg-white/10 rounded-lg px-2 relative z-50">
-                  <input type="text" placeholder="Ara..." className="bg-transparent text-white focus:outline-none p-2 w-32 md:w-64 font-sans text-sm" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} autoFocus />
+                  <input type="text" placeholder="Ara..." className="bg-transparent text-white focus:outline-none p-1.5 w-32 md:w-48 font-sans text-sm" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} autoFocus />
                   <X size={18} className="text-[#C5A059] cursor-pointer" onClick={() => { setIsSearchOpen(false); setSearchQuery(""); }} />
                   {searchQuery && <SearchResults query={searchQuery} closeSearch={() => { setIsSearchOpen(false); setSearchQuery(""); }} />}
                 </div>
               ) : (
                 <button onClick={() => setIsSearchOpen(true)} className="text-[#C5A059] p-2 hover:bg-[#C5A059]/10 rounded-lg transition-colors">
-                  <Search size={20} />
+                  <Search size={22} />
                 </button>
               )}
             </div>
          </div>
        </nav>
 
-       <main className="flex-grow w-full max-w-7xl mx-auto px-4 py-8 pb-28 md:pb-12"> 
+       <main className="flex-grow w-full max-w-7xl mx-auto px-4 py-6 pb-28 md:pb-12"> 
          <Suspense fallback={<div className="text-[#C5A059] flex flex-col items-center justify-center p-20 font-sans font-bold"><Flame className="animate-bounce mb-4" size={40}/>Yükleniyor...</div>}>
            <Routes>
              <Route path="/" element={<Home />} />
@@ -506,18 +263,17 @@ function AppContent() {
              <Route path="/bazaar" element={<Bazaar />} /> 
              <Route path="/podcast" element={<Podcast />} /> 
              <Route path="/akademi" element={<Akademi />} /> 
-             
-             {/* YENİ MEGA ROTALAR */}
              <Route path="/kerbela" element={<Kerbela />} /> 
              <Route path="/ibadet" element={<Ibadet />} />
+             <Route path="/kesfet" element={<Kesfet />} /> {/* YENİ MEGA MENÜ YOLU */}
            </Routes>
          </Suspense>
        </main>
-       <Footer />
        
+       <Footer />
        <BottomNavigation />
        
-       <div className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-[100]"><MusicPlayer /></div>
+       <div className="fixed bottom-24 lg:bottom-6 right-4 lg:right-6 z-[100]"><MusicPlayer /></div>
        
        <InstallPrompt />
        <Toast />
