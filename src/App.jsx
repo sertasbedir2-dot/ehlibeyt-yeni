@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Suspense, Component } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-// YENİ İKONLAR EKLENDİ (Compass, Headphones, GraduationCap)
+// İkonlar eksiksiz
 import { Search, X, Share2, Book, Star, Sparkles, Menu, Flame, BookOpen, Shield, MessageCircle, Heart, Store, Compass, Headphones, GraduationCap } from 'lucide-react';
 
 // --- DATA ---
@@ -31,8 +31,10 @@ const Favorites = React.lazy(() => import('./pages/Favorites'));
 const IrfanAgi = React.lazy(() => import('./pages/IrfanAgi')); 
 const CanliMeclis = React.lazy(() => import('./pages/CanliMeclis')); 
 const Bazaar = React.lazy(() => import('./pages/Bazaar')); 
-const Podcast = React.lazy(() => import('./pages/Podcast')); // YENİ: SÜPER APP MODÜLÜ
-const Akademi = React.lazy(() => import('./pages/Akademi')); // YENİ: SÜPER APP MODÜLÜ
+const Podcast = React.lazy(() => import('./pages/Podcast')); 
+const Akademi = React.lazy(() => import('./pages/Akademi')); 
+const Kerbela = React.lazy(() => import('./pages/Kerbela')); // YENİ MEGA MODÜL
+const Ibadet = React.lazy(() => import('./pages/Ibadet')); // YENİ MEGA MODÜL
 
 // --- GLOBAL ÇÖKME ÖNLEYİCİ ---
 class GlobalErrorBoundary extends Component {
@@ -273,22 +275,21 @@ function TopNavigation() {
   const getDayBasedBadge = (path) => {
     const today = new Date().getDay(); 
     if (today === 1 && path === '/library') return { text: "İlme Başla", color: "bg-blue-500/90 text-white" }; 
-    if (today === 2 && path === '/quiz') return { text: "Zihnini Sına", color: "bg-red-500/90 text-white" }; 
-    if (today === 3 && path === '/soru-cevap') return { text: "Akla Danış", color: "bg-purple-500/90 text-white" }; 
-    if (today === 4 && path === '/manevi-receteler') return { text: "Şifa Bul", color: "bg-emerald-500/90 text-white" }; 
     if (today === 5 && path === '/14-masum') return { text: "Nurlu Yol", color: "bg-[#C5A059] text-[#04151a]" }; 
     if ((today === 6 || today === 0) && path === '/irfan-agi') return { text: "Meclise Katıl", color: "bg-[#C5A059] text-[#04151a]" }; 
+    // Aşura ve Erbain dönemlerinde Kerbela sekmesine özel dinamik badge eklenebilir.
     return null; 
   };
 
+  // YENİ MEGA MODÜLLER (İbadet ve Kerbela) EKLENDİ
   const baseNavLinks = [
-    { name: "Manevi Reçeteler", path: "/manevi-receteler" },
+    { name: "İbadet", path: "/ibadet" },
+    { name: "Kerbela", path: "/kerbela" },
     { name: "Kütüphane", path: "/library" },
-    { name: "Soru/Cevap", path: "/soru-cevap" },
     { name: "14 Masum", path: "/14-masum" },
     { name: "İlim Meydanı", path: "/quiz" }, 
-    { name: "İrfan Ağı", path: "/irfan-agi" },
-    { name: "Medya", path: "/medya" }
+    { name: "Soru/Cevap", path: "/soru-cevap" },
+    { name: "İrfan Ağı", path: "/irfan-agi" }
   ];
 
   const navLinks = baseNavLinks.map(link => ({
@@ -298,7 +299,6 @@ function TopNavigation() {
 
   return (
     <>
-      {/* SADECE MASAÜSTÜNDE GÖRÜNEN ÜST LİNKLER */}
       <div className="hidden lg:flex items-center gap-6 ml-8">
         {navLinks.map((link) => (
           <Link key={link.path} to={link.path} className={`relative text-sm font-bold transition-all hover:-translate-y-0.5 ${location.pathname === link.path ? 'text-[#C5A059] border-b-2 border-[#C5A059] pb-1' : 'text-slate-300 hover:text-white'}`}>
@@ -311,7 +311,6 @@ function TopNavigation() {
           </Link>
         ))}
       </div>
-      {/* MOBİL HAMBURGER MENÜ - Alt menü olduğu için artık daha az kullanılacak */}
       <button className="lg:hidden text-[#C5A059] p-2 hover:bg-white/10 rounded-lg ml-auto" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
         {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
@@ -335,7 +334,7 @@ function TopNavigation() {
   );
 }
 
-// --- YENİ BİLEŞEN: MOBİL ALT NAVİGASYON (BOTTOM NAV) ---
+// --- MOBİL ALT NAVİGASYON ---
 function BottomNavigation() {
   const location = useLocation();
   const tabs = [
@@ -488,7 +487,6 @@ function AppContent() {
          </div>
        </nav>
 
-       {/* ALT MENÜNÜN İÇERİĞİ KAPATMAMASI İÇİN MOBİLDE DİP BOŞLUĞU (pb-28) ARTIRILDI */}
        <main className="flex-grow w-full max-w-7xl mx-auto px-4 py-8 pb-28 md:pb-12"> 
          <Suspense fallback={<div className="text-[#C5A059] flex flex-col items-center justify-center p-20 font-sans font-bold"><Flame className="animate-bounce mb-4" size={40}/>Yükleniyor...</div>}>
            <Routes>
@@ -506,17 +504,19 @@ function AppContent() {
              <Route path="/irfan-agi" element={<IrfanAgi />} /> 
              <Route path="/canli-meclis" element={<CanliMeclis />} /> 
              <Route path="/bazaar" element={<Bazaar />} /> 
-             <Route path="/podcast" element={<Podcast />} /> {/* YENİ */}
-             <Route path="/akademi" element={<Akademi />} /> {/* YENİ */}
+             <Route path="/podcast" element={<Podcast />} /> 
+             <Route path="/akademi" element={<Akademi />} /> 
+             
+             {/* YENİ MEGA ROTALAR */}
+             <Route path="/kerbela" element={<Kerbela />} /> 
+             <Route path="/ibadet" element={<Ibadet />} />
            </Routes>
          </Suspense>
        </main>
        <Footer />
        
-       {/* MOBİL ALT MENÜ BİLEŞENİ ÇAĞRILIYOR */}
        <BottomNavigation />
        
-       {/* MUSIC PLAYER POZİSYONU MOBİLDE ALT MENÜNÜN ÜSTÜNE ALINDI (bottom-20) */}
        <div className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-[100]"><MusicPlayer /></div>
        
        <InstallPrompt />
