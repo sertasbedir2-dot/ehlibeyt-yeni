@@ -1,7 +1,8 @@
 import React, { useState, useEffect, Suspense, Component } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Search, X, Share2, Book, Star, Sparkles, Menu, Flame, BookOpen, Shield, MessageCircle, Heart, Store } from 'lucide-react';
+// YENİ İKONLAR EKLENDİ (Compass, Headphones, GraduationCap)
+import { Search, X, Share2, Book, Star, Sparkles, Menu, Flame, BookOpen, Shield, MessageCircle, Heart, Store, Compass, Headphones, GraduationCap } from 'lucide-react';
 
 // --- DATA ---
 import { globalSearchData } from './data/siteData'; 
@@ -29,7 +30,9 @@ const KitapOku = React.lazy(() => import('./pages/KitapOku'));
 const Favorites = React.lazy(() => import('./pages/Favorites')); 
 const IrfanAgi = React.lazy(() => import('./pages/IrfanAgi')); 
 const CanliMeclis = React.lazy(() => import('./pages/CanliMeclis')); 
-const Bazaar = React.lazy(() => import('./pages/Bazaar')); // YENİ ROTA EKLENDİ
+const Bazaar = React.lazy(() => import('./pages/Bazaar')); 
+const Podcast = React.lazy(() => import('./pages/Podcast')); // YENİ: SÜPER APP MODÜLÜ
+const Akademi = React.lazy(() => import('./pages/Akademi')); // YENİ: SÜPER APP MODÜLÜ
 
 // --- GLOBAL ÇÖKME ÖNLEYİCİ ---
 class GlobalErrorBoundary extends Component {
@@ -295,6 +298,7 @@ function TopNavigation() {
 
   return (
     <>
+      {/* SADECE MASAÜSTÜNDE GÖRÜNEN ÜST LİNKLER */}
       <div className="hidden lg:flex items-center gap-6 ml-8">
         {navLinks.map((link) => (
           <Link key={link.path} to={link.path} className={`relative text-sm font-bold transition-all hover:-translate-y-0.5 ${location.pathname === link.path ? 'text-[#C5A059] border-b-2 border-[#C5A059] pb-1' : 'text-slate-300 hover:text-white'}`}>
@@ -307,6 +311,7 @@ function TopNavigation() {
           </Link>
         ))}
       </div>
+      {/* MOBİL HAMBURGER MENÜ - Alt menü olduğu için artık daha az kullanılacak */}
       <button className="lg:hidden text-[#C5A059] p-2 hover:bg-white/10 rounded-lg ml-auto" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
         {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
@@ -330,6 +335,36 @@ function TopNavigation() {
   );
 }
 
+// --- YENİ BİLEŞEN: MOBİL ALT NAVİGASYON (BOTTOM NAV) ---
+function BottomNavigation() {
+  const location = useLocation();
+  const tabs = [
+    { name: "Dergâh", path: "/", icon: Compass },
+    { name: "Dinleti", path: "/podcast", icon: Headphones },
+    { name: "Akademi", path: "/akademi", icon: GraduationCap },
+    { name: "Çarşı", path: "/bazaar", icon: Store }
+  ];
+
+  return (
+    <div className="md:hidden fixed bottom-0 left-0 w-full bg-[#0b1b24]/95 backdrop-blur-xl border-t border-[#C5A059]/20 flex items-center justify-around z-[150] pt-2 pb-3 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+      {tabs.map((tab) => {
+        const isActive = location.pathname === tab.path;
+        const Icon = tab.icon;
+        return (
+          <Link key={tab.path} to={tab.path} className="flex flex-col items-center p-1 w-16">
+            <div className={`p-1.5 rounded-xl transition-all duration-300 ${isActive ? 'bg-[#C5A059]/20 scale-110' : 'bg-transparent'}`}>
+              <Icon size={22} className={`${isActive ? 'text-[#C5A059]' : 'text-slate-400'}`} />
+            </div>
+            <span className={`text-[9px] font-bold mt-1 tracking-wide ${isActive ? 'text-[#C5A059]' : 'text-slate-400'}`}>
+              {tab.name}
+            </span>
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
 const getLevelInfo = (hp) => {
   if(hp < 100) return { name: "Yolcu", next: 100, prev: 0 };
   if(hp < 500) return { name: "Talip", next: 500, prev: 100 };
@@ -344,7 +379,7 @@ function AppContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [streak, setStreak] = useState(0);
   const [hp, setHp] = useState(0);
-  const navigate = useNavigate(); // Yönlendirme için eklendi
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     try {
@@ -407,7 +442,6 @@ function AppContent() {
             
             <div className="flex items-center gap-3 md:gap-4 ml-auto lg:ml-0">
               
-              {/* LOKMA BIRAK VE ÇARŞI BUTONU (YENİ GELİR MODELİ) */}
               <button 
                 onClick={() => navigate('/bazaar')}
                 className="group flex items-center justify-center p-2 rounded-full hover:bg-white/10 transition-colors relative" 
@@ -454,7 +488,8 @@ function AppContent() {
          </div>
        </nav>
 
-       <main className="flex-grow w-full max-w-7xl mx-auto px-4 py-8 mb-24"> 
+       {/* ALT MENÜNÜN İÇERİĞİ KAPATMAMASI İÇİN MOBİLDE DİP BOŞLUĞU (pb-28) ARTIRILDI */}
+       <main className="flex-grow w-full max-w-7xl mx-auto px-4 py-8 pb-28 md:pb-12"> 
          <Suspense fallback={<div className="text-[#C5A059] flex flex-col items-center justify-center p-20 font-sans font-bold"><Flame className="animate-bounce mb-4" size={40}/>Yükleniyor...</div>}>
            <Routes>
              <Route path="/" element={<Home />} />
@@ -470,12 +505,20 @@ function AppContent() {
              <Route path="/heybem" element={<Favorites />} /> 
              <Route path="/irfan-agi" element={<IrfanAgi />} /> 
              <Route path="/canli-meclis" element={<CanliMeclis />} /> 
-             <Route path="/bazaar" element={<Bazaar />} /> {/* ÇARŞI ROTASI */}
+             <Route path="/bazaar" element={<Bazaar />} /> 
+             <Route path="/podcast" element={<Podcast />} /> {/* YENİ */}
+             <Route path="/akademi" element={<Akademi />} /> {/* YENİ */}
            </Routes>
          </Suspense>
        </main>
        <Footer />
-       <div className="fixed bottom-6 right-6 z-[100]"><MusicPlayer /></div>
+       
+       {/* MOBİL ALT MENÜ BİLEŞENİ ÇAĞRILIYOR */}
+       <BottomNavigation />
+       
+       {/* MUSIC PLAYER POZİSYONU MOBİLDE ALT MENÜNÜN ÜSTÜNE ALINDI (bottom-20) */}
+       <div className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-[100]"><MusicPlayer /></div>
+       
        <InstallPrompt />
        <Toast />
     </div>
