@@ -1,6 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Heart, ShoppingBag, Sparkles, ArrowRight, ShieldCheck, Gem } from 'lucide-react';
+// HATA ÇÖZÜMÜ: 'Store' ikonu import edildi.
+import { Heart, ShoppingBag, Sparkles, ShieldCheck, Gem, Store } from 'lucide-react';
 
 export default function Bazaar() {
   // Şimdilik demo veriler. Bunları kendi Shopier veya WhatsApp satış linklerinle değiştireceksin.
