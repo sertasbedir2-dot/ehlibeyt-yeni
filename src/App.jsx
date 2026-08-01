@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Suspense, Component } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Search, X, Share2, Book, Star, Sparkles, Flame, BookOpen, Shield, MessageCircle, Heart, Store, Compass, Headphones, GraduationCap, LayoutGrid, Droplets } from 'lucide-react';
+import { Search, X, Share2, Book, Star, Sparkles, Flame, BookOpen, Shield, MessageCircle, Heart, Store, Compass, Headphones, GraduationCap, LayoutGrid, Droplets, PenTool, Send } from 'lucide-react';
 
 // --- DATA ---
 import { globalSearchData } from './data/siteData'; 
@@ -35,10 +35,9 @@ const Akademi = React.lazy(() => import('./pages/Akademi'));
 const Kerbela = React.lazy(() => import('./pages/Kerbela')); 
 const Ibadet = React.lazy(() => import('./pages/Ibadet')); 
 const Kesfet = React.lazy(() => import('./pages/Kesfet'));
-// YENİ EKLENEN SAYFA: HAKİKAT
 const Hakikat = React.lazy(() => import('./pages/Hakikat')); 
 
-// --- GLOBAL ÇÖKME ÖNLEYİCİ VE SELF-HEALING (KENDİ KENDİNİ İYİLEŞTİRME) ---
+// --- GLOBAL ÇÖKME ÖNLEYİCİ ---
 class GlobalErrorBoundary extends Component {
   constructor(props) {
     super(props);
@@ -52,7 +51,6 @@ class GlobalErrorBoundary extends Component {
   componentDidCatch(error, errorInfo) {
     console.error("KRİTİK HATA YAKALANDI:", error, errorInfo);
     
-    // YENİ EK: Vercel "Failed to fetch" hatasını yakala ve sayfayı sessizce yenile
     const isChunkError = error?.name === 'ChunkLoadError' || 
                          error?.message?.includes('Failed to fetch dynamically imported module') ||
                          error?.message?.includes('Importing a module script failed');
@@ -60,14 +58,12 @@ class GlobalErrorBoundary extends Component {
     if (isChunkError) {
       const lastReload = sessionStorage.getItem('last_chunk_reload');
       const now = Date.now();
-      // Sonsuz yenileme döngüsünü engellemek için 10 saniye bekleme süresi koyuyoruz
       if (!lastReload || (now - parseInt(lastReload)) > 10000) {
           sessionStorage.setItem('last_chunk_reload', now.toString());
-          window.location.reload(true); // Hard Refresh tetikler
+          window.location.reload(true);
           return;
       }
     }
-    
     this.setState({ errorInfo: errorInfo.componentStack });
   }
   
@@ -83,10 +79,6 @@ class GlobalErrorBoundary extends Component {
           <button onClick={() => window.location.reload()} style={{ padding: '0.75rem 2rem', backgroundColor: '#C5A059', color: '#04151a', fontWeight: 'bold', borderRadius: '0.5rem', cursor: 'pointer', border: 'none' }}>
             Sayfayı Yenile
           </button>
-          
-          <div style={{ marginTop: '3rem', backgroundColor: '#04151a', padding: '1rem', color: '#ef4444', overflowX: 'auto', borderRadius: '0.5rem', fontSize: '0.7rem', maxWidth: '100%', opacity: 0.5 }}>
-            <p style={{ fontWeight: 'bold' }}>Teknik Detay (Geliştirici İçin): {this.state.error?.toString()}</p>
-          </div>
         </div>
       );
     }
@@ -104,37 +96,28 @@ function Toast() {
   );
 }
 
-function AnnouncementBar() {
-  const [isVisible, setIsVisible] = useState(false);
-  const [isDismissed, setIsDismissed] = useState(false);
-
-  useEffect(() => {
-    const dismissed = sessionStorage.getItem('announcementDismissed');
-    if (dismissed) { setIsDismissed(true); return; }
-    const timer = setTimeout(() => setIsVisible(true), 4000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (isDismissed || !isVisible) return null;
-
-  return (
-    <div className="bg-gradient-to-r from-[#09303a] via-[#04151a] to-[#09303a] border-b border-[#C5A059]/20 px-4 py-2.5 flex items-center justify-between z-[60] relative animate-fade-in">
-       <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-300 mx-auto font-sans text-center max-w-3xl">
-         <Sparkles size={16} className="text-[#C5A059] hidden sm:block shrink-0" />
-         <p>Ehl-i Beyt yolunda üreten bir kanal veya yazar mısınız? <a href="https://wa.me/905553137021" target="_blank" rel="noopener noreferrer" className="text-[#C5A059] font-bold underline ml-1">İrfan Ağı'na katılın.</a></p>
-       </div>
-       <button onClick={() => {sessionStorage.setItem('announcementDismissed', 'true'); setIsVisible(false);}} className="text-slate-500 hover:text-white ml-4 shrink-0 transition-colors">
-         <X size={16} />
-       </button>
-    </div>
-  );
-}
-
+// --- DİNAMİK SAATE DUYARLI KARŞILAMA MODALI ---
 function WelcomeModal() {
   const [isOpen, setIsOpen] = useState(false);
+  const [greeting, setGreeting] = useState({ title: "", text: "", icon: BookOpen, color: "" });
+
   useEffect(() => {
+    // Sadece günde 1 kez çıkması için tarih kontrolü
     const today = new Date().toDateString();
     if (localStorage.getItem('lastModalDate') === today) return;
+
+    // Saate göre mesaj ayarlama
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) {
+      setGreeting({ title: "Sabahın Nuru Üzerine Olsun", text: "Güne İlim ve Ehlibeyt'in hikmetiyle başlamak, rızkın en güzelidir. Dergâha hoş geldin.", color: "text-[#C5A059]" });
+    } else if (hour >= 12 && hour < 17) {
+      setGreeting({ title: "Günün Bereketli Olsun", text: "Dünya telaşının arasında hakikati aramaya vakit ayırdın. Meclisimize hoş geldin.", color: "text-white" });
+    } else if (hour >= 17 && hour < 22) {
+      setGreeting({ title: "Akşamın Hayr Olsun", text: "Günün yorgunluğunu manevi reçeteler ve hikmetli sözlerle at. İlim şehrine hoş geldin.", color: "text-[#C5A059]" });
+    } else {
+      setGreeting({ title: "Gecenin Sükuneti", text: "Herkes uykudayken hakikati arayan gözler ne mübarektir. Gece meclisine hoş geldin.", color: "text-emerald-400" });
+    }
+
     const timer = setTimeout(() => setIsOpen(true), 1200);
     return () => clearTimeout(timer);
   }, []);
@@ -144,10 +127,10 @@ function WelcomeModal() {
     <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in">
       <div className="bg-[#0b1b24] border border-[#C5A059]/40 rounded-2xl p-8 max-w-lg text-center shadow-2xl relative w-full">
         <button onClick={() => {localStorage.setItem('lastModalDate', new Date().toDateString()); setIsOpen(false);}} className="absolute top-4 right-4 text-slate-400 hover:text-white p-2"><X size={24}/></button>
-        <BookOpen className="text-[#C5A059] mx-auto mb-4" size={40} />
-        <h2 className="text-2xl font-bold text-[#FDF6E3] mb-2">İlim Şehrine Hoş Geldin</h2>
-        <p className="text-slate-300 mb-6">Hakikati arayanların, Ehlibeyt'in nurlu yolunda yürümek isteyenlerin meclisidir.</p>
-        <button onClick={() => {localStorage.setItem('lastModalDate', new Date().toDateString()); setIsOpen(false);}} className="bg-[#C5A059] text-[#09303a] px-8 py-3 rounded-xl font-bold w-full hover:bg-white transition-all">Kapıdan İçeri Gir</button>
+        <BookOpen className={`${greeting.color} mx-auto mb-4`} size={40} />
+        <h2 className={`text-2xl font-bold mb-2 ${greeting.color}`}>{greeting.title}</h2>
+        <p className="text-slate-300 mb-6 font-serif leading-relaxed">{greeting.text}</p>
+        <button onClick={() => {localStorage.setItem('lastModalDate', new Date().toDateString()); setIsOpen(false);}} className="bg-[#C5A059] text-[#09303a] px-8 py-3 rounded-xl font-bold w-full hover:bg-white transition-all shadow-[0_0_15px_rgba(197,160,89,0.3)]">Kapıdan İçeri Gir</button>
       </div>
     </div>
   );
@@ -157,7 +140,9 @@ function SearchResults({ query, closeSearch }) {
   const navigate = useNavigate();
   if (!query) return null;
   const results = (Array.isArray(globalSearchData) ? globalSearchData : []).filter(item => 
-    item && (item.title?.toLowerCase().includes(query.toLowerCase()) || item.category?.toLowerCase().includes(query.toLowerCase()))
+    item && (item.title?.toLowerCase().includes(query.toLowerCase()) || 
+             item.category?.toLowerCase().includes(query.toLowerCase()) ||
+             (item.keywords && item.keywords.toLowerCase().includes(query.toLowerCase())))
   );
   return (
     <div className="absolute top-16 right-0 w-full md:w-[400px] bg-[#0b1b24]/95 backdrop-blur-xl border border-[#C5A059]/30 rounded-xl overflow-hidden shadow-2xl max-h-96 overflow-y-auto z-[150]">
@@ -196,11 +181,10 @@ function TopNavigation() {
 
 function BottomNavigation() {
   const location = useLocation();
-  // GÜNCELLENEN KISIM: Mobilde Hakikat merkezde yer alacak. Maksimum 5 ikon kuralı.
   const tabs = [
     { name: "Dergâh", path: "/", icon: Compass },
     { name: "İbadet", path: "/ibadet", icon: Droplets },
-    { name: "Hakikat", path: "/hakikat", icon: Flame }, // MERKEZ AKSİYON
+    { name: "Hakikat", path: "/hakikat", icon: Flame }, 
     { name: "Dinleti", path: "/podcast", icon: Headphones },
     { name: "Menü", path: "/kesfet", icon: LayoutGrid } 
   ];
@@ -210,8 +194,6 @@ function BottomNavigation() {
       {tabs.map((tab) => {
         const isActive = location.pathname === tab.path;
         const Icon = tab.icon;
-        
-        // Hakikat menüsüne özel vurgu
         const isCenter = tab.name === "Hakikat";
 
         return (
@@ -229,6 +211,101 @@ function BottomNavigation() {
   );
 }
 
+// --- DERGÂH DEFTERİ (ZİYARETÇİ DEFTERİ) BİLEŞENİ ---
+function DergahDefteri() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [name, setName] = useState('');
+  const [message, setMessage] = useState('');
+  const [status, setStatus] = useState('idle'); // idle, sending, success, error
+
+  // TELEGRAM BOT AYARLARI (LÜTFEN BURAYI DOLDURUN)
+  const TELEGRAM_BOT_TOKEN = "BURAYA_BOT_TOKEN_GELECEK"; 
+  const TELEGRAM_CHAT_ID = "BURAYA_CHAT_ID_GELECEK";
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus('sending');
+
+    const text = `📜 *Dergâh Defterine Yeni Yazı!*\n\n👤 *Kimden:* ${name || 'İsimsiz Can'}\n💬 *Mesaj:* ${message}`;
+
+    try {
+      // Eğer tokenları girmediyseniz sadece başarılı animasyonu gösterir (Sistemin çökmemesi için)
+      if(TELEGRAM_BOT_TOKEN !== "BURAYA_BOT_TOKEN_GELECEK") {
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: text, parse_mode: 'Markdown' })
+        });
+      }
+      setStatus('success');
+      setTimeout(() => { setIsOpen(false); setStatus('idle'); setMessage(''); setName(''); }, 3000);
+    } catch (error) {
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 3000);
+    }
+  };
+
+  return (
+    <>
+      {/* Floating Action Button (Sol Alt) */}
+      <button 
+        onClick={() => setIsOpen(true)}
+        className="fixed bottom-24 lg:bottom-6 left-4 lg:left-6 z-[100] bg-[#C5A059] text-[#04151a] p-3 rounded-full shadow-[0_0_15px_rgba(197,160,89,0.5)] hover:scale-110 transition-transform flex items-center justify-center group"
+      >
+        <PenTool size={24} />
+        <span className="absolute left-14 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-[#C5A059]/30">
+          Dergâh Defteri
+        </span>
+      </button>
+
+      {/* Yazı Yazma Modalı */}
+      {isOpen && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="bg-[#0b1b24] border border-[#C5A059]/40 rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden">
+            <div className="bg-[#09303a] p-4 border-b border-[#C5A059]/20 flex justify-between items-center">
+              <h3 className="text-[#C5A059] font-bold flex items-center gap-2"><BookOpen size={18}/> Dergâh Defteri</h3>
+              <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white"><X size={20}/></button>
+            </div>
+            
+            <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
+              <p className="text-sm text-slate-300 mb-2 font-serif italic text-center">
+                "Buraya bir iz bırak, yazın kalbine ulaşsın."
+              </p>
+              
+              <input 
+                type="text" 
+                placeholder="İsminiz (İsteğe Bağlı)" 
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="bg-black/30 border border-white/10 rounded-lg p-3 text-white focus:border-[#C5A059] outline-none transition-colors"
+              />
+              
+              <textarea 
+                required
+                placeholder="Meclise iletmek istediğin söz nedir?" 
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={4}
+                className="bg-black/30 border border-white/10 rounded-lg p-3 text-white focus:border-[#C5A059] outline-none transition-colors resize-none"
+              />
+              
+              <button 
+                type="submit" 
+                disabled={status === 'sending' || status === 'success'}
+                className={`mt-2 py-3 rounded-xl font-bold flex justify-center items-center gap-2 transition-all ${
+                  status === 'success' ? 'bg-emerald-500 text-white' : 'bg-[#C5A059] text-[#04151a] hover:bg-white'
+                }`}
+              >
+                {status === 'sending' ? 'Gönderiliyor...' : status === 'success' ? 'Sözünüz Ulaştı!' : <><Send size={18}/> Gönder</>}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 function AppContent() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -241,9 +318,26 @@ function AppContent() {
     return () => window.removeEventListener('hp_updated', loadHp);
   }, []);
 
+  // GLOBAL PAYLAŞIM FONKSİYONU
+  const handleGlobalShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "OnikiKapı | İlim ve Hikmet Şehri",
+          text: "Hakikati arayanların, Ehlibeyt'in nurlu yolunda yürümek isteyenlerin meclisi. İlim şehrine davetlisin.",
+          url: "https://www.onikikapi.com"
+        });
+      } catch (e) {
+        console.log("Paylaşım iptal edildi");
+      }
+    } else {
+      navigator.clipboard.writeText("https://www.onikikapi.com");
+      alert("Site linki kopyalandı!");
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-[#04151a] text-[#FDF6E3] flex flex-col font-serif relative animate-fade-in">
-       <AnnouncementBar />
        <WelcomeModal />
        
        <nav className="bg-[#09303a] border-b border-[#C5A059]/20 sticky top-0 z-50 shadow-xl backdrop-blur-md px-4 py-3">
@@ -254,10 +348,15 @@ function AppContent() {
             
             <TopNavigation />
             
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5 bg-black/30 border border-[#C5A059]/30 px-3 py-1.5 rounded-full text-[#C5A059] text-xs font-bold">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-1.5 bg-black/30 border border-[#C5A059]/30 px-3 py-1.5 rounded-full text-[#C5A059] text-xs font-bold hidden sm:flex">
                 <Shield size={14} /> <span>{hp} HP</span>
               </div>
+
+              {/* GLOBAL PAYLAŞ BUTONU EKLENDİ */}
+              <button onClick={handleGlobalShare} className="text-slate-300 hover:text-[#C5A059] p-2 hover:bg-[#C5A059]/10 rounded-lg transition-colors" title="Siteyi Paylaş">
+                <Share2 size={20} />
+              </button>
 
               {isSearchOpen ? (
                 <div className="flex items-center bg-white/10 rounded-lg px-2 relative z-50">
@@ -304,7 +403,9 @@ function AppContent() {
        <Footer />
        <BottomNavigation />
        
+       {/* Müzik Çalar ve Ziyaretçi Defteri */}
        <div className="fixed bottom-24 lg:bottom-6 right-4 lg:right-6 z-[100]"><MusicPlayer /></div>
+       <DergahDefteri />
        
        <InstallPrompt />
        <Toast />

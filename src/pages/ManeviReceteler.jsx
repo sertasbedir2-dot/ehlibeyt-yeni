@@ -9,11 +9,9 @@ export default function ManeviReceteler() {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // --- DİJİTAL RİYAZET (HOOK MODELİ) STATE'LERİ ---
   const [checkedSteps, setCheckedSteps] = useState([false, false, false]);
   const [hpClaimed, setHpClaimed] = useState(false);
 
-  // Modal değiştiğinde veya kapandığında Checklist'i sıfırla
   useEffect(() => {
     if (selectedRecipe) {
       setCheckedSteps([false, false, false]);
@@ -34,26 +32,22 @@ export default function ManeviReceteler() {
     setSearchQuery(""); 
   };
 
-  // --- CHECKLIST TETİKLEYİCİSİ ---
   const toggleStep = (index) => {
-    if (hpClaimed) return; // Puan alındıysa kitle
+    if (hpClaimed) return; 
     const newSteps = [...checkedSteps];
     newSteps[index] = !newSteps[index];
     setCheckedSteps(newSteps);
   };
 
-  // --- HİKMET PUANI KAZANIMI ---
   const handleClaimHP = () => {
     if (hpClaimed) return;
     const currentHP = parseInt(localStorage.getItem('hikmet_puani') || '0', 10);
     localStorage.setItem('hikmet_puani', (currentHP + 20).toString());
-    
-    // Navbar'ı anında haberdar et
     window.dispatchEvent(new Event('hp-updated'));
     setHpClaimed(true);
   };
 
-  // --- PAYLAŞIM FONKSİYONU ---
+  // --- FACEBOOK VE SOSYAL MEDYA KESİN ÇÖZÜMÜ ---
   const handleShare = async () => {
     if (!selectedRecipe) return;
 
@@ -66,29 +60,36 @@ ${selectedRecipe.cure.arabic}
 (${selectedRecipe.cure.meaning})
 
 💡 *Hikmeti:* ${selectedRecipe.wisdom}
-📜 *Kaynak:* ${selectedRecipe.cure.source}
 
-📲 *OnikiKapı - İlim ve Hikmet Şehri uygulamasından keşfedin:*
+📲 *OnikiKapı'dan Keşfet:*
 https://www.onikikapi.com/manevi-receteler
     `.trim();
 
+    // 1. Önce HER ZAMAN metni panoya (kopyala) alıyoruz. Facebook metni engellerse, kullanıcı yapıştırabilsin diye.
+    try {
+        await navigator.clipboard.writeText(shareText);
+    } catch (e) {
+        console.log("Pano erişimi reddedildi.");
+    }
+
+    // 2. Native Share'i Tetikliyoruz
     if (navigator.share) {
       try {
+        // Facebook gibi platformlar "text"i silebilir, bu yüzden sadece URL verip, metni yapıştırmalarını hatırlatıyoruz.
+        alert("Reçete metni hafızaya kopyalandı! Facebook veya başka bir platformda paylaşırken ekrana basılı tutup 'Yapıştır' diyerek metni ekleyebilirsiniz.");
         await navigator.share({
           title: `OnikiKapı: ${selectedRecipe.title}`,
-          text: shareText,
-          url: 'https://www.onikikapi.com/manevi-receteler'
+          text: shareText, // WhatsApp/Telegram bunu alır
+          url: 'https://www.onikikapi.com/manevi-receteler' // Facebook bunu alır
         });
       } catch (err) {
         console.log('Paylaşım iptal edildi');
       }
     } else {
-      navigator.clipboard.writeText(shareText);
-      alert("Reçete kopyalandı! Dilediğiniz yerde yapıştırıp paylaşabilirsiniz.");
+      alert("Reçete başarıyla kopyalandı! Dilediğiniz uygulamada (Facebook, WhatsApp) 'Yapıştır' diyerek paylaşabilirsiniz.");
     }
   };
 
-  // Şifa adımları metinleri
   const prescriptionSteps = [
     "Manevi arınma için abdest alıp kıbleye yöneldim.",
     "Reçetedeki ilahi kelamı (duayı) huşu ile okudum.",
@@ -102,7 +103,6 @@ https://www.onikikapi.com/manevi-receteler
         <meta name="description" content="Ehl-i Beyt kaynaklı manevi reçeteler, dualar ve Tıbb-ı Rıza tavsiyeleri." />
       </Helmet>
 
-      {/* --- BAŞLIK ALANI --- */}
       <div className="text-center max-w-3xl mx-auto mb-12">
         <div className="flex justify-center mb-4">
            <div className="p-4 bg-gold/10 rounded-full border border-gold/30 shadow-[0_0_15px_rgba(197,160,89,0.3)]">
@@ -115,7 +115,6 @@ https://www.onikikapi.com/manevi-receteler
         </p>
       </div>
 
-      {/* --- MOOD SEÇİCİ --- */}
       <div className="max-w-4xl mx-auto mb-12 bg-white/5 p-6 rounded-3xl border border-white/5 backdrop-blur-sm">
         <p className="text-center text-turquoise-light font-bold uppercase tracking-widest text-sm mb-6 flex items-center justify-center gap-2">
           <Sparkles size={16} /> Bugün Kendini Nasıl Hissediyorsun?
@@ -138,7 +137,6 @@ https://www.onikikapi.com/manevi-receteler
         </div>
       </div>
 
-      {/* --- KATEGORİLER --- */}
       <div className="max-w-6xl mx-auto mb-8 overflow-x-auto pb-4 custom-scrollbar">
         <div className="flex gap-3 min-w-max justify-center sm:justify-center">
           <button
@@ -164,7 +162,6 @@ https://www.onikikapi.com/manevi-receteler
         </div>
       </div>
 
-      {/* --- ARAMA --- */}
       <div className="max-w-md mx-auto mb-10 relative group">
         <div className="absolute inset-0 bg-gold/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         <Search className="absolute left-4 top-3.5 text-slate-400 group-hover:text-gold transition-colors" size={20} />
@@ -177,7 +174,6 @@ https://www.onikikapi.com/manevi-receteler
         />
       </div>
 
-      {/* --- LİSTE --- */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredRecipes.length > 0 ? (
           filteredRecipes.map((recipe) => (
@@ -218,7 +214,6 @@ https://www.onikikapi.com/manevi-receteler
         )}
       </div>
 
-      {/* --- DETAY VE PAYLAŞ MODALI --- */}
       {selectedRecipe && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in overflow-y-auto">
           <div className="bg-[#fdf6e3] w-full max-w-2xl rounded-2xl shadow-2xl relative my-8 font-serif border-4 border-[#C5A059] overflow-hidden flex flex-col max-h-[90vh]">
@@ -298,7 +293,6 @@ https://www.onikikapi.com/manevi-receteler
                 </div>
               )}
 
-              {/* --- YENİ: DİJİTAL RİYAZET (CHECKLIST) --- */}
               <div className="bg-white border border-[#C5A059]/40 p-6 rounded-xl shadow-sm mt-4">
                  <h4 className="font-bold text-[#0B1120] uppercase text-sm tracking-wide mb-4 flex items-center gap-2">
                    <Activity size={18} className="text-[#C5A059]"/> Şifa Adımları (Dijital Riyazet)
@@ -349,13 +343,12 @@ https://www.onikikapi.com/manevi-receteler
                  )}
               </div>
 
-              {/* --- PAYLAŞ BUTONU --- */}
               <button 
                 onClick={handleShare}
                 className="w-full bg-[#0B1120] text-[#C5A059] font-sans font-bold text-lg py-4 rounded-xl shadow-lg hover:bg-black transition-all active:scale-95 flex items-center justify-center gap-2 mt-4 border border-[#C5A059]/30"
               >
                 <Share2 size={24} />
-                Bu Reçeteyi Paylaş
+                Facebook / Whatsapp'ta Paylaş
               </button>
 
             </div>
