@@ -217,7 +217,7 @@ function DergahDefteri() {
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState('idle');
 
-  // TELEGRAM BOT AYARLARI 
+  // TELEGRAM BOT AYARLARI (Daha sonra kendi bilgilerinizi gireceksiniz)
   const TELEGRAM_BOT_TOKEN = "BURAYA_BOT_TOKEN_GELECEK"; 
   const TELEGRAM_CHAT_ID = "BURAYA_CHAT_ID_GELECEK";
 
@@ -313,7 +313,7 @@ function AppContent() {
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     window.OneSignalDeferred.push(async function(OneSignal) {
       await OneSignal.init({
-        appId: "BURAYA_ONESIGNAL_APP_ID_GELECEK", // Siteden aldığınız ID'yi buraya yapıştırın.
+        appId: "524cbacc-4aea-46b8-96e9-eca2bbebe8e6", // APP ID ENJEKTE EDİLDİ
         safari_web_id: "",
         notifyButton: {
           enable: true,
