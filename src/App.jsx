@@ -211,14 +211,13 @@ function BottomNavigation() {
   );
 }
 
-// --- DERGÂH DEFTERİ (ZİYARETÇİ DEFTERİ) BİLEŞENİ ---
 function DergahDefteri() {
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState('');
   const [message, setMessage] = useState('');
-  const [status, setStatus] = useState('idle'); // idle, sending, success, error
+  const [status, setStatus] = useState('idle');
 
-  // TELEGRAM BOT AYARLARI (LÜTFEN BURAYI DOLDURUN)
+  // TELEGRAM BOT AYARLARI 
   const TELEGRAM_BOT_TOKEN = "BURAYA_BOT_TOKEN_GELECEK"; 
   const TELEGRAM_CHAT_ID = "BURAYA_CHAT_ID_GELECEK";
 
@@ -229,7 +228,6 @@ function DergahDefteri() {
     const text = `📜 *Dergâh Defterine Yeni Yazı!*\n\n👤 *Kimden:* ${name || 'İsimsiz Can'}\n💬 *Mesaj:* ${message}`;
 
     try {
-      // Eğer tokenları girmediyseniz sadece başarılı animasyonu gösterir (Sistemin çökmemesi için)
       if(TELEGRAM_BOT_TOKEN !== "BURAYA_BOT_TOKEN_GELECEK") {
         await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
           method: 'POST',
@@ -247,7 +245,6 @@ function DergahDefteri() {
 
   return (
     <>
-      {/* Floating Action Button (Sol Alt) */}
       <button 
         onClick={() => setIsOpen(true)}
         className="fixed bottom-24 lg:bottom-6 left-4 lg:left-6 z-[100] bg-[#C5A059] text-[#04151a] p-3 rounded-full shadow-[0_0_15px_rgba(197,160,89,0.5)] hover:scale-110 transition-transform flex items-center justify-center group"
@@ -258,7 +255,6 @@ function DergahDefteri() {
         </span>
       </button>
 
-      {/* Yazı Yazma Modalı */}
       {isOpen && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
           <div className="bg-[#0b1b24] border border-[#C5A059]/40 rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden">
@@ -312,13 +308,42 @@ function AppContent() {
   const [hp, setHp] = useState(parseInt(localStorage.getItem('hikmet_puani') || '0'));
   const navigate = useNavigate(); 
 
+  // ONESIGNAL BİLDİRİM ATEŞLEYİCİSİ (HOOK MODELİ)
+  useEffect(() => {
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    window.OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "BURAYA_ONESIGNAL_APP_ID_GELECEK", // Siteden aldığınız ID'yi buraya yapıştırın.
+        safari_web_id: "",
+        notifyButton: {
+          enable: true,
+          size: 'medium',
+          theme: 'dark',
+          position: 'bottom-left',
+          offset: { bottom: '100px', left: '15px' }, // Dergâh Defteri butonunun hemen üzerinde duracak
+          colors: { 
+            'circle.background': '#C5A059',
+            'circle.foreground': '#04151a',
+            'badge.background': '#04151a',
+            'badge.foreground': '#C5A059',
+            'badge.bordercolor': '#04151a',
+            'pulse.color': '#C5A059',
+            'dialog.button.background.hovering': '#04151a',
+            'dialog.button.background.active': '#04151a',
+            'dialog.button.background': '#09303a',
+            'dialog.button.foreground.textColor': '#C5A059'
+          }
+        },
+      });
+    });
+  }, []);
+
   useEffect(() => {
     const loadHp = () => setHp(parseInt(localStorage.getItem('hikmet_puani') || '0'));
     window.addEventListener('hp_updated', loadHp); 
     return () => window.removeEventListener('hp_updated', loadHp);
   }, []);
 
-  // GLOBAL PAYLAŞIM FONKSİYONU
   const handleGlobalShare = async () => {
     if (navigator.share) {
       try {
@@ -353,7 +378,6 @@ function AppContent() {
                 <Shield size={14} /> <span>{hp} HP</span>
               </div>
 
-              {/* GLOBAL PAYLAŞ BUTONU EKLENDİ */}
               <button onClick={handleGlobalShare} className="text-slate-300 hover:text-[#C5A059] p-2 hover:bg-[#C5A059]/10 rounded-lg transition-colors" title="Siteyi Paylaş">
                 <Share2 size={20} />
               </button>
