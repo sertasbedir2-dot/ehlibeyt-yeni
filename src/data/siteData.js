@@ -4,6 +4,24 @@
  */
 
 export const globalSearchData = [
+    // --- ÇIPLAK GERÇEKLİK (HAKİKAT) ---
+    { 
+      id: "h-1",
+      title: "Alevilikte Tasavvuf Asimilasyonu: Ehlibeyt'ten Kopuş", 
+      type: "Makale", 
+      url: "/hakikat", 
+      category: "Çıplak Gerçeklik",
+      keywords: "alevilik, tasavvuf, asimilasyon, ehlibeyt, mürşid, pir, vahdet-i vücud, şeriat, bâtın" 
+    },
+    { 
+      id: "h-2",
+      title: "Aleviler Neden 'Devri Daim Olsun' Derler?", 
+      type: "Makale", 
+      url: "/hakikat", 
+      category: "Çıplak Gerçeklik",
+      keywords: "alevi, devri daim, don değiştirme, reenkarnasyon, tenasüh, berzah, ahiret, pagan, ölüm" 
+    },
+
     // --- KİTAPLAR ---
     { 
       id: "s-1",
