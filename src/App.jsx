@@ -174,7 +174,7 @@ function SearchResults({ query, closeSearch }) {
 function TopNavigation() {
   const location = useLocation();
   const navLinks = [
-    { name: "Hakikat", path: "/hakikat" }, // YENİ MENÜ EKLENDİ
+    { name: "Hakikat", path: "/hakikat" }, 
     { name: "İbadet", path: "/ibadet" },
     { name: "Kerbela", path: "/kerbela" },
     { name: "Kütüphane", path: "/library" },
@@ -196,25 +196,30 @@ function TopNavigation() {
 
 function BottomNavigation() {
   const location = useLocation();
+  // GÜNCELLENEN KISIM: Mobilde Hakikat merkezde yer alacak. Maksimum 5 ikon kuralı.
   const tabs = [
     { name: "Dergâh", path: "/", icon: Compass },
     { name: "İbadet", path: "/ibadet", icon: Droplets },
-    { name: "Akademi", path: "/akademi", icon: GraduationCap },
+    { name: "Hakikat", path: "/hakikat", icon: Flame }, // MERKEZ AKSİYON
     { name: "Dinleti", path: "/podcast", icon: Headphones },
     { name: "Menü", path: "/kesfet", icon: LayoutGrid } 
   ];
 
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#0b1b24]/95 backdrop-blur-xl border-t border-[#C5A059]/20 flex items-center justify-between px-2 z-[150] pt-2 pb-4 shadow-[0_-10px_40px_rgba(0,0,0,0.6)]">
+    <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#0b1b24]/95 backdrop-blur-xl border-t border-[#C5A059]/20 flex items-center justify-between px-1 sm:px-2 z-[150] pt-2 pb-4 shadow-[0_-10px_40px_rgba(0,0,0,0.6)]">
       {tabs.map((tab) => {
         const isActive = location.pathname === tab.path;
         const Icon = tab.icon;
+        
+        // Hakikat menüsüne özel vurgu
+        const isCenter = tab.name === "Hakikat";
+
         return (
-          <Link key={tab.path} to={tab.path} className="flex flex-col items-center p-1 w-[20%]">
-            <div className={`p-1.5 rounded-xl transition-all duration-300 ${isActive ? 'bg-[#C5A059]/20 scale-110' : 'bg-transparent'}`}>
-              <Icon size={24} className={`${isActive ? 'text-[#C5A059]' : 'text-slate-400'}`} />
+          <Link key={tab.path} to={tab.path} className="flex flex-col items-center p-1 w-[20%] relative">
+            <div className={`p-1.5 sm:p-2 rounded-xl transition-all duration-300 ${isActive ? (isCenter ? 'bg-red-900/40 scale-110 shadow-lg border border-red-500/30' : 'bg-[#C5A059]/20 scale-110') : 'bg-transparent'}`}>
+              <Icon size={22} className={`${isActive ? (isCenter ? 'text-red-500' : 'text-[#C5A059]') : 'text-slate-400'}`} />
             </div>
-            <span className={`text-[9px] font-bold mt-1 tracking-wide ${isActive ? 'text-[#C5A059]' : 'text-slate-400'}`}>
+            <span className={`text-[9px] font-bold mt-1 tracking-wide ${isActive ? (isCenter ? 'text-red-400' : 'text-[#C5A059]') : 'text-slate-400'}`}>
               {tab.name}
             </span>
           </Link>
@@ -291,7 +296,6 @@ function AppContent() {
              <Route path="/kerbela" element={<Kerbela />} /> 
              <Route path="/ibadet" element={<Ibadet />} />
              <Route path="/kesfet" element={<Kesfet />} /> 
-             {/* YENİ ROTA (ROUTE) EKLENDİ */}
              <Route path="/hakikat" element={<Hakikat />} /> 
            </Routes>
          </Suspense>
