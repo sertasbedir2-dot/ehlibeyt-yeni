@@ -5,7 +5,7 @@ const OpenAI = require('openai');
 
 const app = express();
 
-app.use(cors());
+app.use(cors());a
 app.use(express.json());
 
 // 1. NEO4J BAĞLANTISI (Warm-start için global tanımlandı)

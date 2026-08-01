@@ -35,6 +35,8 @@ const Akademi = React.lazy(() => import('./pages/Akademi'));
 const Kerbela = React.lazy(() => import('./pages/Kerbela')); 
 const Ibadet = React.lazy(() => import('./pages/Ibadet')); 
 const Kesfet = React.lazy(() => import('./pages/Kesfet'));
+// YENİ EKLENEN SAYFA: HAKİKAT
+const Hakikat = React.lazy(() => import('./pages/Hakikat')); 
 
 // --- GLOBAL ÇÖKME ÖNLEYİCİ VE SELF-HEALING (KENDİ KENDİNİ İYİLEŞTİRME) ---
 class GlobalErrorBoundary extends Component {
@@ -172,6 +174,7 @@ function SearchResults({ query, closeSearch }) {
 function TopNavigation() {
   const location = useLocation();
   const navLinks = [
+    { name: "Hakikat", path: "/hakikat" }, // YENİ MENÜ EKLENDİ
     { name: "İbadet", path: "/ibadet" },
     { name: "Kerbela", path: "/kerbela" },
     { name: "Kütüphane", path: "/library" },
@@ -288,6 +291,8 @@ function AppContent() {
              <Route path="/kerbela" element={<Kerbela />} /> 
              <Route path="/ibadet" element={<Ibadet />} />
              <Route path="/kesfet" element={<Kesfet />} /> 
+             {/* YENİ ROTA (ROUTE) EKLENDİ */}
+             <Route path="/hakikat" element={<Hakikat />} /> 
            </Routes>
          </Suspense>
        </main>
