@@ -18,7 +18,7 @@ export default function Home() {
   const [searchResults, setSearchResults] = useState([]); 
   const navigate = useNavigate();
   const [showNotificationModal, setShowNotificationModal] = useState(false);
-  const [onlineUsers, setOnlineUsers] = useState(12); // Canlı sohbet simülasyonu
+  const [onlineUsers, setOnlineUsers] = useState(12);
   const wisdomSectionRef = useRef(null);
 
   const safeSearch = (query) => {
@@ -60,9 +60,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // Çevrimiçi kullanıcı sayısını rastgele belirle (12 ile 34 arası)
     setOnlineUsers(Math.floor(Math.random() * 22) + 12);
-
     try {
       if (!localStorage.getItem('notificationAsked') && 'Notification' in window && Notification.permission === 'default') {
         setTimeout(() => setShowNotificationModal(true), 3000);
@@ -95,26 +93,31 @@ export default function Home() {
     });
   };
 
+  // NATIVE SHARE OPTIMIZED FOR STORIES & LINK CARDS
   const handleNativeShare = async (title, textContent) => {
     const siteUrl = "https://www.onikikapi.com";
-    const shareText = `${textContent}\n\nDaha fazlası için:`;
+    const fallbackText = `${title}\n\n${textContent}\n\nİrfan ve Hikmet pınarı için: ${siteUrl}`;
 
     if (navigator.share) {
       try {
-        await navigator.share({ title: title, text: shareText, url: siteUrl });
+        await navigator.share({ 
+          title: title, 
+          text: textContent, // FB/IG Akış için metin
+          url: siteUrl // Hikayeler URL'yi sticker'a çevirecek
+        });
       } catch (err) {
-        console.log('Paylaşım hatası:', err);
+        console.log('Paylaşım iptal edildi veya desteklenmiyor:', err);
       }
     } else {
-      navigator.clipboard.writeText(`${title} - ${shareText} ${siteUrl}`);
-      alert("Metin ve bağlantı kopyalandı!");
+      navigator.clipboard.writeText(fallbackText);
+      alert("Metin ve bağlantı kopyalandı! İstediğiniz platforma yapıştırabilirsiniz.");
     }
   };
 
   return (
     <div className="space-y-8 animate-fade-in relative pb-20 md:pb-0">
       
-      {/* CANLI İLİM MECLİSİ - YÜZEN BUTON (FAB) - MOBİL İÇİN YUKARI TAŞINDI */}
+      {/* CANLI İLİM MECLİSİ - YÜZEN BUTON */}
       <button
         onClick={() => navigate('/canli-meclis')}
         className="fixed bottom-28 right-4 md:bottom-6 md:right-6 z-[200] group flex items-center gap-3 bg-[#04151a]/90 backdrop-blur-md border border-[#C5A059]/50 px-4 py-3 rounded-full shadow-[0_0_25px_rgba(197,160,89,0.25)] hover:bg-[#09303a] hover:scale-105 transition-all duration-300"
