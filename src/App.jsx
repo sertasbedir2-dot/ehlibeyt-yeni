@@ -50,7 +50,6 @@ class GlobalErrorBoundary extends Component {
   
   componentDidCatch(error, errorInfo) {
     console.error("KRİTİK HATA YAKALANDI:", error, errorInfo);
-    
     const isChunkError = error?.name === 'ChunkLoadError' || 
                          error?.message?.includes('Failed to fetch dynamically imported module') ||
                          error?.message?.includes('Importing a module script failed');
@@ -96,7 +95,6 @@ function Toast() {
   );
 }
 
-// --- DİNAMİK SAATE DUYARLI KARŞILAMA MODALI ---
 function WelcomeModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [greeting, setGreeting] = useState({ title: "", text: "", icon: BookOpen, color: "" });
@@ -221,16 +219,13 @@ function DergahDefteri() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus('sending');
-
     const text = `📜 *Dergâh Defterine Yeni Yazı!*\n\n👤 *Kimden:* ${name || 'İsimsiz Can'}\n💬 *Mesaj:* ${message}`;
-
     try {
       await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: text, parse_mode: 'Markdown' })
       });
-      
       setStatus('success');
       setTimeout(() => { setIsOpen(false); setStatus('idle'); setMessage(''); setName(''); }, 3000);
     } catch (error) {
@@ -305,42 +300,51 @@ function AppContent() {
   const [hp, setHp] = useState(parseInt(localStorage.getItem('hikmet_puani') || '0'));
   const navigate = useNavigate(); 
 
-  // ONESIGNAL BİLDİRİM ATEŞLEYİCİSİ (KİLİTLİ SAFE-INJECT MODELİ)
+  // ONESIGNAL BİLDİRİM ATEŞLEYİCİSİ (DİNAMİK YÜKLEME + SAFE INJECT)
   useEffect(() => {
-    // Strict Mode altında çift çalışmayı engellemek için React dışı global kilit
-    if (window.OneSignalInitialized) return;
-    window.OneSignalInitialized = true;
-
-    window.OneSignalDeferred = window.OneSignalDeferred || [];
-    window.OneSignalDeferred.push(async function(OneSignal) {
-      try {
-        await OneSignal.init({
-          appId: "524cbacc-4aea-46b8-96e9-eca2bbebe8e6", 
-          safari_web_id: "",
-          notifyButton: {
-            enable: true,
-            size: 'medium',
-            theme: 'dark',
-            position: 'bottom-left',
-            offset: { bottom: '100px', left: '15px' },
-            colors: { 
-              'circle.background': '#C5A059',
-              'circle.foreground': '#04151a',
-              'badge.background': '#04151a',
-              'badge.foreground': '#C5A059',
-              'badge.bordercolor': '#04151a',
-              'pulse.color': '#C5A059',
-              'dialog.button.background.hovering': '#04151a',
-              'dialog.button.background.active': '#04151a',
-              'dialog.button.background': '#09303a',
-              'dialog.button.foreground.textColor': '#C5A059'
-            }
-          },
-        });
-      } catch (error) {
-        console.error("OneSignal başlatılamadı:", error);
+    const initOneSignal = async () => {
+      // Script'i React içinden dinamik olarak oluşturup yüklüyoruz.
+      if (!window.OneSignal) {
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        const script = document.createElement('script');
+        script.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
+        script.async = true;
+        document.head.appendChild(script);
       }
-    });
+
+      window.OneSignalDeferred.push(async function(OneSignal) {
+        try {
+          await OneSignal.init({
+            appId: "524cbacc-4aea-46b8-96e9-eca2bbebe8e6",
+            safari_web_id: "web.onesignal.auto.542681a0-163f-4163-99a6-540b36eadb1c", // Paneldeki asıl kimlik eklendi
+            allowLocalhostAsSecureOrigin: true, // Vercel preview ve localhost için kilidi açar
+            notifyButton: {
+              enable: true,
+              size: 'medium',
+              theme: 'dark',
+              position: 'bottom-left',
+              offset: { bottom: '100px', left: '15px' },
+              colors: { 
+                'circle.background': '#C5A059',
+                'circle.foreground': '#04151a',
+                'badge.background': '#04151a',
+                'badge.foreground': '#C5A059',
+                'badge.bordercolor': '#04151a',
+                'pulse.color': '#C5A059',
+                'dialog.button.background.hovering': '#04151a',
+                'dialog.button.background.active': '#04151a',
+                'dialog.button.background': '#09303a',
+                'dialog.button.foreground.textColor': '#C5A059'
+              }
+            },
+          });
+        } catch (error) {
+          console.error("OneSignal Başlatılamadı:", error);
+        }
+      });
+    };
+    
+    initOneSignal();
   }, []);
 
   useEffect(() => {
