@@ -93,24 +93,33 @@ export default function Home() {
     });
   };
 
-  // NATIVE SHARE OPTIMIZED FOR STORIES & LINK CARDS
+  // --- HİBRİT PAYLAŞIM MİMARİSİ (FACEBOOK HİKAYE HACK'İ) ---
   const handleNativeShare = async (title, textContent) => {
     const siteUrl = "https://www.onikikapi.com";
-    const fallbackText = `${title}\n\n${textContent}\n\nİrfan ve Hikmet pınarı için: ${siteUrl}`;
+    // Metin ve linki birleştiriyoruz (WhatsApp ve Akışlar için)
+    const shareText = `"${textContent}"\n\nDaha fazlası için: ${siteUrl}`;
 
+    // 1. ADIM: Her koşulda metni kullanıcının panosuna kopyala.
+    // Facebook hikayelerde metin silinirse, kullanıcı "Yapıştır" diyerek ekleyebilsin.
+    try {
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(shareText);
+        alert("Söz panoya kopyalandı! Paylaşım menüsünden Hikayeler'i seçerseniz, ekrana dokunup 'Yapıştır' diyerek sözü ekleyebilirsiniz.");
+      }
+    } catch (err) {
+      console.log("Pano kopyalama hatası (Önemsiz):", err);
+    }
+
+    // 2. ADIM: Native Paylaşım Ekranını Aç
     if (navigator.share) {
       try {
         await navigator.share({ 
           title: title, 
-          text: textContent, // FB/IG Akış için metin
-          url: siteUrl // Hikayeler URL'yi sticker'a çevirecek
+          text: shareText // url parametresini kaldırdık. Sadece metin gönderiyoruz. Cihaz linki metnin içinden otomatik tanıyacaktır.
         });
       } catch (err) {
         console.log('Paylaşım iptal edildi veya desteklenmiyor:', err);
       }
-    } else {
-      navigator.clipboard.writeText(fallbackText);
-      alert("Metin ve bağlantı kopyalandı! İstediğiniz platforma yapıştırabilirsiniz.");
     }
   };
 
