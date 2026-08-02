@@ -86,7 +86,7 @@ export default function Home() {
     });
   };
 
-  // --- EVRENSEL KART PAYLAŞIM ALGORİTMASI (DİNAMİK CANVAS) ---
+  // --- EVRENSEL KART PAYLAŞIM ALGORİTMASI (GELİŞMİŞ TAŞMA ENGELLEYİCİ VE LİNK SİSTEMİ) ---
   const handleCardShare = async (headerLabel, mainText, subText) => {
     try {
       const canvas = document.createElement('canvas');
@@ -112,23 +112,22 @@ export default function Home() {
       ctx.textAlign = 'center';
       ctx.fillText('ONİKİKAPI', canvas.width / 2, 220);
       
-      // 4. Kategori Etiketi (Günün Hikmeti veya Manevi Görev)
+      // 4. Kategori Etiketi
       ctx.fillStyle = 'rgba(253, 246, 227, 0.7)';
       ctx.font = 'bold 35px sans-serif';
       ctx.letterSpacing = "5px";
       ctx.fillText(`• ${headerLabel} •`, canvas.width / 2, 300);
 
-      // 5. Dinamik Metin Sargısı ve Y-Ekseni Hesaplaması
+      // 5. Dinamik Metin Sargısı (Ana Söz)
       ctx.fillStyle = '#FDF6E3';
-      ctx.font = 'italic 55px serif'; // Font biraz küçültüldü
+      ctx.font = 'italic 55px serif';
       ctx.textBaseline = 'middle';
 
+      const maxWidth = canvas.width - 240; 
       const words = `"${mainText}"`.split(' ');
       let lines = [];
       let currentLine = '';
-      const maxWidth = canvas.width - 240; // Sağdan soldan 120px boşluk
 
-      // Önce satırları hesaplayıp bir diziye (array) alıyoruz
       for (let n = 0; n < words.length; n++) {
         let testLine = currentLine + words[n] + ' ';
         let metrics = ctx.measureText(testLine);
@@ -141,52 +140,74 @@ export default function Home() {
       }
       lines.push(currentLine);
 
-      // Toplam metin bloğunun yüksekliğine göre başlangıç Y pozisyonunu hesaplıyoruz
       const lineHeight = 85;
       const totalTextHeight = lines.length * lineHeight;
-      let startY = (canvas.height / 2) - (totalTextHeight / 2) - 50; // Tam ortaya hizala
+      let startY = (canvas.height / 2) - (totalTextHeight / 2) - 80;
 
-      // Metni çiziyoruz
       for (let i = 0; i < lines.length; i++) {
         ctx.fillText(lines[i], canvas.width / 2, startY + (i * lineHeight));
       }
 
-      // 6. Sözün Sahibi / Görev Tipi (Dinamik olarak son satırın altına yerleşir)
-      const subTextY = startY + (lines.length * lineHeight) + 80;
+      // 6. Dinamik Metin Sargısı (Sözün Sahibi / Kaynak) - TAŞMA ENGELLEYİCİ
       ctx.font = 'bold 45px sans-serif';
       ctx.fillStyle = '#C5A059';
-      ctx.fillText(`— ${subText}`, canvas.width / 2, subTextY);
+      
+      const subWords = `— ${subText}`.split(' ');
+      let subLines = [];
+      let currentSubLine = '';
 
-      // 7. Alt Yönlendirme
-      ctx.fillStyle = 'rgba(197, 160, 89, 0.4)';
-      ctx.font = '35px sans-serif';
-      ctx.fillText('www.onikikapi.com', canvas.width / 2, canvas.height - 150);
+      for (let n = 0; n < subWords.length; n++) {
+        let testLine = currentSubLine + subWords[n] + ' ';
+        let metrics = ctx.measureText(testLine);
+        if (metrics.width > maxWidth && n > 0) {
+          subLines.push(currentSubLine);
+          currentSubLine = subWords[n] + ' ';
+        } else {
+          currentSubLine = testLine;
+        }
+      }
+      subLines.push(currentSubLine);
+
+      const subLineHeight = 65;
+      let subStartY = startY + (lines.length * lineHeight) + 40;
+
+      for (let i = 0; i < subLines.length; i++) {
+        ctx.fillText(subLines[i], canvas.width / 2, subStartY + (i * subLineHeight));
+      }
+
+      // 7. Alt Yönlendirme (Belirgin ve Parlak Site URL'si)
+      ctx.fillStyle = '#C5A059'; // Şeffaflık (rgba) kaldırıldı, tam renk verildi.
+      ctx.font = 'bold 50px sans-serif'; // Daha büyük ve kalın.
+      ctx.fillText('www.onikikapi.com', canvas.width / 2, canvas.height - 130);
 
       // Resmi Blob'a çevirip Paylaşım Paketine (Payload) ekliyoruz
       canvas.toBlob(async (blob) => {
         const file = new File([blob], 'onikikapi-paylasim.png', { type: 'image/png' });
-        const siteUrl = 'https://www.onikikapi.com';
-        const fallbackText = `"${mainText}" — ${subText}`;
+        
+        // DİKKAT: Link ve Metin tek bir string içinde eritildi. url parametresi kaldırıldı.
+        // Bu sayede platformlar linki silip atamayacak, metnin içinde zorunlu olarak taşıyacaklar.
+        const combinedPayloadText = `"${mainText}"\n— ${subText}\n\nDaha fazlası için: https://www.onikikapi.com`;
 
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
             title: headerLabel,
-            text: fallbackText, // WhatsApp/Twitter gibi platformlar metni ve resmi aynı anda alır
-            url: siteUrl // URL de karta eşlik eder
+            text: combinedPayloadText 
           });
         } else {
-          // Native destek yoksa kopyalama
-          navigator.clipboard.writeText(`${fallbackText}\n\n${siteUrl}`);
-          alert("İçerik kopyalandı! Tarayıcınız doğrudan görsel paylaşımını desteklemiyor.");
+          navigator.clipboard.writeText(combinedPayloadText);
+          alert("İçerik panoya kopyalandı! Tarayıcınız doğrudan görsel paylaşımını desteklemiyor.");
         }
       }, 'image/png');
 
     } catch (error) {
       console.error("Görsel oluşturma hatası:", error);
-      // Hata durumunda sadece metin paylaşımına düş (Fallback)
+      // Fallback
       if (navigator.share) {
-        navigator.share({ title: headerLabel, text: `"${mainText}" — ${subText}`, url: 'https://www.onikikapi.com' });
+        navigator.share({ 
+          title: headerLabel, 
+          text: `"${mainText}"\n— ${subText}\n\nhttps://www.onikikapi.com`
+        });
       }
     }
   };
