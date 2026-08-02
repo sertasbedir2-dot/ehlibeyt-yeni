@@ -102,11 +102,9 @@ function WelcomeModal() {
   const [greeting, setGreeting] = useState({ title: "", text: "", icon: BookOpen, color: "" });
 
   useEffect(() => {
-    // Sadece günde 1 kez çıkması için tarih kontrolü
     const today = new Date().toDateString();
     if (localStorage.getItem('lastModalDate') === today) return;
 
-    // Saate göre mesaj ayarlama
     const hour = new Date().getHours();
     if (hour >= 5 && hour < 12) {
       setGreeting({ title: "Sabahın Nuru Üzerine Olsun", text: "Güne İlim ve Ehlibeyt'in hikmetiyle başlamak, rızkın en güzelidir. Dergâha hoş geldin.", color: "text-[#C5A059]" });
@@ -217,7 +215,6 @@ function DergahDefteri() {
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState('idle');
 
-  // TELEGRAM BOT AYARLARI (CANLI)
   const TELEGRAM_BOT_TOKEN = "8940341613:AAF4InSoG_x1Bp8I3-BnIkdpDt3NpD0ZXCo"; 
   const TELEGRAM_CHAT_ID = "1753137639"; 
 
@@ -308,33 +305,41 @@ function AppContent() {
   const [hp, setHp] = useState(parseInt(localStorage.getItem('hikmet_puani') || '0'));
   const navigate = useNavigate(); 
 
-  // ONESIGNAL BİLDİRİM ATEŞLEYİCİSİ (HOOK MODELİ)
+  // ONESIGNAL BİLDİRİM ATEŞLEYİCİSİ (KİLİTLİ SAFE-INJECT MODELİ)
   useEffect(() => {
+    // Strict Mode altında çift çalışmayı engellemek için React dışı global kilit
+    if (window.OneSignalInitialized) return;
+    window.OneSignalInitialized = true;
+
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     window.OneSignalDeferred.push(async function(OneSignal) {
-      await OneSignal.init({
-        appId: "524cbacc-4aea-46b8-96e9-eca2bbebe8e6", 
-        safari_web_id: "",
-        notifyButton: {
-          enable: true,
-          size: 'medium',
-          theme: 'dark',
-          position: 'bottom-left',
-          offset: { bottom: '100px', left: '15px' },
-          colors: { 
-            'circle.background': '#C5A059',
-            'circle.foreground': '#04151a',
-            'badge.background': '#04151a',
-            'badge.foreground': '#C5A059',
-            'badge.bordercolor': '#04151a',
-            'pulse.color': '#C5A059',
-            'dialog.button.background.hovering': '#04151a',
-            'dialog.button.background.active': '#04151a',
-            'dialog.button.background': '#09303a',
-            'dialog.button.foreground.textColor': '#C5A059'
-          }
-        },
-      });
+      try {
+        await OneSignal.init({
+          appId: "524cbacc-4aea-46b8-96e9-eca2bbebe8e6", 
+          safari_web_id: "",
+          notifyButton: {
+            enable: true,
+            size: 'medium',
+            theme: 'dark',
+            position: 'bottom-left',
+            offset: { bottom: '100px', left: '15px' },
+            colors: { 
+              'circle.background': '#C5A059',
+              'circle.foreground': '#04151a',
+              'badge.background': '#04151a',
+              'badge.foreground': '#C5A059',
+              'badge.bordercolor': '#04151a',
+              'pulse.color': '#C5A059',
+              'dialog.button.background.hovering': '#04151a',
+              'dialog.button.background.active': '#04151a',
+              'dialog.button.background': '#09303a',
+              'dialog.button.foreground.textColor': '#C5A059'
+            }
+          },
+        });
+      } catch (error) {
+        console.error("OneSignal başlatılamadı:", error);
+      }
     });
   }, []);
 
@@ -427,7 +432,6 @@ function AppContent() {
        <Footer />
        <BottomNavigation />
        
-       {/* Müzik Çalar ve Ziyaretçi Defteri */}
        <div className="fixed bottom-24 lg:bottom-6 right-4 lg:right-6 z-[100]"><MusicPlayer /></div>
        <DergahDefteri />
        
