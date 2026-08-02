@@ -217,9 +217,9 @@ function DergahDefteri() {
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState('idle');
 
-  // TELEGRAM BOT AYARLARI (Daha sonra kendi bilgilerinizi gireceksiniz)
-  const TELEGRAM_BOT_TOKEN = "BURAYA_BOT_TOKEN_GELECEK"; 
-  const TELEGRAM_CHAT_ID = "BURAYA_CHAT_ID_GELECEK";
+  // TELEGRAM BOT AYARLARI (CANLI)
+  const TELEGRAM_BOT_TOKEN = "8940341613:AAF4InSoG_x1Bp8I3-BnIkdpDt3NpD0ZXCo"; 
+  const TELEGRAM_CHAT_ID = "1753137639"; 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -228,16 +228,16 @@ function DergahDefteri() {
     const text = `📜 *Dergâh Defterine Yeni Yazı!*\n\n👤 *Kimden:* ${name || 'İsimsiz Can'}\n💬 *Mesaj:* ${message}`;
 
     try {
-      if(TELEGRAM_BOT_TOKEN !== "BURAYA_BOT_TOKEN_GELECEK") {
-        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: text, parse_mode: 'Markdown' })
-        });
-      }
+      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: text, parse_mode: 'Markdown' })
+      });
+      
       setStatus('success');
       setTimeout(() => { setIsOpen(false); setStatus('idle'); setMessage(''); setName(''); }, 3000);
     } catch (error) {
+      console.error("Telegram Error:", error);
       setStatus('error');
       setTimeout(() => setStatus('idle'), 3000);
     }
@@ -313,14 +313,14 @@ function AppContent() {
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     window.OneSignalDeferred.push(async function(OneSignal) {
       await OneSignal.init({
-        appId: "524cbacc-4aea-46b8-96e9-eca2bbebe8e6", // APP ID ENJEKTE EDİLDİ
+        appId: "524cbacc-4aea-46b8-96e9-eca2bbebe8e6", 
         safari_web_id: "",
         notifyButton: {
           enable: true,
           size: 'medium',
           theme: 'dark',
           position: 'bottom-left',
-          offset: { bottom: '100px', left: '15px' }, // Dergâh Defteri butonunun hemen üzerinde duracak
+          offset: { bottom: '100px', left: '15px' },
           colors: { 
             'circle.background': '#C5A059',
             'circle.foreground': '#04151a',
