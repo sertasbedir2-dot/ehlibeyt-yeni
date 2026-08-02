@@ -86,7 +86,7 @@ export default function Home() {
     });
   };
 
-  // --- EVRENSEL KART PAYLAŞIM ALGORİTMASI (GELİŞMİŞ TAŞMA ENGELLEYİCİ VE LİNK SİSTEMİ) ---
+  // --- EVRENSEL KART PAYLAŞIM ALGORİTMASI ---
   const handleCardShare = async (headerLabel, mainText, subText) => {
     try {
       const canvas = document.createElement('canvas');
@@ -148,7 +148,7 @@ export default function Home() {
         ctx.fillText(lines[i], canvas.width / 2, startY + (i * lineHeight));
       }
 
-      // 6. Dinamik Metin Sargısı (Sözün Sahibi / Kaynak) - TAŞMA ENGELLEYİCİ
+      // 6. Dinamik Metin Sargısı (Sözün Sahibi / Kaynak)
       ctx.font = 'bold 45px sans-serif';
       ctx.fillStyle = '#C5A059';
       
@@ -175,38 +175,43 @@ export default function Home() {
         ctx.fillText(subLines[i], canvas.width / 2, subStartY + (i * subLineHeight));
       }
 
-      // 7. Alt Yönlendirme (Belirgin ve Parlak Site URL'si)
-      ctx.fillStyle = '#C5A059'; // Şeffaflık (rgba) kaldırıldı, tam renk verildi.
-      ctx.font = 'bold 50px sans-serif'; // Daha büyük ve kalın.
+      // 7. Alt Yönlendirme (DEVASA VE PARLAK)
+      ctx.shadowColor = 'rgba(197, 160, 89, 0.5)';
+      ctx.shadowBlur = 15;
+      ctx.fillStyle = '#C5A059'; 
+      ctx.font = 'bold 65px sans-serif'; // Daha büyük
       ctx.fillText('www.onikikapi.com', canvas.width / 2, canvas.height - 130);
+      
+      // Gölgeleri sıfırla ki diğer çizimlere etki etmesin
+      ctx.shadowBlur = 0;
 
       // Resmi Blob'a çevirip Paylaşım Paketine (Payload) ekliyoruz
       canvas.toBlob(async (blob) => {
         const file = new File([blob], 'onikikapi-paylasim.png', { type: 'image/png' });
         
-        // DİKKAT: Link ve Metin tek bir string içinde eritildi. url parametresi kaldırıldı.
-        // Bu sayede platformlar linki silip atamayacak, metnin içinde zorunlu olarak taşıyacaklar.
-        const combinedPayloadText = `"${mainText}"\n— ${subText}\n\nDaha fazlası için: https://www.onikikapi.com`;
+        // PAYLOAD İZOLASYONU: Söz metnini sildik. Sadece URL gidecek.
+        // WhatsApp Durum veya Hikaye bunu doğrudan tıklanabilir veya ayrıştırılabilir bir link olarak görecek.
+        const isolatedLinkPayload = `https://www.onikikapi.com`;
 
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
             title: headerLabel,
-            text: combinedPayloadText 
+            text: isolatedLinkPayload // Sadece Link!
           });
         } else {
-          navigator.clipboard.writeText(combinedPayloadText);
+          navigator.clipboard.writeText(isolatedLinkPayload);
           alert("İçerik panoya kopyalandı! Tarayıcınız doğrudan görsel paylaşımını desteklemiyor.");
         }
       }, 'image/png');
 
     } catch (error) {
       console.error("Görsel oluşturma hatası:", error);
-      // Fallback
+      // Fallback (Desteklemeyen tarayıcılar için son çare)
       if (navigator.share) {
         navigator.share({ 
           title: headerLabel, 
-          text: `"${mainText}"\n— ${subText}\n\nhttps://www.onikikapi.com`
+          url: 'https://www.onikikapi.com'
         });
       }
     }
