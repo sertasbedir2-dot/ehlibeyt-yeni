@@ -3,45 +3,41 @@
   <head>
     <meta charset="UTF-8" />
     
-    <!-- PWA VE İKON ALTYAPISI (GERÇEK PUBLIC KLASÖRÜNE GÖRE UYARLANDI) -->
+    <!-- PWA VE İKON ALTYAPISI -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="shortcut icon" href="/favicon.ico">
-    <!-- VitePWA manifest'i otomatik ekler, çakışmayı önlemek için rel="manifest" yok -->
     
-    <!-- 1. TEMEL VİTRİN VE GÜVENLİK KİLİDİ -->
+    <!-- TEMEL VİTRİN VE GÜVENLİK KİLİDİ -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#04151a"> <!-- Koyu Zümrüt Arkaplan -->
+    <meta name="theme-color" content="#04151a">
 
     <title>OnikiKapı | İlim ve Hikmet Şehri</title>
     <meta name="description" content="Ehlibeyt mektebinin ilim ve hikmet pınarlarından süzülen hakikatleri, modern çağın idrakine sunan dijital bir külliye." />
 
-    <!-- 2. OPEN GRAPH (WHATSAPP, FACEBOOK, TELEGRAM İÇİN PAYLAŞIM VİTRİNİ) -->
+    <!-- OPEN GRAPH -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.onikikapi.com/" />
     <meta property="og:title" content="OnikiKapı | İlim ve Hikmet Şehri" />
     <meta property="og:description" content="Hakikati arayanların, Ehlibeyt'in nurlu yolunda yürümek isteyenlerin buluşma noktası. Kütüphanemizde kaybolun, manevi reçetelerle ruhunuzu dinlendirin." />
-    <!-- 227.PNG görseline göre og-image.jpg dosyanız public içinde hazır, sorunsuz çalışacak -->
     <meta property="og:image" content="https://www.onikikapi.com/og-image.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
 
-    <!-- 3. TWITTER / TIKTOK / INSTAGRAM DM VİTRİNİ -->
+    <!-- TWITTER VİTRİNİ -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://www.onikikapi.com/" />
     <meta name="twitter:title" content="OnikiKapı | İlim Şehrine Davet" />
     <meta name="twitter:description" content="Hikmet, adalet ve marifet arayışında olanlar için Ehlibeyt kaynaklı dijital kütüphane ve manevi reçeteler." />
     <meta name="twitter:image" content="https://www.onikikapi.com/og-image.jpg" />
 
-    <!-- 4. ONESIGNAL PUSH BİLDİRİMLERİ SDK -->
+    <!-- ONESIGNAL PUSH BİLDİRİMLERİ SDK -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   </head>
   
   <body>
     <div id="root">
-        <!-- React tam yüklenene kadar saniyelik çıkacak Fallback (Yükleniyor) Ekranı -->
-        <!-- Renkler tam senkronize (OLED Onyx Black & Sacred Gold) -->
         <div style="background-color:#04151a; color:#C5A059; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; font-family:sans-serif; margin:0;">
             <h1 style="font-size:2rem; font-weight:bold; letter-spacing:2px; text-transform:uppercase;">OnikiKapı</h1>
             <p style="color:#FDF6E3; opacity:0.8; margin-top:10px;">İlim ve Hikmet Şehri Yükleniyor...</p>
