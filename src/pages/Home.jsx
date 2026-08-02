@@ -1,12 +1,11 @@
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { PenTool, Scale, Flower, BookOpen, Book, Sparkles, Search, Heart, HelpCircle, Sun, Volume2, Share2, Bell, X, HandHeart, CheckCircle2, Star, ArrowRight, Users, MessageCircle, Mic } from 'lucide-react';
+import { PenTool, Scale, Flower, BookOpen, Book, Sparkles, Search, Heart, HelpCircle, Sun, Volume2, Share2, Bell, X, HandHeart, CheckCircle2, Star, ArrowRight, Users, MessageCircle, Mic, Image as ImageIcon } from 'lucide-react';
 import { wisdomData } from '../data/wisdomData';
 import { globalSearchData } from '../data/siteData'; 
 import { creatorData } from '../data/creatorData'; 
 
-// --- GÜNLÜK GÖREVLER DATA ---
 const GOREVLER = [
   { text: "Bugün telefon rehberinden uzun süredir konuşmadığın bir akrabanı ara ve halini hatırını sor.", type: "Sıla-i Rahim", link: "/soru-cevap", ctaText: "Sıla-i Rahim hakkında oku" },
   { text: "Bugün karşılaştığın bir çocuğun başını okşa veya ona küçük bir çikolata ikram et.", type: "Merhamet", link: "/library", ctaText: "Şefkat kıssalarına göz at" },
@@ -65,9 +64,7 @@ export default function Home() {
       if (!localStorage.getItem('notificationAsked') && 'Notification' in window && Notification.permission === 'default') {
         setTimeout(() => setShowNotificationModal(true), 3000);
       }
-    } catch (e) {
-      console.error("Local Storage Hatası:", e);
-    }
+    } catch (e) {}
   }, []);
 
   const handleSpeak = () => {
@@ -81,45 +78,113 @@ export default function Home() {
 
   const requestNotificationPermission = () => {
     setShowNotificationModal(false);
-    try {
-      localStorage.setItem('notificationAsked', 'true');
-    } catch(e) {}
-    
+    try { localStorage.setItem('notificationAsked', 'true'); } catch(e) {}
     Notification.requestPermission().then((permission) => {
       if (permission === "granted") {
         setTimeout(() => alert("Teşekkürler! Sabah virdiniz her gün cihazınıza iletilecektir."), 300);
-        try { localStorage.setItem('lastNotificationDate', new Date().toDateString()); } catch(e){}
       }
     });
   };
 
-  // --- HİBRİT PAYLAŞIM MİMARİSİ (FACEBOOK HİKAYE HACK'İ) ---
+  // GENEL PAYLAŞIM (Görevler ve Linkler İçin)
   const handleNativeShare = async (title, textContent) => {
     const siteUrl = "https://www.onikikapi.com";
-    // Metin ve linki birleştiriyoruz (WhatsApp ve Akışlar için)
-    const shareText = `"${textContent}"\n\nDaha fazlası için: ${siteUrl}`;
-
-    // 1. ADIM: Her koşulda metni kullanıcının panosuna kopyala.
-    // Facebook hikayelerde metin silinirse, kullanıcı "Yapıştır" diyerek ekleyebilsin.
-    try {
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText(shareText);
-        alert("Söz panoya kopyalandı! Paylaşım menüsünden Hikayeler'i seçerseniz, ekrana dokunup 'Yapıştır' diyerek sözü ekleyebilirsiniz.");
-      }
-    } catch (err) {
-      console.log("Pano kopyalama hatası (Önemsiz):", err);
-    }
-
-    // 2. ADIM: Native Paylaşım Ekranını Aç
     if (navigator.share) {
       try {
-        await navigator.share({ 
-          title: title, 
-          text: shareText // url parametresini kaldırdık. Sadece metin gönderiyoruz. Cihaz linki metnin içinden otomatik tanıyacaktır.
-        });
+        await navigator.share({ title, text: textContent, url: siteUrl });
       } catch (err) {
-        console.log('Paylaşım iptal edildi veya desteklenmiyor:', err);
+        console.log('Paylaşım iptal:', err);
       }
+    } else {
+      navigator.clipboard.writeText(`${textContent}\n\n${siteUrl}`);
+      alert("Panoya kopyalandı!");
+    }
+  };
+
+  // --- KUSURSUZ HİKAYE (STORY) PAYLAŞIMI: DİNAMİK CANVAS MİMARİSİ ---
+  const handleWisdomStoryShare = async (quote, source) => {
+    try {
+      // 9:16 Ekran Boyutu (Instagram/Facebook Hikayeler İçin İdeal)
+      const canvas = document.createElement('canvas');
+      canvas.width = 1080;
+      canvas.height = 1920; 
+      const ctx = canvas.getContext('2d');
+
+      // 1. Zemin (OLED Siyahı / Zümrüt Koyu)
+      ctx.fillStyle = '#04151a';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // 2. Altın Çerçeve Tasarımı
+      ctx.strokeStyle = '#C5A059';
+      ctx.lineWidth = 15;
+      ctx.strokeRect(50, 50, canvas.width - 100, canvas.height - 100);
+      ctx.strokeStyle = 'rgba(197, 160, 89, 0.3)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(70, 70, canvas.width - 140, canvas.height - 140);
+
+      // 3. Marka / Dergâh Başlığı
+      ctx.fillStyle = '#C5A059';
+      ctx.font = 'bold 80px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('ONİKİKAPI', canvas.width / 2, 280);
+      
+      ctx.fillStyle = 'rgba(253, 246, 227, 0.6)';
+      ctx.font = 'italic 35px serif';
+      ctx.fillText('İlim ve Hikmet Şehri', canvas.width / 2, 350);
+
+      // 4. Metin Sargısı (Word Wrap Logic)
+      ctx.fillStyle = '#FDF6E3';
+      ctx.font = 'italic 65px serif';
+      ctx.textBaseline = 'middle';
+
+      const words = `"${quote}"`.split(' ');
+      let line = '';
+      let y = canvas.height / 2 - 200;
+      const maxWidth = canvas.width - 240;
+      const lineHeight = 100;
+
+      for (let n = 0; n < words.length; n++) {
+        let testLine = line + words[n] + ' ';
+        let metrics = ctx.measureText(testLine);
+        if (metrics.width > maxWidth && n > 0) {
+          ctx.fillText(line, canvas.width / 2, y);
+          line = words[n] + ' ';
+          y += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line, canvas.width / 2, y);
+
+      // 5. Sözün Sahibi
+      ctx.font = 'bold 50px sans-serif';
+      ctx.fillStyle = '#C5A059';
+      ctx.fillText(`— ${source}`, canvas.width / 2, y + 200);
+
+      // 6. Alt Yönlendirme
+      ctx.fillStyle = 'rgba(197, 160, 89, 0.4)';
+      ctx.font = '40px sans-serif';
+      ctx.fillText('www.onikikapi.com', canvas.width / 2, canvas.height - 150);
+
+      // Resmi Blob (Dosya) formatına çevirip Native Share'e gönderiyoruz
+      canvas.toBlob(async (blob) => {
+        const file = new File([blob], 'hikmet.png', { type: 'image/png' });
+        
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'Günün Hikmeti',
+          });
+        } else {
+          // Eğer cihaz resim paylaşımını desteklemiyorsa standart kopyalama
+          navigator.clipboard.writeText(`"${quote}" — ${source}\n\nhttps://www.onikikapi.com`);
+          alert("Söz kopyalandı! Tarayıcınız doğrudan görsel paylaşımını desteklemiyor.");
+        }
+      }, 'image/png');
+
+    } catch (error) {
+      console.error("Görsel oluşturma hatası:", error);
+      handleNativeShare("Günün Hikmeti", `"${quote}" — ${source}`);
     }
   };
 
@@ -127,26 +192,14 @@ export default function Home() {
     <div className="space-y-8 animate-fade-in relative pb-20 md:pb-0">
       
       {/* CANLI İLİM MECLİSİ - YÜZEN BUTON */}
-      <button
-        onClick={() => navigate('/canli-meclis')}
-        className="fixed bottom-28 right-4 md:bottom-6 md:right-6 z-[200] group flex items-center gap-3 bg-[#04151a]/90 backdrop-blur-md border border-[#C5A059]/50 px-4 py-3 rounded-full shadow-[0_0_25px_rgba(197,160,89,0.25)] hover:bg-[#09303a] hover:scale-105 transition-all duration-300"
-      >
-        <div className="relative flex h-3 w-3">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
-        </div>
-        <div className="flex flex-col items-start hidden sm:flex">
-          <span className="text-[#FDF6E3] font-bold text-sm leading-none group-hover:text-[#C5A059] transition-colors">Canlı Meclis</span>
-          <span className="text-slate-400 text-[10px] font-bold tracking-wider mt-1">{onlineUsers} CAN ÇEVRİMİÇİ</span>
-        </div>
-        <MessageCircle className="text-[#C5A059] sm:hidden" size={24} />
-        <MessageCircle className="text-[#C5A059] hidden sm:block ml-2 group-hover:rotate-12 transition-transform" size={20} />
+      <button onClick={() => navigate('/canli-meclis')} className="fixed bottom-28 right-4 md:bottom-6 md:right-6 z-[200] group flex items-center gap-3 bg-[#04151a]/90 backdrop-blur-md border border-[#C5A059]/50 px-4 py-3 rounded-full shadow-[0_0_25px_rgba(197,160,89,0.25)] hover:bg-[#09303a] hover:scale-105 transition-all duration-300">
+        <div className="relative flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span></div>
+        <div className="flex flex-col items-start hidden sm:flex"><span className="text-[#FDF6E3] font-bold text-sm leading-none group-hover:text-[#C5A059] transition-colors">Canlı Meclis</span><span className="text-slate-400 text-[10px] font-bold tracking-wider mt-1">{onlineUsers} CAN ÇEVRİMİÇİ</span></div>
+        <MessageCircle className="text-[#C5A059] sm:hidden" size={24} /><MessageCircle className="text-[#C5A059] hidden sm:block ml-2 group-hover:rotate-12 transition-transform" size={20} />
       </button>
 
       {/* SAĞ ÜSTTE SABİT VAKİT/TAKVİM WIDGET'I */}
-      <div className="hidden lg:block fixed top-24 right-6 z-[100]">
-         <PrayerTimesWidget />
-      </div>
+      <div className="hidden lg:block fixed top-24 right-6 z-[100]"><PrayerTimesWidget /></div>
 
       {showNotificationModal && (
         <div className="fixed inset-0 bg-black/80 z-[300] flex items-center justify-center p-4 backdrop-blur-sm">
@@ -170,7 +223,6 @@ export default function Home() {
         
         <div className="relative z-10 max-w-4xl mx-auto space-y-8 flex flex-col items-center w-full">
           <div className="lg:hidden mb-4 animate-fade-in w-full max-w-xs mx-auto z-20"><PrayerTimesWidget /></div>
-          
           <div className="relative w-20 h-20 mx-auto flex items-center justify-center mb-2">
             <div className="absolute inset-0 bg-[#C5A059]/40 blur-2xl rounded-full animate-pulse-slow"></div>
             <Sparkles size={50} className="text-[#C5A059] absolute opacity-60 animate-spin-slow" />
@@ -181,13 +233,7 @@ export default function Home() {
           
           <div className="w-full max-w-2xl relative mt-4">
             <form onSubmit={handleSearch} className="relative flex items-center w-full z-30">
-              <input 
-                type="text" 
-                placeholder="Bir kavram, hadis veya soru arayın..." 
-                className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-[#FDF6E3] placeholder-slate-300 rounded-full py-4 pl-8 pr-16 text-lg focus:outline-none focus:bg-white/20 focus:border-[#C5A059]/50 transition-all shadow-lg" 
-                value={heroSearch} 
-                onChange={(e) => setHeroSearch(e.target.value)} 
-              />
+              <input type="text" placeholder="Bir kavram, hadis veya soru arayın..." className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-[#FDF6E3] placeholder-slate-300 rounded-full py-4 pl-8 pr-16 text-lg focus:outline-none focus:bg-white/20 focus:border-[#C5A059]/50 transition-all shadow-lg" value={heroSearch} onChange={(e) => setHeroSearch(e.target.value)} />
               <button type="submit" className="absolute right-2 p-2 bg-[#C5A059]/90 hover:bg-[#C5A059] text-[#09303a] rounded-full transition-colors shadow-md"><Search size={24} /></button>
             </form>
             
@@ -195,15 +241,9 @@ export default function Home() {
               <div className="absolute top-20 left-0 w-full bg-[#09303a]/95 backdrop-blur-xl border border-[#C5A059]/30 rounded-xl overflow-hidden shadow-2xl z-40 max-h-80 overflow-y-auto text-left animate-fade-in custom-scrollbar">
                 {searchResults.length > 0 ? (
                   searchResults.map((result, index) => (
-                    <div 
-                      key={index} 
-                      onClick={() => navigate(result.url || "/")} 
-                      className="flex items-center gap-4 p-4 border-b border-white/5 hover:bg-white/10 transition-colors cursor-pointer"
-                    >
+                    <div key={index} onClick={() => navigate(result.url || "/")} className="flex items-center gap-4 p-4 border-b border-white/5 hover:bg-white/10 transition-colors cursor-pointer">
                       <div className="p-2 bg-[#04151a] rounded-lg text-[#C5A059]">
-                        {result.type === "Kitap" && <Book size={20} />}
-                        {result.type === "14 Masum" && <Star size={20} />}
-                        {result.type !== "Kitap" && result.type !== "14 Masum" && <Search size={20} />}
+                        {result.type === "Kitap" && <Book size={20} />}{result.type === "14 Masum" && <Star size={20} />}{result.type !== "Kitap" && result.type !== "14 Masum" && <Search size={20} />}
                       </div>
                       <div>
                         <h4 className="text-[#FDF6E3] font-bold text-lg">{result.title || "İsimsiz"}</h4>
@@ -211,9 +251,7 @@ export default function Home() {
                       </div>
                     </div>
                   ))
-                ) : (
-                  <div className="p-6 text-center text-slate-300 italic">"{heroSearch}" ile ilgili sonuç bulunamadı.</div>
-                )}
+                ) : (<div className="p-6 text-center text-slate-300 italic">"{heroSearch}" ile ilgili sonuç bulunamadı.</div>)}
               </div>
             )}
           </div>
@@ -229,14 +267,12 @@ export default function Home() {
         </div>
       </div>
 
-      {/* --- BENTO GRID MİMARİSİ BAŞLANGICI --- */}
       <div className="w-full max-w-7xl mx-auto pt-6 z-20 relative">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           
-          {/* BENTO BLOK 1: GÜNÜN HİKMETİ */}
+          {/* BENTO BLOK 1: GÜNÜN HİKMETİ (YENİ PAYLAŞIM MİMARİSİ İLE) */}
           <div id="gunun-hikmeti-alani" ref={wisdomSectionRef} className="md:col-span-8 bg-[#0b1b24]/90 backdrop-blur-md border border-[#C5A059]/30 rounded-3xl p-8 lg:p-12 relative group hover:border-[#C5A059]/50 transition-all duration-500 shadow-xl flex flex-col justify-between overflow-hidden">
              <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#C5A059]/5 rounded-full blur-3xl group-hover:bg-[#C5A059]/10 transition-colors"></div>
-             
              <div>
                <div className="flex items-center gap-3 mb-6">
                  <div className="bg-[#0B1120] border border-[#C5A059] p-2 rounded-full">
@@ -246,11 +282,9 @@ export default function Home() {
                    Günün Hikmeti • {dailyWisdom.category}
                  </span>
                </div>
-               
                <h2 className="text-2xl md:text-4xl font-serif text-[#FDF6E3] leading-relaxed italic mb-8 relative z-10 drop-shadow-sm">
                  "{dailyWisdom.quote}"
                </h2>
-               
                <div className="flex items-center gap-4 mb-8">
                  <div className="h-px flex-grow bg-gradient-to-r from-transparent via-[#C5A059]/50 to-transparent"></div>
                  <p className="text-[#C5A059] font-bold font-sans text-lg">{dailyWisdom.source}</p>
@@ -263,134 +297,85 @@ export default function Home() {
                  <Volume2 size={18} /><span>Dinle</span>
                </button>
                
+               {/* YENİ: DİNAMİK HİKAYE (STORY) PAYLAŞ BUTONU */}
                <button 
-                 onClick={() => handleNativeShare("OnikiKapı - Günün Hikmeti", `"${dailyWisdom.quote}" — ${dailyWisdom.source}`)} 
-                 className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#C5A059] hover:bg-[#b08d48] text-[#09303a] transition-all text-sm font-bold shadow-lg hover:scale-105 flex-1 sm:flex-none"
+                 onClick={() => handleWisdomStoryShare(dailyWisdom.quote, dailyWisdom.source)} 
+                 className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#C5A059] hover:bg-[#b08d48] text-[#09303a] transition-all text-sm font-bold shadow-[0_0_15px_rgba(197,160,89,0.4)] hover:scale-105 flex-1 sm:flex-none"
                >
-                 <Share2 size={18} /><span>Paylaş</span>
+                 <ImageIcon size={18} /><span>Hikaye Yap (Story)</span>
                </button>
              </div>
           </div>
 
-          {/* BENTO BLOK 2: GÜNÜN MANEVİ GÖREVİ */}
           <div className="md:col-span-4 bg-gradient-to-br from-[#0F4C5C] to-[#09303a] rounded-3xl border border-[#C5A059]/20 p-8 relative overflow-hidden shadow-xl group hover:border-[#C5A059]/50 hover:shadow-[0_0_20px_rgba(197,160,89,0.15)] transition-all duration-500 flex flex-col justify-between">
             <div className="absolute -bottom-10 -right-10 p-4 opacity-10 rotate-12 pointer-events-none group-hover:opacity-20 transition-opacity">
               <HandHeart size={150} className="text-[#C5A059]" />
             </div>
-            
             <div className="relative z-10">
               <div className="inline-flex items-center gap-2 text-[#C5A059] font-bold uppercase tracking-widest text-xs bg-black/30 px-3 py-1.5 rounded-full border border-[#C5A059]/20 mb-6">
                 <CheckCircle2 size={14} /> Manevi Görev
               </div>
-              
               <p className="text-[#C5A059] text-[10px] font-bold uppercase tracking-widest mb-2 opacity-80">{dailyTask.type}</p>
               <blockquote className="text-xl md:text-2xl font-sans font-medium text-[#FDF6E3] leading-snug mb-8">
                 "{dailyTask.text}"
               </blockquote>
             </div>
-            
             <div className="relative z-10 flex flex-col gap-3">
               {dailyTask.link && (
                 <Link to={dailyTask.link} className="flex items-center justify-between text-[#C5A059] hover:text-[#FDF6E3] transition-colors font-bold text-sm bg-black/40 px-5 py-3 rounded-xl border border-[#C5A059]/20 hover:border-[#C5A059]/60 w-full group/btn">
-                  <span>{dailyTask.ctaText}</span>
-                  <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
+                  <span>{dailyTask.ctaText}</span><ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
                 </Link>
               )}
-              <button 
-                onClick={() => handleNativeShare("OnikiKapı - Günün Manevi Görevi", dailyTask.text)}
-                className="flex items-center justify-center gap-2 px-5 py-3 bg-[#C5A059]/10 text-[#C5A059] border border-[#C5A059]/30 font-bold text-sm rounded-xl hover:bg-[#C5A059] hover:text-[#09303a] transition-all shadow-lg w-full"
-              >
+              <button onClick={() => handleNativeShare("OnikiKapı - Günün Manevi Görevi", dailyTask.text)} className="flex items-center justify-center gap-2 px-5 py-3 bg-[#C5A059]/10 text-[#C5A059] border border-[#C5A059]/30 font-bold text-sm rounded-xl hover:bg-[#C5A059] hover:text-[#09303a] transition-all shadow-lg w-full">
                 <Share2 size={16} /> Görevi Paylaş
               </button>
             </div>
           </div>
 
-          {/* BENTO BLOK 3, 4, 5: ÇAPRAZ ÖNERİLER */}
-          <div className="md:col-span-4 h-full">
-            <FeatureCard icon={<Flower size={28} className="text-rose-300" />} title="Manevi Reçeteler" desc="Ruhsal dinginlik ve ilahi aşk için Ehlibeyt kaynaklı manevi şifa kapısı." link="/manevi-receteler" />
-          </div>
-          <div className="md:col-span-4 h-full">
-            <FeatureCard icon={<PenTool size={28} className="text-[#C5A059]" />} title="İlim Kütüphanesi" desc="'Oku' emrinin izinde, kadim ve sahih kaynaklara açılan ilim kapısı." link="/library" />
-          </div>
-          <div className="md:col-span-4 h-full">
-            <FeatureCard icon={<Scale size={28} className="text-[#93c5fd]" />} title="Adalet ve Hakikat" desc="Evrensel adalet ilkesi ve hakikat üzerine Soru/Cevap kapısı." link="/soru-cevap" />
-          </div>
+          <div className="md:col-span-4 h-full"><FeatureCard icon={<Flower size={28} className="text-rose-300" />} title="Manevi Reçeteler" desc="Ruhsal dinginlik ve ilahi aşk için Ehlibeyt kaynaklı manevi şifa kapısı." link="/manevi-receteler" /></div>
+          <div className="md:col-span-4 h-full"><FeatureCard icon={<PenTool size={28} className="text-[#C5A059]" />} title="İlim Kütüphanesi" desc="'Oku' emrinin izinde, kadim ve sahih kaynaklara açılan ilim kapısı." link="/library" /></div>
+          <div className="md:col-span-4 h-full"><FeatureCard icon={<Scale size={28} className="text-[#93c5fd]" />} title="Adalet ve Hakikat" desc="Evrensel adalet ilkesi ve hakikat üzerine Soru/Cevap kapısı." link="/soru-cevap" /></div>
 
-          {/* BENTO BLOK 6: İRFAN AĞI & ÜRETİCİ DAVETİ */}
           <div className="md:col-span-12 bg-gradient-to-r from-[#04151a] via-[#09303a] to-[#04151a] rounded-3xl border border-[#C5A059]/40 p-8 lg:p-10 relative overflow-hidden shadow-2xl group hover:border-[#C5A059]/80 transition-all duration-700 flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#C5A059]/10 rounded-full blur-3xl group-hover:bg-[#C5A059]/20 transition-colors pointer-events-none"></div>
-
             <div className="flex-1 relative z-10 space-y-4 text-center md:text-left w-full">
-              <div className="inline-flex items-center gap-2 text-[#C5A059] font-bold uppercase tracking-widest text-xs bg-black/40 px-4 py-2 rounded-full border border-[#C5A059]/30">
-                <Users size={16} /> Dijital Meclis
-              </div>
+              <div className="inline-flex items-center gap-2 text-[#C5A059] font-bold uppercase tracking-widest text-xs bg-black/40 px-4 py-2 rounded-full border border-[#C5A059]/30"><Users size={16} /> Dijital Meclis</div>
               <h2 className="text-3xl md:text-4xl font-bold text-[#FDF6E3] font-sans">Ehl-i Beyt Ağına Bağlan</h2>
-              <p className="text-slate-300 font-serif max-w-2xl leading-relaxed text-sm md:text-base">
-                Dağınık olan zayıftır. Sosyal medyanın gürültüsünde kaybolan hakikat çağrılarını tek bir çatı altında topluyoruz. Üreticileri, yazarları ve Ehl-i Beyt platformlarını keşfet.
-              </p>
-              
+              <p className="text-slate-300 font-serif max-w-2xl leading-relaxed text-sm md:text-base">Dağınık olan zayıftır. Sosyal medyanın gürültüsünde kaybolan hakikat çağrılarını tek bir çatı altında topluyoruz. Üreticileri, yazarları ve Ehl-i Beyt platformlarını keşfet.</p>
               <div className="flex flex-col sm:flex-row items-center gap-4 mt-2">
-                <Link to="/irfan-agi" className="inline-flex items-center justify-center w-full sm:w-auto gap-2 px-6 py-3 bg-[#C5A059] text-[#04151a] font-bold rounded-xl hover:bg-[#FDF6E3] transition-colors shadow-[0_0_15px_rgba(197,160,89,0.4)] hover:scale-105">
-                  İrfan Ağı'nı Keşfet <ArrowRight size={18} />
-                </Link>
-                
-                {/* ÜRETİCİ DAVET KANCASI */}
+                <Link to="/irfan-agi" className="inline-flex items-center justify-center w-full sm:w-auto gap-2 px-6 py-3 bg-[#C5A059] text-[#04151a] font-bold rounded-xl hover:bg-[#FDF6E3] transition-colors shadow-[0_0_15px_rgba(197,160,89,0.4)] hover:scale-105">İrfan Ağı'nı Keşfet <ArrowRight size={18} /></Link>
                 <Link to="/basvuru" className="group/creator flex items-center gap-2 px-4 py-3 sm:py-2 border border-transparent hover:border-[#C5A059]/30 rounded-xl transition-all">
                   <Mic size={18} className="text-slate-400 group-hover/creator:text-[#C5A059] transition-colors" />
-                  <div className="flex flex-col items-start">
-                    <span className="text-xs text-slate-400 font-medium">İçerik mi üretiyorsun?</span>
-                    <span className="text-sm text-[#C5A059] font-bold group-hover/creator:text-[#FDF6E3] transition-colors">Bize Katıl</span>
-                  </div>
+                  <div className="flex flex-col items-start"><span className="text-xs text-slate-400 font-medium">İçerik mi üretiyorsun?</span><span className="text-sm text-[#C5A059] font-bold group-hover/creator:text-[#FDF6E3] transition-colors">Bize Katıl</span></div>
                 </Link>
               </div>
             </div>
-
             {featuredCreator && (
               <div className="w-full md:w-1/3 bg-[#0B1120]/80 backdrop-blur-md rounded-2xl p-6 border border-white/10 relative z-10 group-hover:-translate-y-2 transition-transform duration-500 shadow-xl mt-6 md:mt-0">
                 <div className="absolute -top-3 -right-3 bg-rose-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg border border-rose-400 z-20">Günün Öne Çıkanı</div>
                 <div className="flex items-center gap-4 mb-4">
                   <img src={featuredCreator.avatar} alt={featuredCreator.name} className="w-16 h-16 rounded-full border-2 border-[#C5A059] shadow-[0_0_10px_rgba(197,160,89,0.3)]" />
-                  <div>
-                    <h3 className="text-[#FDF6E3] font-bold font-sans text-lg leading-tight">{featuredCreator.name}</h3>
-                    <p className="text-[#C5A059] text-xs font-bold uppercase tracking-wider mt-1">{featuredCreator.category}</p>
-                  </div>
+                  <div><h3 className="text-[#FDF6E3] font-bold font-sans text-lg leading-tight">{featuredCreator.name}</h3><p className="text-[#C5A059] text-xs font-bold uppercase tracking-wider mt-1">{featuredCreator.category}</p></div>
                 </div>
                 <p className="text-slate-400 text-xs italic mb-4 line-clamp-2">"{featuredCreator.description}"</p>
-                <div className="flex gap-2">
-                  {featuredCreator.tags.slice(0,2).map(tag => (
-                    <span key={tag} className="text-[10px] px-2 py-1 bg-white/5 border border-white/10 rounded-md text-slate-300">{tag}</span>
-                  ))}
-                </div>
+                <div className="flex gap-2">{featuredCreator.tags.slice(0,2).map(tag => (<span key={tag} className="text-[10px] px-2 py-1 bg-white/5 border border-white/10 rounded-md text-slate-300">{tag}</span>))}</div>
               </div>
             )}
           </div>
-
         </div>
       </div>
     </div>
   );
 }
 
-// BİLEŞEN: Duygu Çipleri
 function MoodChip({ label, icon, onClick, color }) { 
-  return (
-    <button 
-      onClick={onClick} 
-      className={`flex items-center gap-2 px-5 py-2.5 rounded-full border backdrop-blur-md text-sm font-bold transition-all duration-300 shadow-lg ${color}`}
-    >
-      {icon} {label}
-    </button>
-  ); 
+  return <button onClick={onClick} className={`flex items-center gap-2 px-5 py-2.5 rounded-full border backdrop-blur-md text-sm font-bold transition-all duration-300 shadow-lg ${color}`}>{icon} {label}</button>; 
 }
-
-// BİLEŞEN: Özellik Kartları
 function FeatureCard({ icon, title, desc, link }) { 
   return (
     <Link to={link} className="block group relative z-10 h-full">
       <div className="bg-[#09303a]/80 p-6 rounded-3xl border border-white/10 h-full hover:border-[#C5A059]/50 transition-all duration-500 hover:-translate-y-1 shadow-lg hover:shadow-2xl backdrop-blur-md flex flex-col justify-center">
-        <div className="mb-4 p-3 bg-[#04151a] rounded-xl w-fit group-hover:scale-110 transition-transform border border-[#C5A059]/20 shadow-inner">
-          {icon}
-        </div>
+        <div className="mb-4 p-3 bg-[#04151a] rounded-xl w-fit group-hover:scale-110 transition-transform border border-[#C5A059]/20 shadow-inner">{icon}</div>
         <h3 className="text-xl font-bold text-[#FDF6E3] mb-2 group-hover:text-[#C5A059] transition-colors font-sans">{title}</h3>
         <p className="text-slate-300 text-sm leading-relaxed font-serif line-clamp-2">{desc}</p>
       </div>
