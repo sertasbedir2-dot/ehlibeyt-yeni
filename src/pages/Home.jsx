@@ -1,7 +1,7 @@
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { PenTool, Scale, Flower, BookOpen, Book, Sparkles, Search, Heart, HelpCircle, Sun, Volume2, Share2, Bell, X, HandHeart, CheckCircle2, Star, ArrowRight, Users, MessageCircle, Mic, Image as ImageIcon } from 'lucide-react';
+import { PenTool, Scale, Flower, BookOpen, Book, Sparkles, Search, Heart, HelpCircle, Sun, Volume2, Share2, Bell, X, HandHeart, CheckCircle2, Star, ArrowRight, Users, MessageCircle, Mic } from 'lucide-react';
 import { wisdomData } from '../data/wisdomData';
 import { globalSearchData } from '../data/siteData'; 
 import { creatorData } from '../data/creatorData'; 
@@ -86,35 +86,19 @@ export default function Home() {
     });
   };
 
-  // GENEL PAYLAŞIM (Görevler ve Linkler İçin)
-  const handleNativeShare = async (title, textContent) => {
-    const siteUrl = "https://www.onikikapi.com";
-    if (navigator.share) {
-      try {
-        await navigator.share({ title, text: textContent, url: siteUrl });
-      } catch (err) {
-        console.log('Paylaşım iptal:', err);
-      }
-    } else {
-      navigator.clipboard.writeText(`${textContent}\n\n${siteUrl}`);
-      alert("Panoya kopyalandı!");
-    }
-  };
-
-  // --- KUSURSUZ HİKAYE (STORY) PAYLAŞIMI: DİNAMİK CANVAS MİMARİSİ ---
-  const handleWisdomStoryShare = async (quote, source) => {
+  // --- EVRENSEL KART PAYLAŞIM ALGORİTMASI (DİNAMİK CANVAS) ---
+  const handleCardShare = async (headerLabel, mainText, subText) => {
     try {
-      // 9:16 Ekran Boyutu (Instagram/Facebook Hikayeler İçin İdeal)
       const canvas = document.createElement('canvas');
       canvas.width = 1080;
       canvas.height = 1920; 
       const ctx = canvas.getContext('2d');
 
-      // 1. Zemin (OLED Siyahı / Zümrüt Koyu)
+      // 1. Zemin (OLED Siyahı)
       ctx.fillStyle = '#04151a';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // 2. Altın Çerçeve Tasarımı
+      // 2. Altın Çerçeve
       ctx.strokeStyle = '#C5A059';
       ctx.lineWidth = 15;
       ctx.strokeRect(50, 50, canvas.width - 100, canvas.height - 100);
@@ -124,67 +108,86 @@ export default function Home() {
 
       // 3. Marka / Dergâh Başlığı
       ctx.fillStyle = '#C5A059';
-      ctx.font = 'bold 80px sans-serif';
+      ctx.font = 'bold 70px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('ONİKİKAPI', canvas.width / 2, 280);
+      ctx.fillText('ONİKİKAPI', canvas.width / 2, 220);
       
-      ctx.fillStyle = 'rgba(253, 246, 227, 0.6)';
-      ctx.font = 'italic 35px serif';
-      ctx.fillText('İlim ve Hikmet Şehri', canvas.width / 2, 350);
+      // 4. Kategori Etiketi (Günün Hikmeti veya Manevi Görev)
+      ctx.fillStyle = 'rgba(253, 246, 227, 0.7)';
+      ctx.font = 'bold 35px sans-serif';
+      ctx.letterSpacing = "5px";
+      ctx.fillText(`• ${headerLabel} •`, canvas.width / 2, 300);
 
-      // 4. Metin Sargısı (Word Wrap Logic)
+      // 5. Dinamik Metin Sargısı ve Y-Ekseni Hesaplaması
       ctx.fillStyle = '#FDF6E3';
-      ctx.font = 'italic 65px serif';
+      ctx.font = 'italic 55px serif'; // Font biraz küçültüldü
       ctx.textBaseline = 'middle';
 
-      const words = `"${quote}"`.split(' ');
-      let line = '';
-      let y = canvas.height / 2 - 200;
-      const maxWidth = canvas.width - 240;
-      const lineHeight = 100;
+      const words = `"${mainText}"`.split(' ');
+      let lines = [];
+      let currentLine = '';
+      const maxWidth = canvas.width - 240; // Sağdan soldan 120px boşluk
 
+      // Önce satırları hesaplayıp bir diziye (array) alıyoruz
       for (let n = 0; n < words.length; n++) {
-        let testLine = line + words[n] + ' ';
+        let testLine = currentLine + words[n] + ' ';
         let metrics = ctx.measureText(testLine);
         if (metrics.width > maxWidth && n > 0) {
-          ctx.fillText(line, canvas.width / 2, y);
-          line = words[n] + ' ';
-          y += lineHeight;
+          lines.push(currentLine);
+          currentLine = words[n] + ' ';
         } else {
-          line = testLine;
+          currentLine = testLine;
         }
       }
-      ctx.fillText(line, canvas.width / 2, y);
+      lines.push(currentLine);
 
-      // 5. Sözün Sahibi
-      ctx.font = 'bold 50px sans-serif';
+      // Toplam metin bloğunun yüksekliğine göre başlangıç Y pozisyonunu hesaplıyoruz
+      const lineHeight = 85;
+      const totalTextHeight = lines.length * lineHeight;
+      let startY = (canvas.height / 2) - (totalTextHeight / 2) - 50; // Tam ortaya hizala
+
+      // Metni çiziyoruz
+      for (let i = 0; i < lines.length; i++) {
+        ctx.fillText(lines[i], canvas.width / 2, startY + (i * lineHeight));
+      }
+
+      // 6. Sözün Sahibi / Görev Tipi (Dinamik olarak son satırın altına yerleşir)
+      const subTextY = startY + (lines.length * lineHeight) + 80;
+      ctx.font = 'bold 45px sans-serif';
       ctx.fillStyle = '#C5A059';
-      ctx.fillText(`— ${source}`, canvas.width / 2, y + 200);
+      ctx.fillText(`— ${subText}`, canvas.width / 2, subTextY);
 
-      // 6. Alt Yönlendirme
+      // 7. Alt Yönlendirme
       ctx.fillStyle = 'rgba(197, 160, 89, 0.4)';
-      ctx.font = '40px sans-serif';
+      ctx.font = '35px sans-serif';
       ctx.fillText('www.onikikapi.com', canvas.width / 2, canvas.height - 150);
 
-      // Resmi Blob (Dosya) formatına çevirip Native Share'e gönderiyoruz
+      // Resmi Blob'a çevirip Paylaşım Paketine (Payload) ekliyoruz
       canvas.toBlob(async (blob) => {
-        const file = new File([blob], 'hikmet.png', { type: 'image/png' });
-        
+        const file = new File([blob], 'onikikapi-paylasim.png', { type: 'image/png' });
+        const siteUrl = 'https://www.onikikapi.com';
+        const fallbackText = `"${mainText}" — ${subText}`;
+
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
-            title: 'Günün Hikmeti',
+            title: headerLabel,
+            text: fallbackText, // WhatsApp/Twitter gibi platformlar metni ve resmi aynı anda alır
+            url: siteUrl // URL de karta eşlik eder
           });
         } else {
-          // Eğer cihaz resim paylaşımını desteklemiyorsa standart kopyalama
-          navigator.clipboard.writeText(`"${quote}" — ${source}\n\nhttps://www.onikikapi.com`);
-          alert("Söz kopyalandı! Tarayıcınız doğrudan görsel paylaşımını desteklemiyor.");
+          // Native destek yoksa kopyalama
+          navigator.clipboard.writeText(`${fallbackText}\n\n${siteUrl}`);
+          alert("İçerik kopyalandı! Tarayıcınız doğrudan görsel paylaşımını desteklemiyor.");
         }
       }, 'image/png');
 
     } catch (error) {
       console.error("Görsel oluşturma hatası:", error);
-      handleNativeShare("Günün Hikmeti", `"${quote}" — ${source}`);
+      // Hata durumunda sadece metin paylaşımına düş (Fallback)
+      if (navigator.share) {
+        navigator.share({ title: headerLabel, text: `"${mainText}" — ${subText}`, url: 'https://www.onikikapi.com' });
+      }
     }
   };
 
@@ -270,7 +273,7 @@ export default function Home() {
       <div className="w-full max-w-7xl mx-auto pt-6 z-20 relative">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           
-          {/* BENTO BLOK 1: GÜNÜN HİKMETİ (YENİ PAYLAŞIM MİMARİSİ İLE) */}
+          {/* BENTO BLOK 1: GÜNÜN HİKMETİ */}
           <div id="gunun-hikmeti-alani" ref={wisdomSectionRef} className="md:col-span-8 bg-[#0b1b24]/90 backdrop-blur-md border border-[#C5A059]/30 rounded-3xl p-8 lg:p-12 relative group hover:border-[#C5A059]/50 transition-all duration-500 shadow-xl flex flex-col justify-between overflow-hidden">
              <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#C5A059]/5 rounded-full blur-3xl group-hover:bg-[#C5A059]/10 transition-colors"></div>
              <div>
@@ -297,16 +300,16 @@ export default function Home() {
                  <Volume2 size={18} /><span>Dinle</span>
                </button>
                
-               {/* YENİ: DİNAMİK HİKAYE (STORY) PAYLAŞ BUTONU */}
                <button 
-                 onClick={() => handleWisdomStoryShare(dailyWisdom.quote, dailyWisdom.source)} 
+                 onClick={() => handleCardShare("GÜNÜN HİKMETİ", dailyWisdom.quote, dailyWisdom.source)} 
                  className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#C5A059] hover:bg-[#b08d48] text-[#09303a] transition-all text-sm font-bold shadow-[0_0_15px_rgba(197,160,89,0.4)] hover:scale-105 flex-1 sm:flex-none"
                >
-                 <ImageIcon size={18} /><span>Hikaye Yap (Story)</span>
+                 <Share2 size={18} /><span>Paylaş</span>
                </button>
              </div>
           </div>
 
+          {/* BENTO BLOK 2: GÜNÜN MANEVİ GÖREVİ */}
           <div className="md:col-span-4 bg-gradient-to-br from-[#0F4C5C] to-[#09303a] rounded-3xl border border-[#C5A059]/20 p-8 relative overflow-hidden shadow-xl group hover:border-[#C5A059]/50 hover:shadow-[0_0_20px_rgba(197,160,89,0.15)] transition-all duration-500 flex flex-col justify-between">
             <div className="absolute -bottom-10 -right-10 p-4 opacity-10 rotate-12 pointer-events-none group-hover:opacity-20 transition-opacity">
               <HandHeart size={150} className="text-[#C5A059]" />
@@ -326,8 +329,11 @@ export default function Home() {
                   <span>{dailyTask.ctaText}</span><ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
                 </Link>
               )}
-              <button onClick={() => handleNativeShare("OnikiKapı - Günün Manevi Görevi", dailyTask.text)} className="flex items-center justify-center gap-2 px-5 py-3 bg-[#C5A059]/10 text-[#C5A059] border border-[#C5A059]/30 font-bold text-sm rounded-xl hover:bg-[#C5A059] hover:text-[#09303a] transition-all shadow-lg w-full">
-                <Share2 size={16} /> Görevi Paylaş
+              <button 
+                onClick={() => handleCardShare("MANEVİ GÖREV", dailyTask.text, dailyTask.type)} 
+                className="flex items-center justify-center gap-2 px-5 py-3 bg-[#C5A059]/10 text-[#C5A059] border border-[#C5A059]/30 font-bold text-sm rounded-xl hover:bg-[#C5A059] hover:text-[#09303a] transition-all shadow-lg w-full"
+              >
+                <Share2 size={16} /> Paylaş
               </button>
             </div>
           </div>
