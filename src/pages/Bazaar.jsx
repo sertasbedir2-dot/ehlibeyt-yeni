@@ -1,148 +1,164 @@
-import React from 'react';
-import { Helmet } from 'react-helmet-async';
-// HATA ÇÖZÜMÜ: 'Store' ikonu import edildi.
-import { Heart, ShoppingBag, Sparkles, ShieldCheck, Gem, Store } from 'lucide-react';
+import React, { useState } from 'react';
+import { ShoppingBag, MessageCircle, Send, Star, ShieldCheck, Gem } from 'lucide-react';
+
+// Sabit Satıcı Bilgileri (Canlıya alırken kendi numaran/kullanıcı adın ile değiştir)
+const WHATSAPP_NUMBER = "905551234567"; // Başında + veya 0 OLMADAN (Örn: 905321234567)
+const TELEGRAM_USERNAME = "onikikapi_destek"; // Başında @ OLMADAN
+
+// Statik JSON Veritabanı (Sunucusuz, anında yükleme)
+const bazaarItems = [
+  {
+    id: "item-1",
+    title: "Saf Misk-i Amber Esansı",
+    description: "Alkol içermeyen, kalıcılığı yüksek, Ehl-i Beyt meclislerinin geleneksel manevi kokusu. 3ml özel cam şişesinde.",
+    price: "450 ₺",
+    type: "Koku",
+    icon: Gem,
+    popular: true,
+    gradient: "from-emerald-900/40 to-black",
+    features: ["Alkolsüz", "48 Saat Kalıcı", "Özel Kutulu"]
+  },
+  {
+    id: "item-2",
+    title: "Orijinal Necef Taşı Tesbih",
+    description: "Necef-ül Eşref bölgesinden getirilmiş hakiki Necef taşı. Gümüş püsküllü, 33'lü zikir tesbihi. Negatif enerjiyi nötralize eder.",
+    price: "1.250 ₺",
+    type: "Tesbih",
+    icon: Star,
+    popular: false,
+    gradient: "from-yellow-900/20 to-black",
+    features: ["Hakiki Taş", "Gümüş Püskül", "Sertifikalı"]
+  },
+  {
+    id: "item-3",
+    title: "Kevser Suyu Harmanı Buhur",
+    description: "Tütsü niteliğinde, evin havasını değiştiren ve manevi dinginlik veren özel reçine harmanı. Kömürlü buhurdanlıklar içindir.",
+    price: "280 ₺",
+    type: "Buhur",
+    icon: ShieldCheck,
+    popular: false,
+    gradient: "from-blue-900/20 to-black",
+    features: ["Doğal Reçine", "İs Yapmaz", "100gr Paket"]
+  }
+];
 
 export default function Bazaar() {
-  // Şimdilik demo veriler. Bunları kendi Shopier veya WhatsApp satış linklerinle değiştireceksin.
-  const products = [
-    {
-      id: 1,
-      name: "Necef Taşı Gümüş Yüzük",
-      desc: "İmam Ali'nin (a.s) tavsiye ettiği, Necef-ül Eşref'ten getirtilmiş %100 orijinal taş ve el işçiliği 925 ayar gümüş.",
-      price: "1.450 ₺",
-      image: "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?q=80&w=800&auto=format&fit=crop",
-      badge: "Sınırlı Stok",
-      link: "https://shopier.com/ornek-link-1"
-    },
-    {
-      id: 2,
-      name: "Mescid-i Nebevi Esansı",
-      desc: "Peygamber Efendimiz'in ravzasında duyulan o huzur verici koku. Alkolsüz, saf esans yağı (Niş üretim).",
-      price: "450 ₺",
-      image: "https://images.unsplash.com/photo-1594035919831-25cb58a58436?q=80&w=800&auto=format&fit=crop",
-      badge: "En Çok Tercih Edilen",
-      link: "https://shopier.com/ornek-link-2"
-    },
-    {
-      id: 3,
-      name: "Nehcü'l Belağa Özel Baskı",
-      desc: "Hakiki deri cilt, altın varak baskı ve kalın şamua kağıt. Kütüphanenizin baş köşesi için.",
-      price: "850 ₺",
-      image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop",
-      badge: null,
-      link: "https://shopier.com/ornek-link-3"
-    }
-  ];
+  const [activeFilter, setActiveFilter] = useState('Tümü');
+  const filters = ['Tümü', 'Tesbih', 'Koku', 'Buhur'];
+
+  // Dinamik Sipariş Linki Üreticileri
+  const generateWhatsAppLink = (item) => {
+    const message = `Selamun Aleyküm, onikikapi.com üzerinden ulaşıyorum. "${item.title}" (${item.price}) ürününüzden sipariş vermek istiyorum. Yardımcı olabilir misiniz?`;
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  };
+
+  const generateTelegramLink = (item) => {
+    const message = `Selamun Aleyküm, onikikapi.com üzerinden "${item.title}" (${item.price}) siparişi vermek istiyorum.`;
+    return `https://t.me/${TELEGRAM_USERNAME}?text=${encodeURIComponent(message)}`;
+  };
+
+  const filteredItems = activeFilter === 'Tümü' 
+    ? bazaarItems 
+    : bazaarItems.filter(item => item.type === activeFilter);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 md:px-0 animate-fade-in space-y-12">
-      <Helmet>
-        <title>Dergâh Çarşısı & Lokma Bırak | OnikiKapı</title>
-        <meta name="description" content="OnikiKapı dergâhına lokma bırakın veya özenle seçilmiş Ehl-i Beyt kültürüne ait premium ürünleri inceleyin." />
-        <meta property="og:title" content="Dergâh Çarşısı | OnikiKapı" />
-        <meta property="og:description" content="OnikiKapı dergâhına lokma bırakın veya özenle seçilmiş Ehl-i Beyt kültürüne ait premium ürünleri inceleyin." />
-      </Helmet>
-
-      {/* HERO / LOKMA BIRAK SECTION */}
-      <div className="relative bg-gradient-to-r from-[#09303a] to-[#04151a] border border-[#C5A059]/40 rounded-3xl p-8 md:p-12 overflow-hidden shadow-2xl flex flex-col md:flex-row items-center gap-8">
-        <div className="absolute -top-20 -right-20 w-64 h-64 bg-rose-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        
-        <div className="flex-1 text-center md:text-left relative z-10">
-          <div className="inline-flex items-center gap-2 bg-rose-500/10 text-rose-400 font-bold uppercase tracking-widest text-xs px-4 py-2 rounded-full border border-rose-500/20 mb-4">
-            <Heart size={16} className="animate-pulse" /> Sürdürülebilirlik
-          </div>
-          <h1 className="text-3xl md:text-5xl font-bold text-[#FDF6E3] font-sans mb-4">Dergâha Lokma Bırak</h1>
-          <p className="text-slate-300 font-serif leading-relaxed text-sm md:text-base max-w-xl">
-            OnikiKapı, reklam almayan ve ticarileşmeyen bir ilim meclisidir. Bu dijital dergâhın sunucu masraflarına ve içerik üretimine destek olmak isterseniz, bir lokma (bağış) bırakarak çırağ uyandırabilirsiniz.
-          </p>
-        </div>
-
-        <div className="w-full md:w-auto relative z-10">
-          {/* Buradaki linki kendi BuyMeACoffee, Patreon, Shopier "Bağış" veya IBAN sayfana yönlendireceksin */}
-          <a href="https://shopier.com/" target="_blank" rel="noopener noreferrer" 
-             className="group flex flex-col items-center justify-center bg-[#C5A059] text-[#04151a] p-6 rounded-2xl hover:bg-[#FDF6E3] hover:scale-105 transition-all shadow-[0_0_30px_rgba(197,160,89,0.3)] w-full md:w-64">
-            <Heart size={40} className="mb-3 group-hover:text-rose-600 transition-colors" />
-            <span className="font-bold text-xl font-sans">Niyazda Bulun</span>
-            <span className="text-xs font-bold uppercase tracking-wider mt-1 opacity-80">(Güvenli Ödeme)</span>
-          </a>
-        </div>
+    <div className="min-h-screen bg-[#04151a] text-gray-200 p-4 pb-24 font-sans selection:bg-[#C5A059] selection:text-black">
+      
+      {/* Header Section */}
+      <div className="max-w-4xl mx-auto pt-6 mb-8 text-center">
+        <h1 className="text-3xl font-bold text-[#C5A059] flex items-center justify-center gap-2 mb-2">
+          <ShoppingBag className="w-8 h-8" />
+          Dergâh Çarşısı
+        </h1>
+        <p className="text-emerald-500/80 text-sm max-w-md mx-auto">
+          Destekleriniz dijital irfan ağının büyümesi için kullanılmaktadır. Hızlı sipariş, sıfır komisyon, doğrudan iletişim.
+        </p>
       </div>
 
-      {/* DERGÂH ÇARŞISI VİTRİNİ */}
-      <div className="space-y-6 relative z-10">
-        <div className="flex items-center gap-3 border-b border-white/10 pb-4">
-          <Store size={28} className="text-[#C5A059]" />
-          <div>
-            <h2 className="text-2xl font-bold text-[#FDF6E3] font-sans">Dergâh Çarşısı</h2>
-            <p className="text-slate-400 text-sm font-serif">Özenle seçilmiş, yüksek kalite niş ürünler.</p>
-          </div>
-        </div>
+      {/* Filter Chips */}
+      <div className="max-w-4xl mx-auto flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
+        {filters.map(filter => (
+          <button
+            key={filter}
+            onClick={() => setActiveFilter(filter)}
+            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-300 ${
+              activeFilter === filter 
+                ? 'bg-[#C5A059] text-black shadow-[0_0_15px_rgba(197,160,89,0.3)]' 
+                : 'bg-[#0a0f12] text-gray-400 border border-[#1a2f35] hover:border-[#C5A059]/50'
+            }`}
+          >
+            {filter}
+          </button>
+        ))}
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product) => (
-            <div key={product.id} className="bg-[#0b1b24]/90 backdrop-blur-md border border-[#C5A059]/20 rounded-3xl overflow-hidden group hover:border-[#C5A059]/60 hover:shadow-[0_0_20px_rgba(197,160,89,0.15)] transition-all duration-500 flex flex-col">
-              
-              {/* Product Image */}
-              <div className="relative h-64 overflow-hidden">
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10"></div>
-                {product.badge && (
-                  <span className="absolute top-4 left-4 z-20 bg-rose-500 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
-                    {product.badge}
-                  </span>
-                )}
-                <img 
-                  src={product.image} 
-                  alt={product.name} 
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                />
-              </div>
+      {/* Bento Grid Layout */}
+      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+        {filteredItems.map((item, index) => {
+          const Icon = item.icon;
+          return (
+            <div 
+              key={item.id} 
+              className={`relative overflow-hidden rounded-3xl p-5 border border-[#1a2f35] bg-[#0a0f12] backdrop-blur-md flex flex-col justify-between transition-all duration-300 hover:border-[#C5A059]/50 hover:shadow-[0_0_30px_rgba(4,21,26,0.8)] bg-gradient-to-br ${item.gradient} ${item.popular ? 'md:col-span-2 lg:col-span-2' : 'col-span-1'}`}
+            >
+              {/* Popular Badge */}
+              {item.popular && (
+                <div className="absolute top-0 right-0 bg-[#C5A059] text-black text-xs font-bold px-3 py-1 rounded-bl-xl z-10 flex items-center gap-1">
+                  <Star className="w-3 h-3 fill-black" /> Çok Tercih Edilen
+                </div>
+              )}
 
-              {/* Product Details */}
-              <div className="p-6 flex flex-col flex-1">
-                <h3 className="text-xl font-bold text-[#FDF6E3] font-sans mb-2 line-clamp-1">{product.name}</h3>
-                <p className="text-slate-400 text-sm font-serif leading-relaxed mb-6 flex-1 line-clamp-3">
-                  {product.desc}
-                </p>
+              <div className="z-10 relative">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="p-3 bg-black/40 rounded-2xl border border-white/5">
+                    <Icon className="w-6 h-6 text-[#C5A059]" />
+                  </div>
+                  <span className="text-xl font-bold text-white tracking-wide">{item.price}</span>
+                </div>
                 
-                <div className="flex items-center justify-between mt-auto">
-                  <span className="text-2xl font-bold text-[#C5A059]">{product.price}</span>
-                  <a href={product.link} target="_blank" rel="noopener noreferrer" 
-                     className="flex items-center gap-2 bg-white/5 hover:bg-[#C5A059] text-white hover:text-[#04151a] px-4 py-2 rounded-xl transition-all font-bold text-sm">
-                    <ShoppingBag size={16} /> İncele
-                  </a>
+                <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed mb-4">
+                  {item.description}
+                </p>
+
+                {/* Features */}
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {item.features.map((feature, idx) => (
+                    <span key={idx} className="text-xs bg-black/50 text-emerald-400 border border-emerald-900/50 px-2 py-1 rounded-lg">
+                      {feature}
+                    </span>
+                  ))}
                 </div>
               </div>
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-2 gap-2 mt-auto z-10 relative">
+                <a 
+                  href={generateWhatsAppLink(item)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 bg-green-600/10 hover:bg-green-600/20 text-green-500 border border-green-500/30 py-2.5 rounded-xl font-medium text-sm transition-colors"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  WhatsApp
+                </a>
+                <a 
+                  href={generateTelegramLink(item)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 py-2.5 rounded-xl font-medium text-sm transition-colors"
+                >
+                  <Send className="w-4 h-4" />
+                  Telegram
+                </a>
+              </div>
+              
+              {/* Background Glow Effect */}
+              <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-[#C5A059]/10 rounded-full blur-3xl"></div>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
-
-      {/* GÜVENLİK VE KARGO BİLGİSİ */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-white/10 pt-8 mt-12 pb-8">
-        <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl">
-          <ShieldCheck size={32} className="text-[#C5A059]" />
-          <div>
-            <h4 className="text-[#FDF6E3] font-bold text-sm">Güvenli Alışveriş</h4>
-            <p className="text-slate-400 text-xs">256-bit SSL ve Shopier altyapısı.</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl">
-          <Gem size={32} className="text-[#C5A059]" />
-          <div>
-            <h4 className="text-[#FDF6E3] font-bold text-sm">Premium Kalite</h4>
-            <p className="text-slate-400 text-xs">Özenle seçilmiş orijinal ürünler.</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl">
-          <Sparkles size={32} className="text-[#C5A059]" />
-          <div>
-            <h4 className="text-[#FDF6E3] font-bold text-sm">Sorunsuz Teslimat</h4>
-            <p className="text-slate-400 text-xs">Aynı gün kargolama avantajı.</p>
-          </div>
-        </div>
-      </div>
-
     </div>
   );
 }

@@ -152,6 +152,7 @@ function SearchResults({ query, closeSearch }) {
   );
 }
 
+// GÜNCELLENEN BÖLÜM 1: Soru/Cevap Çıkarıldı, Çarşı Eklendi
 function TopNavigation() {
   const location = useLocation();
   const navLinks = [
@@ -159,7 +160,7 @@ function TopNavigation() {
     { name: "İbadet", path: "/ibadet" },
     { name: "Kerbela", path: "/kerbela" },
     { name: "Kütüphane", path: "/library" },
-    { name: "Soru/Cevap", path: "/soru-cevap" }
+    { name: "Çarşı", path: "/bazaar" } // <-- MONETİZASYON ROTASI
   ];
   return (
     <div className="hidden lg:flex items-center gap-6 ml-8">
@@ -175,13 +176,14 @@ function TopNavigation() {
   );
 }
 
+// GÜNCELLENEN BÖLÜM 2: Dinleti (Podcast) Çıkarıldı, Çarşı (Store İkonu) Eklendi
 function BottomNavigation() {
   const location = useLocation();
   const tabs = [
     { name: "Dergâh", path: "/", icon: Compass },
     { name: "İbadet", path: "/ibadet", icon: Droplets },
     { name: "Hakikat", path: "/hakikat", icon: Flame }, 
-    { name: "Dinleti", path: "/podcast", icon: Headphones },
+    { name: "Çarşı", path: "/bazaar", icon: Store }, // <-- SATIŞ HUNİSİ (1 Tık Mesafe)
     { name: "Menü", path: "/kesfet", icon: LayoutGrid } 
   ];
 
@@ -316,8 +318,8 @@ function AppContent() {
         try {
           await OneSignal.init({
             appId: "524cbacc-4aea-46b8-96e9-eca2bbebe8e6",
-            safari_web_id: "web.onesignal.auto.542681a0-163f-4163-99a6-540b36eadb1c", // Paneldeki asıl kimlik eklendi
-            allowLocalhostAsSecureOrigin: true, // Vercel preview ve localhost için kilidi açar
+            safari_web_id: "web.onesignal.auto.542681a0-163f-4163-99a6-540b36eadb1c", 
+            allowLocalhostAsSecureOrigin: true, 
             notifyButton: {
               enable: true,
               size: 'medium',
